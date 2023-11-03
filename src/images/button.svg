@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="100px" viewBox="0 0 100 100" enable-background="new 0 0 64 64" xml:space="preserve">
+ <defs>
+      <ref id="paramFill" param="color" default="blue"/>
+      <ref id="paramText" param="text-label">button</ref>
+      <ref id="paramStroke" param="outline" default="navy"/>
+    </defs>
+  <circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="url(#myparam)" />
+</svg>
+

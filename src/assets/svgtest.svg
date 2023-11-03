@@ -1,0 +1,24 @@
+ <svg version="1.1" xmlns="http://www.w3.org/2000/svg" >
+                    <g id="CHK-POINT">
+                        <rect id="title" width="35" height="45" style="fill:white;stroke-width:1;stroke:black" />
+                        <image x="1" y="10" height="26" width="21" href="{image}" />
+                        <rect class="svg-box-title" width="35" height="10" style="fill:{title_color_bg};stroke-width:1;stroke:rgb(0,0,0)" />
+                        <text x="17" y="8" fill="white" class="svg-title" text-anchor="middle" style="font-size:8px;font-weight:bold">{title}</text>
+                        <rect class="svg-box-desc" x="0" y="36" width="34" height="10" style="fill:#ddd;stroke-width:1;stroke:rgb(0,0,0)" />
+                        <text x="11" y="44" text-anchor="middle" fill="black" style="font-size:8px;font-weight:bold">{empcode}</text>
+                        <g transform="translate(20,11)">
+                            <rect x="3" width="12" height="11" style="fill:{ot_color_bg};stroke-width:1;stroke:rgb(0,0,0)" />
+                            <text x="4" y="8" fill="{ot_color_text}" style="font-size:6px;font-weight:bold">OT</text>
+                        </g>
+
+                        <g transform="translate(20,23)">
+                            <rect x="3" width="12" height="11" style="fill:{mq_color_bg};stroke-width:1;stroke:rgb(0,0,0)" />
+                            <text x="4" y="8" fill="{mq_color_text}" style="font-size:6px;font-weight:bold">MQ</text>
+                        </g>
+
+                        <g transform="translate(20,35)">
+                            <rect x="3" width="12" height="11" style="fill:{sa_color_bg};stroke-width:1;stroke:rgb(0,0,0)" />
+                            <text x="4" y="8" fill="{sa_color_text}" style="font-size:6px;font-weight:bold">S/A</text>
+                        </g>
+                    </g>
+            </svg>

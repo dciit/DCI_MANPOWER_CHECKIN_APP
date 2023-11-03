@@ -1,0 +1,49 @@
+.slide-right {
+    animation: 5s slide-right infinite;
+}
+
+@keyframes slide-right {
+    0% {
+        y: 33%;
+        x: 58%;
+
+    }
+
+    90% {
+        y: 33%;
+        x: 85%;
+    }
+
+    100% {
+        y: 25%;
+        x: 85%;
+    }
+
+}
+
+
+.Lift rect {
+    animation:  5s liftmove infinite;
+}
+
+@keyframes liftmove {
+    0% {
+        x: 7.5;
+        y: 5.5;
+    }
+
+    20% {
+        x: 7.5;
+        y: 37.5;
+    }
+
+    40% {
+        x: 7.5;
+        y: 37.5;
+    }
+
+    100% {
+        x: 7.5;
+        y: 5.5;
+    }
+}

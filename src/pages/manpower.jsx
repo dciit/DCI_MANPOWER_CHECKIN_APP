@@ -54,22 +54,44 @@ function Manpower() {
         svgContent = document.querySelector("#svgContent");
         let svgMaster = '';
         let svg = '';
-        res.equipment.map((elEqp) => {
+        res.equipment.map((elEqp, indexEqp) => {
             svgMaster = elEqp.objSvg;
             svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             let i = 0;
             let x = i * 100;
-            svgMaster = svgMaster.replace("{emp_name}", elEqp.eqpTitle);
-            svgMaster = svgMaster.replace("{emp_color}", elEqp.eqpSubTitle);
-            const blob = new Blob([svgMaster], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-            use.setAttribute('href', url + '#' + elEqp.objId);
-            use.setAttribute('id', elEqp.eqpId);
-            use.setAttribute('x', elEqp.eqpX);
-            use.setAttribute('y', elEqp.eqpY);
-            use.setAttribute('class', 'draggable');
-            svg.appendChild(use);
+            if (elEqp.objSvg.includes('animateMotion')) {
+                const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                elEqp.objSvg = elEqp.objSvg.replace("<defs>", "");
+                itemSvg.innerHTML = elEqp.objSvg;
+                itemSvg.setAttribute('id', elEqp.eqpId);
+                itemSvg.setAttribute('x', elEqp.eqpX);
+                itemSvg.setAttribute('y', elEqp.eqpY);
+                svg.appendChild(itemSvg);
+            } else {
+                svgMaster = svgMaster.replace("{title}", elEqp.eqpTitle);
+                svgMaster = svgMaster.replace("{empcode}", elEqp.empcode);
+                svgMaster = svgMaster.replace("{image}", elEqp.image);
+                svgMaster = svgMaster.replace("{title_color_bg}", elEqp.empcode != '' ? 'green' : 'red');
+                svgMaster = svgMaster.replace("{ot_color_bg}", elEqp.ot ? 'green' : 'red');
+                svgMaster = svgMaster.replace("{mq_color_bg}", elEqp.mq ? 'green' : 'red');
+                svgMaster = svgMaster.replace("{sa_color_bg}", elEqp.sa ? 'green' : 'red');
+                svgMaster = svgMaster.replace("{ot_color_text}", elEqp.ot ? 'white' : 'white');
+                svgMaster = svgMaster.replace("{mq_color_text}", elEqp.mq ? 'white' : 'white');
+                svgMaster = svgMaster.replace("{sa_color_text}", elEqp.sa ? 'white' : 'white');
+                svgMaster = svgMaster.replace("{ot_text}", 'OT');
+                svgMaster = svgMaster.replace("{mq_text}", 'MQ');
+                svgMaster = svgMaster.replace("{sa_text}", 'SA');
+                const blob = new Blob([svgMaster], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                use.setAttribute('href', url + '#' + elEqp.objId);
+                use.setAttribute('id', elEqp.eqpId);
+                use.setAttribute('x', elEqp.eqpX);
+                use.setAttribute('y', elEqp.eqpY);
+                svg.appendChild(use);
+            }
+
+
             svgContent.appendChild(svg);
         });
         return true;
@@ -150,7 +172,7 @@ function Manpower() {
                     </div>
                     <div className='py-3 bg-white w-[100%] h-fit'  >
                         <div>
-                            <svg id='svgContent' viewBox={`0 0 1200 600`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{border:'1px solid '}} >
+                            <svg id='svgContent' viewBox={`0 0 1200 600`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"  >
                             </svg>
                         </div>
                     </div>

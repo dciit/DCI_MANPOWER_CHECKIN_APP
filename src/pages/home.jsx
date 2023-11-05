@@ -39,7 +39,6 @@ function Home() {
         if (res) {
             let svgs = document.querySelectorAll('svg#svgContent svg');
             svgs.forEach((item) => {
-                console.log(item)
                 item.addEventListener('mousedown', startDrag);
                 item.addEventListener('mousemove', moveDrag);
                 item.addEventListener('mouseup', endDrag);
@@ -128,40 +127,43 @@ function Home() {
             svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             let i = 0;
             let x = i * 100;
-            // if (elEqp.objId.includes('LIFT')) {
-            //     const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            //     itemSvg.innerHTML = elEqp.objSvg;
-            //     itemSvg.setAttribute('id', elEqp.eqpId);
-            //     itemSvg.setAttribute('x', elEqp.eqpX);
-            //     itemSvg.setAttribute('y', elEqp.eqpY);
-            //     svg.appendChild(itemSvg);
-            // } else {
-                svgMaster = svgMaster.replace("{title}", elEqp.eqpTitle);
-                svgMaster = svgMaster.replace("{empcode}", elEqp.empcode);
-                svgMaster = svgMaster.replace("{image}", elEqp.image);
-                svgMaster = svgMaster.replace("{title_color_bg}", elEqp.empcode != '' ? 'green' : 'red');
-                svgMaster = svgMaster.replace("{ot_color_bg}", elEqp.ot ? 'green' : 'red');
-                svgMaster = svgMaster.replace("{mq_color_bg}", elEqp.mq ? 'green' : 'red');
-                svgMaster = svgMaster.replace("{sa_color_bg}", elEqp.sa ? 'green' : 'red');
-                svgMaster = svgMaster.replace("{ot_color_text}", elEqp.ot ? 'white' : 'white');
-                svgMaster = svgMaster.replace("{mq_color_text}", elEqp.mq ? 'white' : 'white');
-                svgMaster = svgMaster.replace("{sa_color_text}", elEqp.sa ? 'white' : 'white');
-                svgMaster = svgMaster.replace("{ot_text}", 'OT');
-                svgMaster = svgMaster.replace("{mq_text}", 'MQ');
-                svgMaster = svgMaster.replace("{sa_text}", 'SA');
-                const blob = new Blob([svgMaster], { type: 'image/svg+xml' });
-                const url = URL.createObjectURL(blob);
-                const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-                use.setAttribute('href', url + '#' + elEqp.objId);
-                use.setAttribute('id', elEqp.eqpId);
-                use.setAttribute('x', elEqp.eqpX);
-                use.setAttribute('y', elEqp.eqpY);
+            if (elEqp.objSvg.includes('animateMotion')) {
+                const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                elEqp.objSvg = elEqp.objSvg.replace("<defs>", "");
+                console.log(elEqp.objSvg)
+                itemSvg.innerHTML = elEqp.objSvg;
 
-                if (elEqp.objId.includes('COMPRESSOR')) {
-                    use.setAttribute('class', 'slide-right');
-                }
-                svg.appendChild(use);
-            // }
+                itemSvg.setAttribute('id', elEqp.eqpId);
+                itemSvg.setAttribute('x', elEqp.eqpX);
+                itemSvg.setAttribute('y', elEqp.eqpY);
+                svg.appendChild(itemSvg);
+                console.log(itemSvg)
+            }
+
+            svgMaster = svgMaster.replace("{title}", elEqp.eqpTitle);
+            svgMaster = svgMaster.replace("{empcode}", elEqp.empcode);
+            svgMaster = svgMaster.replace("{image}", elEqp.image);
+            svgMaster = svgMaster.replace("{title_color_bg}", elEqp.empcode != '' ? 'green' : 'red');
+            svgMaster = svgMaster.replace("{ot_color_bg}", elEqp.ot ? 'green' : 'red');
+            svgMaster = svgMaster.replace("{mq_color_bg}", elEqp.mq ? 'green' : 'red');
+            svgMaster = svgMaster.replace("{sa_color_bg}", elEqp.sa ? 'green' : 'red');
+            svgMaster = svgMaster.replace("{ot_color_text}", elEqp.ot ? 'white' : 'white');
+            svgMaster = svgMaster.replace("{mq_color_text}", elEqp.mq ? 'white' : 'white');
+            svgMaster = svgMaster.replace("{sa_color_text}", elEqp.sa ? 'white' : 'white');
+            svgMaster = svgMaster.replace("{ot_text}", 'OT');
+            svgMaster = svgMaster.replace("{mq_text}", 'MQ');
+            svgMaster = svgMaster.replace("{sa_text}", 'SA');
+            const blob = new Blob([svgMaster], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+            use.setAttribute('href', url + '#' + elEqp.objId);
+            use.setAttribute('id', elEqp.eqpId);
+            use.setAttribute('x', elEqp.eqpX);
+            use.setAttribute('y', elEqp.eqpY);
+            if (elEqp.objId.includes('COMPRESSOR')) {
+                use.setAttribute('class', 'slide-right');
+            }
+            svg.appendChild(use);
             svgContent.appendChild(svg);
         });
         return true;
@@ -213,6 +215,7 @@ function Home() {
                         </div>
                         <div >
                             <svg id='svgContent' viewBox={`0 0 1200 500`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{ border: '1px solid #ddd' }}>
+
                                 {/* <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
                                     <defs>
                                         <g id="LIFT"><rect x="15" y="5" width="6" height="35" fill="black" stroke="black" stroke-width="0.5"></rect><rect x="40" y="5" width="6" height="35" fill="black" stroke="black" stroke-width="0.5"></rect><g className="LiftAni" class="LiftAni"><rect x="7.5" y="4.5" width="45" height="35" fill="#8A8A8A" stroke="black" stroke-width="0.5"></rect></g><rect x="10" y="0" width="2" height="80" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="20" y="0" width="2" height="80" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="30" y="0" width="2" height="80" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="40" y="0" width="2" height="80" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="50" y="0" width="2" height="80" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="10" width="60" height="2" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="20" width="60" height="2" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="30" width="60" height="2" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="40" width="60" height="2" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="50" width="60" height="2" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="60" width="60" height="2" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="70" width="60" height="2" fill="#FFD414" stroke="none" stroke-width="0.5"></rect><rect x="0" y="0" width="60" height="5" fill="#FFD414" stroke="black" stroke-width="1"></rect><rect x="0" y="75" width="60" height="5" fill="#FFD414" stroke="black" stroke-width="1"></rect><rect x="0" y="0" width="5" height="80" fill="#FFD414" stroke="black" stroke-width="1"></rect><rect x="55" y="0" width="5" height="80" fill="#FFD414" stroke="black" stroke-width="1"></rect></g>
@@ -231,7 +234,12 @@ function Home() {
             <DialogDetailEquipment open={openDetailEquipment} close={setOpenDetailEquipment} draw={setDraw} eqpId={eqpIdDbClick} />
             <DialogSelectEquipment open={openSelectEquipment} close={setOpenSelectEquipment} layout={layout} />
             <DialogUpdateMaster open={openUpdateMaster} close={setOpenUpdateMaster} />
-        </div>
+
+
+        </div >
+
+
+
     )
 }
 

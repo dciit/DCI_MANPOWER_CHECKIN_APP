@@ -38,7 +38,7 @@ function DialogUpdateMaster(props) {
                     <Select fullWidth value={objId} onChange={(e) => setObjId(e.target.value)}>
                         {
                             masters.map((item) => (
-                                <MenuItem value={item.objId}>{item.objName}</MenuItem>
+                                <MenuItem value={item.objId}>{item.objName} ({item.objId})</MenuItem>
                             ))
                         }
                     </Select>

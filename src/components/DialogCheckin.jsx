@@ -42,19 +42,19 @@ function DialogCheckin(props) {
             alert(`empcode : ${inpEmpCode} ,ckshift : ${inpYMD} ,ckdate : ${inpShift} ,cktype : ${inpType} ,`);
             init();
             refObj(data.objCode);
-        }else if(checkin.status == "0"){
+        } else if (checkin.status == "0") {
             alert(checkin.msg);
         }
     }
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='md'>
-            <DialogTitle>
+            <DialogTitle className='text-center'>
                 WORKING POSITION AND EMPLOYEE INFORMATION
             </DialogTitle>
             <DialogContent>
+                
                 <Grid container spacing={3}>
                     <Grid item xs={6}>
-                        <button id="handleCheckInOut" onClick={handleCheckInOut}> CHECK-IN/OUT </button>
                         <Stack gap={2}>
                             <CardPosition data={objectSelected} />
                         </Stack>

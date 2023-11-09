@@ -5,7 +5,9 @@ function CardObjMQ(props) {
     const { listMQ } = props;
     return (
         <Card>
-            <CardHeader title="MQ " className='px-3 py-2 pb-1 text-center' />
+            <div className='px-3 py-2 pb-1'>
+                MQ REQUIRED
+            </div>
             <Divider />
             <CardContent>
                 {

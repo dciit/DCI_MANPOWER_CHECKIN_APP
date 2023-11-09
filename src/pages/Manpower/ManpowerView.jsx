@@ -54,17 +54,12 @@ function ManpowerView() {
             layoutCode: layout
         });
         setMasters(listMaster);
-        // setLayouts(listLayout);
         setObjects(object);
         svgContent = document.querySelector("#svgContent");
         svgContent.innerHTML = "";
         let svgMaster = '';
         let svg = '';
         object.map((elObj) => {
-            // let masterItem = listMaster.filter((elMaster) => {
-            //     return elMaster.objMasterId == elObj.objMasterId
-            // })
-            // masterItem = masterItem.length ? masterItem[0] : {};
             svgMaster = elObj.objSvg;
             svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             let i = 0;

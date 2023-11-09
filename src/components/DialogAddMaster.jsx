@@ -8,9 +8,12 @@ import { Button, IconButton, Stack, TextField, Typography } from '@mui/material'
 import { API_ADD_MASTER, API_GEN_MASTERID } from '../Service'
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
+import SaveIcon from '@mui/icons-material/Save';
+import { LoadingButton } from '@mui/lab'
 function DialogAddMaster(props) {
-    const { open, close } = props;
+    const { open, close, snackbar } = props;
     const [masterId, setMasterId] = useState();
+    const [loading, setLoading] = useState(false);
     const [master, setMaster] = useState({
         "objMasterId": "",
         "mstName": "",
@@ -29,8 +32,15 @@ function DialogAddMaster(props) {
     }
 
     async function handleAddMaster() {
+        setLoading(true);
+        snackbar({ vertical: 'top', horizontal: 'right' });
         const res = await API_ADD_MASTER(master);
-        console.log(res);
+        if (res.status == "1") {
+            const nbr = await getMasterId();
+            setLoading(false);
+        } else {
+            alert('ไม่สามารถเพิ่ม Master ได้ !');
+        }
     }
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
@@ -80,7 +90,7 @@ function DialogAddMaster(props) {
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => close(false)} >Close</Button>
-                <Button className='min-w-[6rem]' onClick={() => handleAddMaster()} variant='contained'>Save</Button>
+                <LoadingButton className='min-w-[6rem]' loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={() => handleAddMaster()} variant='contained'>Save</LoadingButton>
             </DialogActions>
         </Dialog>
     )

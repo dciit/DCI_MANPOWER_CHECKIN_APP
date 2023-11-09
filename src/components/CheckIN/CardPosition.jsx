@@ -6,11 +6,10 @@ import CardObjSA from './CardObjSA';
 function CardPositionEmployee(props) {
     const { data } = props;
     return (
-        <Card variant="outlined" className='min-h-[200px]'>
+        <Card variant="outlined"  >
             <CardHeader title="WORK POSITION" className='px-3 py-2 pb-1 text-center' />
             <Divider />
-            <CardContent className='min-h-[200px]'>
-                <Stack>
+            <CardContent >
                     <Stack direction={'row'} alignItems={'center'} gap={1}>
                         <Stack>
                             <Stack direction={'row'}>
@@ -35,7 +34,6 @@ function CardPositionEmployee(props) {
                         <CardObjMQ listMQ = {data?.objMQ} />
                         <CardObjSA listSA = {data?.objSA} />
                     </Stack>
-                </Stack>
             </CardContent>
         </Card>
     )

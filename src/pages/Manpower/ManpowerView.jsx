@@ -2,7 +2,7 @@ import { Avatar, Divider, Button, Typography, Stack, Select, MenuItem } from '@m
 import React from 'react'
 import { useEffect } from 'react';
 import { useState } from 'react'; '../Service';
-import { API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_GET_OBJECT_INFO, API_GET_OBJECT_OF_LAYOUT } from '../../Service';
+import { API_CHECK_INOUT, API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_GET_OBJECT_INFO, API_GET_OBJECT_OF_LAYOUT } from '../../Service';
 import DialogCheckin from '../../components/DialogCheckin';
 import { useParams } from 'react-router';
 function ManpowerView() {
@@ -42,6 +42,7 @@ function ManpowerView() {
             const res = await intialData();
         }
     }
+
     const intialData = async () => {
         // const listLayout = await API_GET_LAYOUT();
         // if (layoutSelected == '') {
@@ -133,6 +134,7 @@ function ManpowerView() {
 
 
 
+
     async function refreshObject(objCode) {
         const res = await API_GET_OBJECT_BY_CODE({ objCode: objCode });
         
@@ -160,8 +162,8 @@ function ManpowerView() {
             <input type='hidden' id='inpYMD' value={''}></input>
             <input type='hidden' id='inpShift' value={''}></input>
             <input type='hidden' id='inpType' value={''} ></input>
+        
             
-            <Button variant='contained' onClick={refreshObject}>refresh</Button>
             <Stack sx={{ width: '100%' }}>
                 <div className='h-[5%] flex items-center justify-center shadow-sm text-xl' >
                     {layoutSelected.layoutName} ({layoutSelected.layoutCode})

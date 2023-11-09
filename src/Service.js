@@ -226,6 +226,8 @@ export function API_CHECK_INOUT(param) {
     return new Promise(resolve => {
         http.post(`/mpck/checkInOut`, param).then((res) => {
             resolve(res.data);
+        }).catch((err) => {            
+            resolve(err.response.data);
         })
     })
 }

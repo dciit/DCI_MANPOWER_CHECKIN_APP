@@ -37,11 +37,13 @@ function DialogCheckin(props) {
             "ckshift": inpShift,
             "cktype": inpType
         });
-        if (checkin.status) {
+        if (checkin.status == "1") {
             setData({});
             alert(`empcode : ${inpEmpCode} ,ckshift : ${inpYMD} ,ckdate : ${inpShift} ,cktype : ${inpType} ,`);
             init();
             refObj(data.objCode);
+        }else if(checkin.status == "0"){
+            alert(checkin.msg);
         }
     }
     return (

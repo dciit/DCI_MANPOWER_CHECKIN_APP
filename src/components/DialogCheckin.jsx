@@ -52,7 +52,6 @@ function DialogCheckin(props) {
                 WORKING POSITION AND EMPLOYEE INFORMATION
             </DialogTitle>
             <DialogContent>
-                
                 <Grid container spacing={3}>
                     <Grid item xs={6}>
                         <Stack gap={2}>

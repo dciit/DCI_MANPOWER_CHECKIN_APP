@@ -2,7 +2,7 @@ import { Avatar, Divider, Button, Typography, Stack, Select, MenuItem } from '@m
 import React from 'react'
 import { useEffect } from 'react';
 import { useState } from 'react'; '../Service';
-import { API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_INFO, API_GET_OBJECT_OF_LAYOUT } from '../../Service';
+import { API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_GET_OBJECT_INFO, API_GET_OBJECT_OF_LAYOUT } from '../../Service';
 import DialogCheckin from '../../components/DialogCheckin';
 import { useParams } from 'react-router';
 function ManpowerView() {
@@ -19,12 +19,12 @@ function ManpowerView() {
     const [layoutSelected, setLayoutSelected] = useState({});
     // const [inpEmpCode,setInpEmpCode] = useState()
     const ThemeTrue = {
-        bg: ['#ffd496', '#bba17a', '#b88a45'],
+        bg: ['yellow', '#bba17a', '#b88a45'],
         text: '#333333'
     }
     const ThemeFalse = {
-        bg: ['#c82700 ', '#6d1803', '#6d210f'],
-        text: '#white'
+        bg: ['#fff', '#6d1803', '#6d210f'],
+        text: 'white'
     }
     // const dispatch = useDispatch();
     let svgContent = '';
@@ -78,20 +78,20 @@ function ManpowerView() {
                 elObj.objSvg = elObj.objSvg.replace("{empcode}", elObj.empCode);
 
 
-                elObj.objSvg = elObj.objSvg.replace("{txtMQ}", elObj.empCode);
+                // elObj.objSvg = elObj.objSvg.replace("{txtMQ}", elObj.empCode);
                 (elObj.mq == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
-                    elObj.objSvg = elObj.objSvg.replace(`{bg${indexTheme}MQ}`, theme);
-                })
+                    elObj.objSvg = elObj.objSvg.replace(`{bgmq}`, theme);
+                });
 
-                elObj.objSvg = elObj.objSvg.replace("{txtSA}", elObj.empCode);
+                // elObj.objSvg = elObj.objSvg.replace("{txtSA}", elObj.empCode);
                 (elObj.sa == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
-                    elObj.objSvg = elObj.objSvg.replace(`{bg${indexTheme}SA}`, theme);
-                })
+                    elObj.objSvg = elObj.objSvg.replace(`{bgsa}`, theme);
+                });
 
-                elObj.objSvg = elObj.objSvg.replace("{txtOT}", elObj.empCode);
+                // elObj.objSvg = elObj.objSvg.replace("{txtOT}", elObj.empCode);
                 (elObj.ot == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
-                    elObj.objSvg = elObj.objSvg.replace(`{bg${indexTheme}OT}`, theme);
-                })
+                    elObj.objSvg = elObj.objSvg.replace(`{bgot}`, theme);
+                });
 
 
                 elObj.objSvg = elObj.objSvg.replace("{empImage}", elObj.empImage);
@@ -127,18 +127,29 @@ function ManpowerView() {
             }
             svgContent.appendChild(svg);
         });
-        return true;
+        return true;s
     }
 
 
 
 
     async function refreshObject(objCode) {
-        objCode = 'MP2311090099';
-        const res = await API_GET_OBJECT_INFO({ objCode: objCode });
-        let svg = document.querySelector(`svg#${objCode} image`).setAttribute('href', '');
-        svg.querySelector(`#objName tspan`).innerHTML  = '';
-        svg.querySelector(`#objName tspan`).innerHTML  = '';
+        const res = await API_GET_OBJECT_BY_CODE({ objCode: objCode });
+        
+        if(res[0].empCode != ''){
+            document.querySelector(`svg#${objCode} .img_profile`).setAttribute('href', res[0].empImage);        
+            document.querySelector(`svg#${objCode} .bg_mq`).style.fill = "yellow";
+            document.querySelector(`svg#${objCode} .bg_sa`).style.fill = "yellow";        
+            document.querySelector(`svg#${objCode} .bg_ot`).style.fill = "yellow";
+            document.querySelector(`svg#${objCode} .txt_empcode`).textContent  = res[0].empCode;            
+        }else{
+            document.querySelector(`svg#${objCode} .img_profile`).setAttribute('href', '');        
+            document.querySelector(`svg#${objCode} .bg_mq`).style.fill = "#fff";
+            document.querySelector(`svg#${objCode} .bg_sa`).style.fill = "#fff";        
+            document.querySelector(`svg#${objCode} .bg_ot`).style.fill = "#fff";
+            document.querySelector(`svg#${objCode} .txt_empcode`).textContent  = '';            
+        }
+        
     }
     return (
         <div className='h-[100%] w-[100%] bg-white flex  '>

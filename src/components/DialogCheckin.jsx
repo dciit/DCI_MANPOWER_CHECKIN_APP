@@ -24,13 +24,6 @@ function DialogCheckin(props) {
         setData(objectDetail[0])
     }
 
-    async function handleTest() {
-        const res = await API_GET_OBJECT_BY_CODE({ objCode: objectSelected.objCode });
-        console.log(res[0].objSvg);
-
-        // document.querySelector(`svg#${objectSelected.objCode}`).innerHTML = res[0].objS;
-        document.querySelector(`svg#${objectSelected.objCode}#image`).innerHTML = '';
-    }
 
     async function handleCheckInOut() {
         let inpEmpCode = document.querySelector('input#inpEmpCode').value;
@@ -57,10 +50,9 @@ function DialogCheckin(props) {
                 WORKING POSITION AND EMPLOYEE INFORMATION
             </DialogTitle>
             <DialogContent>
-
                 <Grid container spacing={3}>
                     <Grid item xs={6}>
-                        <button onClick={handleTest}> TEST SVG</button>
+                        <button id="handleCheckInOut" onClick={handleCheckInOut}> CHECK-IN/OUT </button>
                         <Stack gap={2}>
                             <CardPosition data={objectSelected} />
                         </Stack>

@@ -5,13 +5,13 @@ function Layout() {
     const reducer = useSelector(state => state.reducer);
     return <>
         {
-            !reducer?.login
-                ?
+            // reducer?.login
+                // ?
                 <div className='h-[100%] select-none'>
                     {/* <Header /> */}
                     <Outlet />
                 </div>
-                : <Login />
+                // : <Login />
         }
     </>
 }

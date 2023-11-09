@@ -8,6 +8,8 @@ import Templete from "../pages/TemplateManpower";
 import Home from "../pages/home";
 import QrCode from "../pages/qrcode";
 import Manpower from "../pages/manpower";
+import ManpowerView from "../pages/Manpower/ManpowerView";
+import ManpowerEdit from "../pages/Manpower/ManpowerEdit";
 const Routers = () => {
     const dispatch = useDispatch();
     const BasePath = import.meta.env.VITE_PATH;
@@ -20,10 +22,10 @@ const Routers = () => {
         <BrowserRouter>
             <Routes>
                 <Route element={<Layout />}>
-                    <Route path={BasePath} element={<Manpower />} />
-                    <Route path={`${BasePath}/edit`} element={<Home />} />
+                    <Route path={`${BasePath}/:layout`} element={<ManpowerView />} />
+                    <Route path={`${BasePath}/edit`} element={<ManpowerEdit />} />
                 </Route>
-                <Route path="*" element={<Page404 />} />
+                <Route path={`${BasePath}/*`} element={<ManpowerView />} />
             </Routes>
         </BrowserRouter>
     );

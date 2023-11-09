@@ -9,11 +9,17 @@ const initialState = {
         }
     },
     version: 0,
-    objectselected: null
+    objectselected: null,
+    layout: {}
 }
 
 const IndexReducer = (state = initialState, action) => {
     switch (action.type) {
+        case 'UPDATE_LAYOUT':
+            return {
+                ...state,
+                layout: action.payload
+            }
         case 'LOGIN':
             return {
                 ...state,

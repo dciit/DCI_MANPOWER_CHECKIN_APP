@@ -5,15 +5,14 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import DialogSelectEquipment from '../components/DialogSelectEquipment';
-import { API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ, ServiceDelEquipmentOfLayout, ServiceGetLayoutAndEquipment, ServiceGetLayouts, ServiceUpdateAxis } from '../Service';
-import DialogDetailEquipment from '../components/DialogDetailEquipment';
-import DialogAddMaster from '../components/DialogAddMaster';
-import DialogUpdateMaster from '../components/DialogUpdateMaster';
-import DialogAddObject from '../components/DialogAddObject';
-import DialogAddLayout from '../components/DialogAddLayout';
+import DialogAddMaster from '../../components/DialogAddMaster';
+import DialogUpdateMaster from '../../components/DialogUpdateMaster';
+import DialogAddObject from '../../components/DialogAddObject';
+import DialogAddLayout from '../../components/DialogAddLayout';
 import { useDispatch } from 'react-redux';
-function Home() {
+import { API_DELETE_OBJECT, API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ } from '../../Service';
+import DialogDetailEquipment from '../../components/DialogDetailEquipment';
+function ManpowerEdit() {
     const [openAddLayout, setOpenAddLayout] = useState(false);
     const [openAddObject, setOpenAddObject] = useState(false);
     const [openDetailEquipment, setOpenDetailEquipment] = useState(false);
@@ -50,7 +49,10 @@ function Home() {
     const dbClick = async (evt) => {
         if (confirm('คุณต้องการลบ ใช่หรือไม่ ?')) {
             let id = evt.target.getAttribute("id");
-            const del = await ServiceDelEquipmentOfLayout(id);
+            const del = await API_DELETE_OBJECT({ objCode: id });
+            if(del.status){
+                document.querySelector(`#${id}`).remove();
+            }
         }
     }
     function leaveDrag(evt) {
@@ -111,9 +113,13 @@ function Home() {
             dispatch({ type: 'UPDATE_LAYOUT', payload: listLayout[0] })
         }
         const listMaster = await API_GET_MASTER();
+        // const object = await API_GET_OBJECT_OF_LAYOUT({
+        //     layoutCode: (layoutSelected == '' ? listLayout[0].layoutCode : layoutSelected.layoutCode),
+        // });
         const object = await API_GET_OBJECT_OF_LAYOUT({
             layoutCode: (layoutSelected == '' ? listLayout[0].layoutCode : layoutSelected.layoutCode),
         });
+        console.log(object)
         setMasters(listMaster);
         setLayouts(listLayout);
         setObjects(object);
@@ -129,15 +135,15 @@ function Home() {
             svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             let i = 0;
             let x = i * 100;
-            if (masterItem?.objSvg.includes('animateMotion')) {
-                const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                masterItem.objSvg = masterItem.objSvg.replace("<defs>", "");
-                itemSvg.innerHTML = masterItem.objSvg;
-                itemSvg.setAttribute('id', elObj.objCode);
-                itemSvg.setAttribute('x', elObj.objX);
-                itemSvg.setAttribute('y', elObj.objY);
-                svg.appendChild(itemSvg);
-            }
+            // if (masterItem?.objSvg.includes('animateMotion')) {
+            //     const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            //     masterItem.objSvg = masterItem.objSvg.replace("<defs>", "");
+            //     itemSvg.innerHTML = masterItem.objSvg;
+            //     itemSvg.setAttribute('id', elObj.objCode);
+            //     itemSvg.setAttribute('x', elObj.objX);
+            //     itemSvg.setAttribute('y', elObj.objY);
+            //     svg.appendChild(itemSvg);
+            // }
 
             svgMaster = svgMaster.replace("{title}", elObj.eqpTitle);
             svgMaster = svgMaster.replace("{empcode}", elObj.empcode);
@@ -198,4 +204,4 @@ function Home() {
         </div >
     )
 }
-export default Home
+export default ManpowerEdit

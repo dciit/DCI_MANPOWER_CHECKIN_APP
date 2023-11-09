@@ -1,17 +1,76 @@
-import React from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-
+import { Avatar, Box, Card, CardContent, CardHeader, Divider, Grid, IconButton, Stack, Tab, Tabs, Typography, DialogContent, TableContainer, Paper, Table, TableHead, TableBody, TableRow, TableCell, InputBase, DialogTitle, DialogActions } from '@mui/material'
+import moment from 'moment/moment'
+import { API_CHECK_INOUT, API_GET_MQSA_OF_LAYOUT, API_GET_OBJECT, API_GET_OBJECT_BY_CODE, API_GET_OBJECT_INFO } from '../Service'
+import { useSelector } from 'react-redux'
+import CardPosition from './CheckIN/CardPosition'
+import CardEmp from './CheckIN/CardEmp'
 function DialogCheckin(props) {
-    const { open, close } = props;
+    const { open, close, data, setData, refObj } = props;
+    const [objectSelected, setObjectSelected] = useState({});
+    const reducer = useSelector(state => state.reducer);
+    const [mqs, setMqs] = useState([]);
+    const [SAs, setSAs] = useState([]);
+    useEffect(() => {
+        if (open) {
+            init();
+        }
+    }, [open]);
+    async function init() {
+        const objectDetail = await API_GET_OBJECT_INFO({ objCode: data.objCode });
+        setObjectSelected(objectDetail[0]);
+        setData(objectDetail[0])
+    }
+
+    async function handleTest() {
+        const res = await API_GET_OBJECT_BY_CODE({ objCode: objectSelected.objCode });
+        console.log(res[0].objSvg);
+
+        // document.querySelector(`svg#${objectSelected.objCode}`).innerHTML = res[0].objS;
+        document.querySelector(`svg#${objectSelected.objCode}#image`).innerHTML = '';
+    }
+
+    async function handleCheckInOut() {
+        let inpEmpCode = document.querySelector('input#inpEmpCode').value;
+        let inpYMD = document.querySelector('input#inpYMD').value;
+        let inpShift = document.querySelector('input#inpShift').value;
+        let inpType = document.querySelector('input#inpType').value;
+        const checkin = await API_CHECK_INOUT({
+            "objCode": data.objCode,
+            "empCode": inpEmpCode,
+            "ckdate": inpYMD,
+            "ckshift": inpShift,
+            "cktype": inpType
+        });
+        if (checkin.status) {
+            setData({});
+            alert(`empcode : ${inpEmpCode} ,ckshift : ${inpYMD} ,ckdate : ${inpShift} ,cktype : ${inpType} ,`);
+            init();
+            refObj(data.objCode);
+        }
+    }
     return (
-        <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='sm'>
+        <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='md'>
+            <DialogTitle>
+                WORKING POSITION AND EMPLOYEE INFORMATION
+            </DialogTitle>
             <DialogContent>
-                <span>CHECKIN</span>
+
+                <Grid container spacing={3}>
+                    <Grid item xs={6}>
+                        <button onClick={handleTest}> TEST SVG</button>
+                        <Stack gap={2}>
+                            <CardPosition data={objectSelected} />
+                        </Stack>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Stack gap={2}>
+                            <CardEmp data={objectSelected} eventCheckIn={handleCheckInOut} />
+                        </Stack>
+                    </Grid>
+                </Grid>
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => close(false)}>ปิดหน้าต่าง</Button>
@@ -19,5 +78,4 @@ function DialogCheckin(props) {
         </Dialog>
     )
 }
-
 export default DialogCheckin

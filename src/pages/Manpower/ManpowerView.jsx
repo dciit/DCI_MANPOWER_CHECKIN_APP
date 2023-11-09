@@ -130,9 +130,15 @@ function ManpowerView() {
         return true;
     }
 
+
+
+
     async function refreshObject(objCode) {
+        objCode = 'MP2311090099';
         const res = await API_GET_OBJECT_INFO({ objCode: objCode });
-        document.querySelector(`#MP2311070048`).remove();
+        let svg = document.querySelector(`svg#${objCode} image`).setAttribute('href', '');
+        svg.querySelector(`#objName tspan`).innerHTML  = '';
+        svg.querySelector(`#objName tspan`).innerHTML  = '';
     }
     return (
         <div className='h-[100%] w-[100%] bg-white flex  '>
@@ -143,6 +149,8 @@ function ManpowerView() {
             <input type='hidden' id='inpYMD' value={''}></input>
             <input type='hidden' id='inpShift' value={''}></input>
             <input type='hidden' id='inpType' value={''} ></input>
+            
+            <Button variant='contained' onClick={refreshObject}>refresh</Button>
             <Stack sx={{ width: '100%' }}>
                 <div className='h-[5%] flex items-center justify-center shadow-sm text-xl' >
                     {layoutSelected.layoutName} ({layoutSelected.layoutCode})

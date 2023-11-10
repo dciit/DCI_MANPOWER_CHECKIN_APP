@@ -210,7 +210,7 @@ function ManpowerView() {
         <div className="h-[5%] flex items-center justify-center shadow-sm text-xl">
           {layoutSelected.layoutName} ({layoutSelected.layoutCode})
         </div>
-        <div className="h-[95%] flex items-center">
+        <div className="h-[95%] flex items-center bg-[#e9fbff]" >
           <svg
             id="svgContent"
             viewBox={`0 0 1200 500`}

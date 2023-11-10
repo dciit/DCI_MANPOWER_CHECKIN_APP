@@ -8,7 +8,7 @@ import { Button, Card, CardContent, Divider, Grid, IconButton, MenuItem, Select,
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from 'react-redux'
-import { API_ADD_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE } from '../Service'
+import { API_ADD_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ } from '../Service'
 import { LoadingButton } from '@mui/lab'
 import SaveIcon from '@mui/icons-material/Save';
 function DialogAddObject(props) {
@@ -62,7 +62,6 @@ function DialogAddObject(props) {
             getObject.map((elObj) => {
                 svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 let i = 0;
-                let x = i * 100;
                 if (elObj.objSvg.includes('animateMotion')) {
                     const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                     elObj.objSvg = elObj.objSvg.replace("<defs>", "");

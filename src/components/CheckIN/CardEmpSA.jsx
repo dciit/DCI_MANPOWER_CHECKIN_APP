@@ -1,12 +1,13 @@
-import { Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
+import { Avatar, Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import React from 'react'
 
 function CardEmpSA(props) {
     const { listSA } = props;
     return (
         <Card >
-            <div className='px-3 py-3 pb-2.5 bg-green-600 text-white text-right'>
-                SA REQUIRED
+            <div className='flex gap-2 items-center px-3 py-3 pb-2.5 bg-green-600 text-white text-right'>
+                <Avatar sx={{ bgcolor: 'white', color: 'black' }}>SA</Avatar>
+                <Typography>ACHIEVE</Typography>
             </div>
             <Divider />
             <CardContent className='p-0'>
@@ -24,7 +25,7 @@ function CardEmpSA(props) {
                                     <TableCell className='text-[#b61d1d]'>({mq.mqCode}) </TableCell>
                                     <TableCell className='font-semibold'>{mq.mqName}</TableCell>
                                 </TableRow>
-                            }) : <TableRow><TableCell colSpan={2} className='text-center font-semibold text-red-400'>* NO LICENSE REQUIRED</TableCell></TableRow>
+                            }) : <TableRow><TableCell colSpan={2} className='text-center font-semibold text-red-400'>* NO LICENSE ACHIEVE</TableCell></TableRow>
                         }
                     </TableBody>
                 </Table>

@@ -123,7 +123,7 @@ function ManpowerView() {
             }
             svgContent.appendChild(svg);
         });
-        return true;s
+        return true;
     }
 
 

@@ -54,6 +54,7 @@ function DialogCheckin(props) {
             <DialogContent>
                 <Grid container spacing={3}>
                     <Grid item xs={6}>
+                        <button style={{display:'none'}} id = "handleCheckInOut" onClick={handleCheckInOut}></button>
                         <Stack gap={2}>
                             <CardPosition data={objectSelected} />
                         </Stack>

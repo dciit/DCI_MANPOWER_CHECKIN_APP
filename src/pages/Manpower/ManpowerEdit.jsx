@@ -38,7 +38,6 @@ function ManpowerEdit() {
     }, []);
 
     const openSnackbar = (newState) => () => {
-        console.log(newState)
         setState({ ...newState, open: true });
     };
 
@@ -61,6 +60,7 @@ function ManpowerEdit() {
     const dbClick = async (evt) => {
         if (confirm('คุณต้องการลบ ใช่หรือไม่ ?')) {
             let id = evt.target.getAttribute("id");
+            console.log(id)
             const del = await API_DELETE_OBJECT({ objCode: id });
             if (del.status) {
                 document.querySelector(`#${id}`).remove();
@@ -119,14 +119,15 @@ function ManpowerEdit() {
         };
     }
     const intialData = async () => {
+        let bpLayout = 1;
         const listLayout = await API_GET_LAYOUT();
         if (layoutSelected == '') {
-            setLayoutSelected(listLayout[0])
-            dispatch({ type: 'UPDATE_LAYOUT', payload: listLayout[0] })
+            setLayoutSelected(listLayout[bpLayout])
+            dispatch({ type: 'UPDATE_LAYOUT', payload: listLayout[bpLayout] })
         }
         const listMaster = await API_GET_MASTER();
         const object = await API_GET_OBJECT_OF_LAYOUT({
-            layoutCode: (layoutSelected == '' ? listLayout[0].layoutCode : layoutSelected.layoutCode),
+            layoutCode: (layoutSelected == '' ? listLayout[bpLayout].layoutCode : layoutSelected.layoutCode),
         });
         setLayouts(listLayout);
         svgContent = document.querySelector("#svgContent");
@@ -155,6 +156,11 @@ function ManpowerEdit() {
         });
         return true;
     }
+
+    function changeLayout(layout) {
+        setLayoutSelected({...layoutSelected,layoutCode:layout})
+        intialData();
+    }
     return (
         <div className='h-[97.5%] bg-white flex  '>
             <div className='bg-[#f9f9f9] w-full p-3'>
@@ -172,11 +178,11 @@ function ManpowerEdit() {
                         <Stack pb={3} pt={1}>
                             <Typography>LAYOUT : </Typography>
                             {
-                                layouts.length ?   <Select size='small' value={layoutSelected.layoutCode}>
-                                {
-                                    layouts.map((layout, index) => (<MenuItem value={layout.layoutCode} key={index}>{layout.layoutName} ({layout.layoutCode})</MenuItem>))
-                                }
-                            </Select> : <Skeleton variant='rectangular' height={50}/>
+                                layouts.length ? <Select size='small' value={layoutSelected.layoutCode} onChange={(e) => changeLayout(e.target.value)}>
+                                    {
+                                        layouts.map((layout, index) => (<MenuItem value={layout.layoutCode} key={index}>{layout.layoutName} ({layout.layoutCode})</MenuItem>))
+                                    }
+                                </Select> : <Skeleton variant='rectangular' height={50} />
                             }
                         </Stack>
                         <div className='tool pb-3 flex gap-2 items-start justify-end'>

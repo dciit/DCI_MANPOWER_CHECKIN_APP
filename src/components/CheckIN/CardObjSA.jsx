@@ -1,8 +1,8 @@
-import { Avatar, Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography,Button } from '@mui/material'
+import { Avatar, Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography, Button } from '@mui/material'
 import React from 'react'
 import DialogAddSA from '../DialogAddSA'
 import { useState } from 'react'
-
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 function CardObjSA(props) {
     const { listSA, data } = props;
     const [openDialogAddSA, setOpenDialogAddSA] = useState(false);
@@ -14,7 +14,7 @@ function CardObjSA(props) {
                     <Typography>ACHIEVE</Typography>
                 </div>
                 <div>
-                    <Button onClick={() => setOpenDialogAddMQ(true)} variant='contained' color='info'>ADD SA</Button>
+                    <Button startIcon={<AddCircleIcon />} onClick={() => setOpenDialogAddSA(true)} variant='contained' className='bg-white text-black '>ADD SA</Button>
                 </div>
             </div>
             <Divider />

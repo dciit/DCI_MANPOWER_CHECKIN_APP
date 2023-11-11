@@ -1,8 +1,7 @@
 import { Avatar, Button, Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import React, { useState } from 'react'
-import DialogAddSA from '../DialogAddSA';
 import DialogAddMQ from '../DialogAddMQ';
-
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 function CardObjMQ(props) {
     const [openDialogAddMQ, setOpenDialogAddMQ] = useState(false);
     const { listMQ, data } = props;
@@ -14,7 +13,7 @@ function CardObjMQ(props) {
                     <Typography>ACHIEVE</Typography>
                 </div>
                 <div>
-                    <Button onClick={() => setOpenDialogAddMQ(true)} variant='contained' color='info'>ADD MQ</Button>
+                    <Button  startIcon = {<AddCircleIcon/>} onClick={() => setOpenDialogAddMQ(true)} variant='contained'  className='bg-white text-black '>ADD MQ</Button>
                 </div>
             </div>
             <Divider />
@@ -30,8 +29,8 @@ function CardObjMQ(props) {
                         {
                             (listMQ?.length) ? listMQ.map((mq, index) => {
                                 return <TableRow key={index}>
-                                    <TableCell className='text-[#b61d1d]'>({mq.mqCode}) </TableCell>
-                                    <TableCell className='font-semibold'>{mq.mqName}</TableCell>
+                                    <TableCell className='text-blue-600 font-semibold'>({mq.mqCode}) </TableCell>
+                                    <TableCell >{mq.mqName}</TableCell>
                                 </TableRow>
                             }) : <TableRow><TableCell colSpan={2} className='text-center font-semibold text-red-400'>* NO LICENSE REQUIRED</TableCell></TableRow>
                         }

@@ -7,12 +7,17 @@ import { API_CHECK_INOUT, API_GET_MQSA_OF_LAYOUT, API_GET_OBJECT, API_GET_OBJECT
 import { useDispatch, useSelector } from 'react-redux'
 import CardPosition from './CheckIN/CardPosition'
 import CardEmp from './CheckIN/CardEmp'
+import Timeline from '@mui/lab/Timeline';
+import TimelineItem from '@mui/lab/TimelineItem';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineDot from '@mui/lab/TimelineDot';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 function DialogCheckin(props) {
     const { open, close, data, setData, refObj } = props;
     const dispatch = useDispatch();
     const objectSelected = useSelector(state => state.reducer.objectSelected);
-    const [mqs, setMqs] = useState([]);
-    const [SAs, setSAs] = useState([]);
     useEffect(() => {
         if (open) {
             init();
@@ -47,22 +52,85 @@ function DialogCheckin(props) {
         }
     }
     return (
-        <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='md'>
+        <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='lg'>
             <DialogTitle className='text-center'>
                 WORKING POSITION AND EMPLOYEE INFORMATION
             </DialogTitle>
             <DialogContent>
                 <Grid container spacing={3}>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={12} md={6}  lg={6}>
                         <button style={{ display: 'none' }} id="handleCheckInOut" onClick={handleCheckInOut}></button>
                         <Stack gap={2}>
                             <CardPosition data={objectSelected} />
                         </Stack>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={12} md={6}  lg={6}>
                         <Stack gap={2}>
                             <CardEmp data={objectSelected} eventCheckIn={handleCheckInOut} />
                         </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6}  lg={6}>
+                        <Card variant="outlined" >
+                            <CardHeader title={<Typography className='font-semibold'>WORK CHECK-IN HISTORY LAST IN 7 DAY</Typography>} subheader="ประวัติการเข้าทำงานในจุดทำงานนี้ล่าสุด 7 วัน" className='bg-yellow-600 ' />
+                            <Divider />
+                            <CardContent>
+                                <Timeline>
+                                    <TimelineItem>
+                                        <TimelineSeparator>
+                                            <TimelineDot color='primary' />
+                                            <TimelineConnector  color='primary'  />
+                                        </TimelineSeparator>
+                                        <TimelineContent>
+                                            <Stack direction={'row'} alignItems={'center'} gap={1}>
+                                                <Avatar className='w-[36px] h-[36px]'>
+
+                                                </Avatar>
+                                            <Typography>PEERAPONG.K [OP3]</Typography>
+                                            </Stack>
+                                        </TimelineContent>
+                                    </TimelineItem>
+                                    <TimelineItem>
+                                        <TimelineSeparator>
+                                            <TimelineDot />
+                                            <TimelineConnector />
+                                        </TimelineSeparator>
+                                        <TimelineContent>Code</TimelineContent>
+                                    </TimelineItem>
+                                    <TimelineItem>
+                                        <TimelineSeparator>
+                                            <TimelineDot />
+                                        </TimelineSeparator>
+                                        <TimelineContent>Sleep</TimelineContent>
+                                    </TimelineItem>
+                                </Timeline>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6}  lg={6}>
+                        <Timeline>
+                            <TimelineItem>
+                                <TimelineSeparator>
+                                    <TimelineDot />
+                                    <TimelineConnector />
+                                </TimelineSeparator>
+                                <TimelineContent>Eat</TimelineContent>
+                            </TimelineItem>
+                            <TimelineItem>
+                                <TimelineSeparator>
+                                    <TimelineDot />
+                                    <TimelineConnector />
+                                </TimelineSeparator>
+                                <TimelineContent>Code</TimelineContent>
+                            </TimelineItem>
+                            <TimelineItem>
+                                <TimelineSeparator>
+                                   <TimelineDot color="secondary">
+                                        <CheckCircleIcon/>
+                                        </TimelineDot>
+                                </TimelineSeparator>
+                                <TimelineContent>Sleep</TimelineContent>
+                            </TimelineItem>
+                        </Timeline>
                     </Grid>
                 </Grid>
             </DialogContent>

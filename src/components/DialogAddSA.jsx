@@ -5,98 +5,136 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-import { Table, TableHead, TableRow, TableCell, TableBody, Select, MenuItem, TableContainer, Paper } from '@mui/material'
+import { Table, TableHead, TableRow, TableCell, TableBody, Select, MenuItem, TableContainer, Paper, Stack, IconButton, Alert, Snackbar } from '@mui/material'
 import { Typography } from '@mui/material'
 import { useState } from 'react'
 import { useEffect } from 'react'
-import { API_ADD_MQSA, API_GET_MQ, API_GET_MQSA_BY_CODE, API_GET_OBJECT_INFO } from '../Service'
+import { API_ADD_MQSA, API_DELETE_MQSA, API_GET_MQ, API_GET_MQSA_BY_CODE, API_GET_OBJECT_INFO } from '../Service'
 import { useDispatch, useSelector } from 'react-redux'
-
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LoadingButton } from '@mui/lab'
+import AddIcon from '@mui/icons-material/Add';
 function DialogAddSA(props) {
     const { open, close, data } = props;
     const dispatch = useDispatch();
-    const layoutSelected = useSelector(state => state.reducer.layout);
-    const [saSelected, setSASelected] = useState('');
+    const [SASelected, setSASelected] = useState('');
     const [listSA, setListSA] = useState([]);
     const reduxListSA = useSelector(state => state.reducer.sa);
+    const objectSelected = useSelector(state => state.reducer.objectSelected);
     const layout = useSelector(state => state.reducer.layout);
+    const [openSnackBar, setOpenSnackBar] = useState(false);
+    const [insertResult, setInsertResult] = useState({});
+    const [loadingInsert, setLoadingInsert] = useState(false);
     useEffect(() => {
         if (open == true) {
             init();
+            setLoadingInsert(false)
         }
     }, [open])
 
     async function init() {
-        if (saSelected == '') {
+        if (SASelected == '' && reduxListSA.length) {
             setSASelected(reduxListSA[0].processCode)
         }
-        initListSA();
-    }
-    async function initListSA() {
-        let listSAOfObj = await API_GET_MQSA_BY_CODE({ searchCode: data.objCode, searchType: "SA" });
-        setListMQ(listSAOfObj);
     }
     async function handleAddSA() {
+        setLoadingInsert(true);
         const insertSA = await API_ADD_MQSA({
             objCode: data.objCode,
             layOutCode: layout.layoutCode,
-            dictCode: saSelected,
+            dictCode: SASelected,
             dictType: "SA",
             empCode: "99999"
         });
+        insertSA.msg = insertSA.status == '1' ? 'ADD SA SUCCESS ' : insertSA.msg;
+        setInsertResult(insertSA);
+        setOpenSnackBar(true);
         if (insertSA.status) {
-            initListSA();
-            const refreshCheckInInfo = await API_GET_OBJECT_INFO({ objCode: data.objCode });
-            dispatch({ type: 'SET_OBJECT_SELECTED', payload: refreshCheckInInfo[0] })
-        } else {
-            alert('ไม่สามารถเพิ่ม SA ได้')
+            await refreshMASA();
         }
+        setLoadingInsert(false);
+    }
+
+    async function refreshMASA() {
+        const refreshCheckInInfo = await API_GET_OBJECT_INFO({ objCode: data.objCode });
+        dispatch({ type: 'SET_OBJECT_SELECTED', payload: refreshCheckInInfo[0] });
+    }
+    function closeSnackBar() {
+        setOpenSnackBar(false);
+    }
+
+    async function handleDelete(dictCode) {
+        const del = await API_DELETE_MQSA({
+            "objCode": data.objCode,
+            "dictCode": dictCode,
+            "dictType": 'SA',
+        });
+        await refreshMASA();
     }
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
             <DialogTitle>
-                <Typography>Add SA Rquired</Typography>
+                <Typography>ADD SA REQUIRED</Typography>
             </DialogTitle>
             <DialogContent dividers>
                 <DialogContentText>
-                    <div>
-                        <Select value={saSelected} fullWidth size='small' onChange={(e) => setSASelected(e.target.value)}>
-                            {
-                                reduxListSA.map((item, index) => {
-                                    return <MenuItem key={index} value={item.processCode}>{item.processCode}:{item.processName}</MenuItem>
-                                })
-                            }
-                        </Select>
-                        <Button variant='contained' onClick={handleAddSA}>ADD</Button>
-                    </div>
-                    <TableContainer component={Paper}>
-                        <Table >
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>CODE</TableCell>
-                                    <TableCell>NAME</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {
-                                    listSA.length ? listSA.map((item, index) => {
-                                        return <TableRow key={index}>
-                                            <TableCell>{item.dictCode}</TableCell>
-                                            <TableCell>{item.dictDesc}</TableCell>
+                    <Stack gap={2}>
+                        <Stack gap={1}>
+                            <Stack direction={'col'}>
+                                <Select value={SASelected} className='rounded-e-none w-[85%]' fullWidth size='small' onChange={(e) => setSASelected(e.target.value)}>
+                                    {
+                                        reduxListSA.map((item, index) => {
+                                            return <MenuItem key={index} value={item?.processCode}>{item?.processCode}:{item?.processName}</MenuItem>
+                                        })
+                                    }
+                                </Select>
+                                <LoadingButton disabled={reduxListSA.length ? false : true} loading={loadingInsert ? true : false} loadingPosition='start' startIcon={<AddIcon />} variant='contained' className='rounded-s-none w-[15%]' onClick={handleAddSA}>ADD</LoadingButton>
+                            </Stack>
+
+                        </Stack>
+                        <Stack>
+                            <Typography variant='overline'>  LIST SA</Typography>
+                            <TableContainer component={Paper}>
+                                <Table size='small' >
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell className='w-[35%]'>CODE</TableCell>
+                                            <TableCell>NAME</TableCell>
+                                            <TableCell className='text-center w-[7.5%]'>#</TableCell>
                                         </TableRow>
-                                    }) : <TableRow>
-                                        <TableCell colSpan={2} className='text-center'>* NO SA ACHIEVE</TableCell>
-                                    </TableRow>
-                                }
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                    </TableHead>
+                                    <TableBody>
+                                        {
+                                            objectSelected?.objSA?.length ? objectSelected?.objSA?.map((item, index) => {
+                                                return <TableRow key={index}>
+                                                    <TableCell className='font-semibold'>{item.saCode}</TableCell>
+                                                    <TableCell className='pl-3'>{item.saName != '' ? item.saName : '-'}</TableCell>
+                                                    <TableCell className='text-center'>
+                                                        <IconButton onClick={() => handleDelete(item.saCode)}>
+                                                            <DeleteIcon className='text-red-300 hover:text-red-500 transition-all duration-500' />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            }) : <TableRow>
+                                                <TableCell colSpan={3} className='text-center font-semibold text-red-500'>* NO SA REQUIRED</TableCell>
+                                            </TableRow>
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Stack>
+                    </Stack>
                 </DialogContentText>
+                <Snackbar open={openSnackBar} autoHideDuration={6000} onClose={closeSnackBar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+                    <Alert onClose={closeSnackBar} severity={`${insertResult.status == '1' ? 'success' : 'error'}`} sx={{ width: '100%' }}>
+                        {insertResult?.msg}
+                    </Alert>
+                </Snackbar>
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => close(false)}>Close</Button>
             </DialogActions>
-        </Dialog>
+        </Dialog >
     )
 }
 

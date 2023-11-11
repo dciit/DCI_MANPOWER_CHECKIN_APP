@@ -281,3 +281,20 @@ export function API_ADD_MQSA(param) { // {"objCode": "string","layOutCode": "str
         })
     })
 }
+
+
+export function API_DELETE_MQSA(param) {
+    // {
+    //     "objCode": "string",
+    //     "layOutCode": "string",
+    //     "dictCode": "string",
+    //     "dictType": "string",
+    //     "empCode": "string"
+    //   }
+    return new Promise(resolve => {
+        http.post(`/mpck/deleteMQSA`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+API_DELETE_MQSA

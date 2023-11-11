@@ -68,7 +68,6 @@ function ManpowerView() {
       sa = sa.filter((itemSA) => {
         return itemSA.factory == getLayout[0].factory && itemSA.subLine == getLayout[0].subLine
       })
-
       dispatch({
         type: 'SET_LAYOUT_SELECTED', payload: {
           layout: getLayout[0],

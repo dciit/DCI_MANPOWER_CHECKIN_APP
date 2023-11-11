@@ -246,3 +246,38 @@ export function API_GET_OBJECT_BY_CODE(param) { // { objCode:'string'}
         })
     })
 }
+
+export function API_GET_MQSA_BY_CODE(param) { // {"searchCode": "string","searchType": "string"}
+    return new Promise(resolve => {
+        http.post(`/mpck/getMQSAListByObject`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function API_GET_MQ(param) { // {"searchCode": "string","searchType": "string"}
+    return new Promise(resolve => {
+        http.post(`/mpck/getMQList`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+
+export function API_GET_SA() { // {"searchCode": "string","searchType": "string"}
+    return new Promise(resolve => {
+        http.post(`/mpck/getSAList`, {}).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+
+export function API_ADD_MQSA(param) { // {"objCode": "string","layOutCode": "string","dictCode": "string","dictType": "string","empCode": "string"}
+    console.log(param)
+    return new Promise(resolve => {
+        http.post(`/mpck/addMQSA`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}

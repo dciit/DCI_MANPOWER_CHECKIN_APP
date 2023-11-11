@@ -15,13 +15,16 @@ import {
   API_CHECK_INOUT,
   API_GET_LAYOUT,
   API_GET_MASTER,
+  API_GET_MQ,
   API_GET_OBJECT_BY_CODE,
   API_GET_OBJECT_INFO,
   API_GET_OBJECT_OF_LAYOUT,
+  API_GET_SA,
 } from "../../Service";
 import DialogCheckin from "../../components/DialogCheckin";
 import { useParams } from "react-router";
 import { DoubleArrow } from "@mui/icons-material";
+import { useDispatch } from "react-redux";
 function ManpowerView() {
   let { layout } = useParams();
 
@@ -33,6 +36,7 @@ function ManpowerView() {
   const [objectCode, setObjectCode] = useState({});
   const [objSelected, setObjSelected] = useState({});
   const [layoutSelected, setLayoutSelected] = useState({});
+  const dispatch = useDispatch();
   // const [inpEmpCode,setInpEmpCode] = useState()
   const ThemeTrue = {
     bg: ["yellow", "#bba17a", "#b88a45"],
@@ -52,10 +56,28 @@ function ManpowerView() {
   }, [openCheckIn]);
 
   const init = async () => {
-    const api_layout_detail = await API_GET_LAYOUT(layout);
-    if (api_layout_detail != null && api_layout_detail.length) {
-      setLayoutSelected(api_layout_detail[0]);
-      const res = await intialData();
+    const getLayout = await API_GET_LAYOUT(layout);
+    if (getLayout != null && getLayout.length) {
+
+      let mq = await API_GET_MQ();
+      mq = mq.filter((itemMQ) => {
+        return itemMQ.factory == getLayout[0].factory && itemMQ.subLine == getLayout[0].subLine
+      })
+
+      let sa = await API_GET_SA();
+      sa = sa.filter((itemSA) => {
+        return itemSA.factory == getLayout[0].factory && itemSA.subLine == getLayout[0].subLine
+      })
+
+      dispatch({
+        type: 'SET_LAYOUT_SELECTED', payload: {
+          layout: getLayout[0],
+          mq: mq,
+          sa: sa
+        }
+      });
+      setLayoutSelected(getLayout[0]);
+      await intialData();
     }
   };
 

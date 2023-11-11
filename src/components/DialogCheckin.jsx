@@ -4,13 +4,13 @@ import Button from '@mui/material/Button'
 import { Avatar, Box, Card, CardContent, CardHeader, Divider, Grid, IconButton, Stack, Tab, Tabs, Typography, DialogContent, TableContainer, Paper, Table, TableHead, TableBody, TableRow, TableCell, InputBase, DialogTitle, DialogActions } from '@mui/material'
 import moment from 'moment/moment'
 import { API_CHECK_INOUT, API_GET_MQSA_OF_LAYOUT, API_GET_OBJECT, API_GET_OBJECT_BY_CODE, API_GET_OBJECT_INFO } from '../Service'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CardPosition from './CheckIN/CardPosition'
 import CardEmp from './CheckIN/CardEmp'
 function DialogCheckin(props) {
     const { open, close, data, setData, refObj } = props;
-    const [objectSelected, setObjectSelected] = useState({});
-    const reducer = useSelector(state => state.reducer);
+    const dispatch = useDispatch();
+    const objectSelected = useSelector(state => state.reducer.objectSelected);
     const [mqs, setMqs] = useState([]);
     const [SAs, setSAs] = useState([]);
     useEffect(() => {
@@ -20,8 +20,8 @@ function DialogCheckin(props) {
     }, [open]);
     async function init() {
         const objectDetail = await API_GET_OBJECT_INFO({ objCode: data.objCode });
-        setObjectSelected(objectDetail[0]);
         setData(objectDetail[0])
+        dispatch({ type: 'SET_OBJECT_SELECTED', payload: objectDetail[0] })
     }
 
 
@@ -54,7 +54,7 @@ function DialogCheckin(props) {
             <DialogContent>
                 <Grid container spacing={3}>
                     <Grid item xs={6}>
-                        <button style={{display:'none'}} id = "handleCheckInOut" onClick={handleCheckInOut}></button>
+                        <button style={{ display: 'none' }} id="handleCheckInOut" onClick={handleCheckInOut}></button>
                         <Stack gap={2}>
                             <CardPosition data={objectSelected} />
                         </Stack>

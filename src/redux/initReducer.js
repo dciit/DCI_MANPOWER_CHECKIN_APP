@@ -9,12 +9,26 @@ const initialState = {
         }
     },
     version: 0,
-    objectselected: null,
-    layout: {}
+    objectSelected: null,
+    layout: {},
+    sa: [],
+    mt: []
 }
 
 const IndexReducer = (state = initialState, action) => {
     switch (action.type) {
+        case 'SET_OBJECT_SELECTED':
+            return {
+                ...state,
+                objectSelected: action.payload
+            }
+        case 'SET_LAYOUT_SELECTED':
+            return {
+                ...state,
+                layout: action.payload.layout,
+                sa: action.payload.sa,
+                mq: action.payload.mq,
+            }
         case 'UPDATE_LAYOUT':
             return {
                 ...state,

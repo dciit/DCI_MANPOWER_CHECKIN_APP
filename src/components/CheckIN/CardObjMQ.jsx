@@ -1,10 +1,11 @@
 import { Avatar, Button, Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import DialogAddSA from '../DialogAddSA';
+import DialogAddMQ from '../DialogAddMQ';
 
 function CardObjMQ(props) {
-    const [openDialogAddSA, setOpenDialogAddSA] = useState(false);
-    const { listMQ } = props;
+    const [openDialogAddMQ, setOpenDialogAddMQ] = useState(false);
+    const { listMQ, data } = props;
     return (
         <Card >
             <div className='flex justify-between px-3 py-3 pb-2.5 bg-blue-600 text-white text-right'>
@@ -13,7 +14,7 @@ function CardObjMQ(props) {
                     <Typography>ACHIEVE</Typography>
                 </div>
                 <div>
-                    <Button onClick={() => setOpenDialogAddSA(true)} variant='contained'>ADD SA</Button>
+                    <Button onClick={() => setOpenDialogAddMQ(true)} variant='contained' color='info'>ADD MQ</Button>
                 </div>
             </div>
             <Divider />
@@ -37,7 +38,7 @@ function CardObjMQ(props) {
                     </TableBody>
                 </Table>
             </CardContent>
-            <DialogAddSA open={openDialogAddSA} close={setOpenDialogAddSA} />
+            <DialogAddMQ open={openDialogAddMQ} close={setOpenDialogAddMQ} data={data} />
         </Card>
     )
 }

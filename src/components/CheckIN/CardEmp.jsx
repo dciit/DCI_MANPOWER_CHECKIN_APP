@@ -4,7 +4,6 @@ import CardEmpMQ from './CardEmpMQ';
 import CardEmpSA from './CardEmpSA';
 function CardEmp(props) {
     const { data, eventCheckIn } = props;
-    console.log(data);
     const RowContent = (props) => {
         return <Stack >
             <Typography className='text-[14px] font-sans'>{props.title}</Typography>

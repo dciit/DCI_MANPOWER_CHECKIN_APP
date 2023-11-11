@@ -33,8 +33,8 @@ function CardPositionEmployee(props) {
                     </Table>
                 </div>
                 <Stack gap={2} mt={3}>
-                    <CardObjMQ listMQ={data?.objMQ} />
-                    <CardObjSA listSA={data?.objSA} />
+                    <CardObjMQ listMQ={data?.objMQ} data={data} />
+                    <CardObjSA listSA={data?.objSA} data={data}/>
                 </Stack>
             </CardContent>
         </Card>

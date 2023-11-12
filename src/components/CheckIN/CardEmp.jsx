@@ -15,7 +15,7 @@ function CardEmp(props) {
     }, [])
     return (
         <Card variant="outlined" className='min-h-[200px]'>
-            <CardHeader title="EMPLOYEE" className='px-3 py-2 pb-1 text-center' />
+            <CardHeader title="ข้อมูลพนักงาน" className='px-3 py-2 pb-1 text-center' />
             <Divider />
             <CardContent className='min-h-[200px]'>
                 <Grid container spacing={3}>
@@ -23,14 +23,14 @@ function CardEmp(props) {
                         <Avatar aria-label="recipe" src={data?.empImage} sx={{ width: 128, height: 128 }}>
                         </Avatar>
                         <span>
-                            {data.empCode}
+                            {data?.empCode}
                         </span>
                     </Grid>
                     <Grid item xs={6}>
                         <div className='flex  flex-col  justify-center'>
-                            <RowContent title='NAME ' value={data?.empName} />
-                            <RowContent title='POSITION ' value={data?.empPosit} />
-                            <RowContent title='WORK DAY ' value={data?.empWorkYear} />
+                            <RowContent title='ชื่อ ' value={data?.empName} />
+                            <RowContent title='ตำแหน่ง ' value={data?.empPosit} />
+                            <RowContent title='อายุงาน ' value={data?.empWorkYear} />
                         </div >
                     </Grid>
                     <Grid item xs={12}>

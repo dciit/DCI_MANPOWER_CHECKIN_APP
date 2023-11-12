@@ -50,11 +50,10 @@ function ManpowerView() {
   let svgContent = "";
   useEffect(() => {
     init();
-    if (!openCheckIn) {
-      setObjSelected({});
-    }
-  }, [openCheckIn]);
-
+    // if (openCheckIn) {
+    setObjSelected({});
+    // }
+  }, []);
   const init = async () => {
     const getLayout = await API_GET_LAYOUT(layout);
     if (getLayout != null && getLayout.length) {
@@ -81,11 +80,6 @@ function ManpowerView() {
   };
 
   const intialData = async () => {
-    // const listLayout = await API_GET_LAYOUT();
-    // if (layoutSelected == '') {
-    //     setLayoutSelected(listLayout[0])
-    //     dispatch({ type: 'UPDATE_LAYOUT', payload: listLayout[0] })
-    // }
     const listMaster = await API_GET_MASTER();
     const object = await API_GET_OBJECT_OF_LAYOUT({
       layoutCode: layout,
@@ -197,7 +191,6 @@ function ManpowerView() {
 
   async function refreshObject(objCode) {
     const res = await API_GET_OBJECT_BY_CODE({ objCode: objCode });
-
     if (res[0].empCode != "") {
       document
         .querySelector(`svg#${objCode} .img_profile`)
@@ -217,6 +210,8 @@ function ManpowerView() {
       document.querySelector(`svg#${objCode} .txt_empcode`).textContent = "";
     }
   }
+
+
   return (
     <div className="h-[100%] w-[100%] bg-white flex  ">
       <input type="hidden" id="inpObjCode" value={objSelected.objCode}></input>

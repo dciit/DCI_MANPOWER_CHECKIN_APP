@@ -74,7 +74,7 @@ function DialogAddSA(props) {
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
             <DialogTitle>
-                <Typography>ADD SA REQUIRED</Typography>
+                <Typography>จัดการสกิลเฉพาะทาง (SA) ที่ระบบต้องการ</Typography>
             </DialogTitle>
             <DialogContent dividers>
                 <DialogContentText>
@@ -88,18 +88,18 @@ function DialogAddSA(props) {
                                         })
                                     }
                                 </Select>
-                                <LoadingButton disabled={reduxListSA.length ? false : true} loading={loadingInsert ? true : false} loadingPosition='start' startIcon={<AddIcon />} variant='contained' className='rounded-s-none w-[15%]' onClick={handleAddSA}>ADD</LoadingButton>
+                                <LoadingButton disabled={reduxListSA.length ? false : true} loading={loadingInsert ? true : false} loadingPosition='start' startIcon={<AddIcon />} variant='contained' className='rounded-s-none w-[15%]' onClick={handleAddSA}>เพิ่ม</LoadingButton>
                             </Stack>
 
                         </Stack>
                         <Stack>
-                            <Typography variant='overline'>  LIST SA</Typography>
+                            <Typography variant='overline'>  รายการสกิลเฉพาะทาง</Typography>
                             <TableContainer component={Paper}>
                                 <Table size='small' >
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell className='w-[35%]'>CODE</TableCell>
-                                            <TableCell>NAME</TableCell>
+                                            <TableCell className='w-[35%]'>รหัส</TableCell>
+                                            <TableCell>ชื่อสกิล</TableCell>
                                             <TableCell className='text-center w-[7.5%]'>#</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -116,7 +116,7 @@ function DialogAddSA(props) {
                                                     </TableCell>
                                                 </TableRow>
                                             }) : <TableRow>
-                                                <TableCell colSpan={3} className='text-center font-semibold text-red-500'>* NO SA REQUIRED</TableCell>
+                                                <TableCell colSpan={3} className='text-center font-semibold text-red-500'>* ไม่พบสกิลเฉพาะทางที่ระบบต้องการ</TableCell>
                                             </TableRow>
                                         }
                                     </TableBody>
@@ -132,7 +132,7 @@ function DialogAddSA(props) {
                 </Snackbar>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => close(false)}>Close</Button>
+                <Button onClick={() => close(false)}>ปิดหน้าต่าง</Button>
             </DialogActions>
         </Dialog >
     )

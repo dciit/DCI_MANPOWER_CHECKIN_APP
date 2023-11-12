@@ -10,6 +10,7 @@ const initialState = {
     },
     version: 0,
     objectSelected: null,
+    layoutFilter: null,
     layout: {},
     sa: [],
     mt: []
@@ -17,6 +18,11 @@ const initialState = {
 
 const IndexReducer = (state = initialState, action) => {
     switch (action.type) {
+        case 'SET_LAYOUT_FILTER_SELECTED' :
+            return {
+                ...state,
+                layoutFilter:action.payload
+            }
         case 'SET_OBJECT_SELECTED':
             return {
                 ...state,

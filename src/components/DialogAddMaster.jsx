@@ -89,8 +89,8 @@ function DialogAddMaster(props) {
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => close(false)} >Close</Button>
-                <LoadingButton className='min-w-[6rem]' loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={() => handleAddMaster()} variant='contained'>Save</LoadingButton>
+                <Button onClick={() => close(false)} >ปิดหน้าต่าง</Button>
+                <LoadingButton className='min-w-[6rem]' loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={() => handleAddMaster()} variant='contained'>เพิ่ม</LoadingButton>
             </DialogActions>
         </Dialog>
     )

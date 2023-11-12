@@ -77,11 +77,10 @@ function DialogAddMQ(props) {
         // await initListMQ();
         await refreshMASA();
     }
-    console.log(objectSelected)
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
             <DialogTitle>
-                <Typography>ADD MQ REQUIRED</Typography>
+                <Typography>จัดการหลักสูตรอบรม (MQ) ที่ระบบต้องการ</Typography>
             </DialogTitle>
             <DialogContent dividers>
                 <DialogContentText>
@@ -96,18 +95,18 @@ function DialogAddMQ(props) {
                                         })
                                     }
                                 </Select>
-                                <LoadingButton disabled={reduxListMQ?.length ? false : true} loading={loadingInsert ? true : false} loadingPosition='start' startIcon={<AddIcon />} variant='contained' className='rounded-s-none w-[15%]' onClick={handleAddMQ}>ADD</LoadingButton>
+                                <LoadingButton disabled={reduxListMQ?.length ? false : true} loading={loadingInsert ? true : false} loadingPosition='start' startIcon={<AddIcon />} variant='contained' className='rounded-s-none w-[15%]' onClick={handleAddMQ}>เพิ่ม</LoadingButton>
                             </Stack>
 
                         </Stack>
                         <Stack>
-                            <Typography variant='overline'>  LIST MQ</Typography>
+                            <Typography variant='overline'>  รายการหลักสูตรอบรม</Typography>
                             <TableContainer component={Paper}>
                                 <Table size='small' >
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell className='w-[35%]'>CODE</TableCell>
-                                            <TableCell>NAME</TableCell>
+                                            <TableCell className='w-[35%]'>รหัส</TableCell>
+                                            <TableCell>ชื่อหลักสูตรอบรม</TableCell>
                                             <TableCell className='text-center w-[7.5%]'>#</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -124,7 +123,7 @@ function DialogAddMQ(props) {
                                                     </TableCell>
                                                 </TableRow>
                                             }) : <TableRow>
-                                                <TableCell colSpan={3} className='text-center font-semibold text-red-500'>* NO MQ REQUIRED</TableCell>
+                                                <TableCell colSpan={3} className='text-center font-semibold text-red-500'>* ไม่พบหลักสูตรอบรมที่ระบบต้องการ</TableCell>
                                             </TableRow>
                                         }
                                     </TableBody>
@@ -141,7 +140,7 @@ function DialogAddMQ(props) {
                 </Snackbar>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => close(false)}>Close</Button>
+                <Button onClick={() => close(false)}>ปิดหน้าต่าง</Button>
             </DialogActions>
         </Dialog >
     )

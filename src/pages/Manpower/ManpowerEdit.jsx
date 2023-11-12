@@ -1,4 +1,4 @@
-import { Avatar, Divider, Button, Typography, Stack, Select, MenuItem, Snackbar, Skeleton } from '@mui/material'
+import { Avatar, Divider, Button, Typography, Stack, Select, MenuItem, Snackbar, Skeleton, Grid } from '@mui/material'
 import React from 'react'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -9,7 +9,7 @@ import DialogAddMaster from '../../components/DialogAddMaster';
 import DialogUpdateMaster from '../../components/DialogUpdateMaster';
 import DialogAddObject from '../../components/DialogAddObject';
 import DialogAddLayout from '../../components/DialogAddLayout';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { API_DELETE_OBJECT, API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ } from '../../Service';
 import DialogDetailEquipment from '../../components/DialogDetailEquipment';
 function ManpowerEdit() {
@@ -26,16 +26,16 @@ function ManpowerEdit() {
     const [eqpIdDbClick, setEqpIdDbClick] = useState('');
     const [openAddMaster, setOpenAddMaster] = useState(false);
     const [layouts, setLayouts] = useState([]);
-    const [layoutSelected, setLayoutSelected] = useState('');
     const [draw, setDraw] = useState(true);
     const dispatch = useDispatch();
     let coord = null;
     let offset = null;
     let selectedElement = null;
     let svgContent = '';
+    const layoutFilter = useSelector(state => state.reducer.layoutFilter);
     useEffect(() => {
         init();
-    }, []);
+    }, [layoutFilter]);
 
     const openSnackbar = (newState) => () => {
         setState({ ...newState, open: true });
@@ -60,7 +60,6 @@ function ManpowerEdit() {
     const dbClick = async (evt) => {
         if (confirm('คุณต้องการลบ ใช่หรือไม่ ?')) {
             let id = evt.target.getAttribute("id");
-            console.log(id)
             const del = await API_DELETE_OBJECT({ objCode: id });
             if (del.status) {
                 document.querySelector(`#${id}`).remove();
@@ -119,18 +118,17 @@ function ManpowerEdit() {
         };
     }
     const intialData = async () => {
-        let bpLayout = 1;
         const listLayout = await API_GET_LAYOUT();
-        if (layoutSelected == '') {
-            setLayoutSelected(listLayout[bpLayout])
-            dispatch({ type: 'UPDATE_LAYOUT', payload: listLayout[bpLayout] })
+        if (layoutFilter == null) {
+            dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: listLayout[0] })
         }
         const listMaster = await API_GET_MASTER();
         const object = await API_GET_OBJECT_OF_LAYOUT({
-            layoutCode: (layoutSelected == '' ? listLayout[bpLayout].layoutCode : layoutSelected.layoutCode),
+            layoutCode: layoutFilter?.layoutCode,
         });
         setLayouts(listLayout);
         svgContent = document.querySelector("#svgContent");
+        svgContent.innerHTML = '';
         let svgMaster = '';
         let svg = '';
         object.map((elObj) => {
@@ -158,49 +156,54 @@ function ManpowerEdit() {
     }
 
     function changeLayout(layout) {
-        setLayoutSelected({...layoutSelected,layoutCode:layout})
-        intialData();
+        let index = layouts.findIndex(el => el.layoutCode == layout)
+        dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: layouts[index] })
     }
     return (
-        <div className='h-[97.5%] bg-white flex  '>
+        <div className=' bg-white flex  '>
             <div className='bg-[#f9f9f9] w-full p-3'>
-                <div className='bg-white rounded-xl shadow-xl h-[97.5%] p-6'>
-                    <div className='flex flex-row justify-between'>
-                        <div className='flex gap-2'>
-                            <GridViewIcon /><div>Management Layout</div>
-                        </div>
-                        <div>
-                            <CloseOutlinedIcon className='text-[#bbb]' />
-                        </div>
-                    </div>
-                    <Divider className='mt-3' />
-                    <div className='py-3'>
-                        <Stack pb={3} pt={1}>
-                            <Typography>LAYOUT : </Typography>
-                            {
-                                layouts.length ? <Select size='small' value={layoutSelected.layoutCode} onChange={(e) => changeLayout(e.target.value)}>
-                                    {
-                                        layouts.map((layout, index) => (<MenuItem value={layout.layoutCode} key={index}>{layout.layoutName} ({layout.layoutCode})</MenuItem>))
-                                    }
-                                </Select> : <Skeleton variant='rectangular' height={50} />
-                            }
-                        </Stack>
-                        <div className='tool pb-3 flex gap-2 items-start justify-end'>
-                            <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddLayout(true)} style={{ display: 'none' }}>Add Layout</Button>
-                            <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddObject(true)}>Add Object</Button>
-                            <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddMaster(true)} >ADD Master</Button>
-                            <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenUpdateMaster(true)} >Update Master</Button>
-                        </div>
-                        <div >
+                <div className='bg-white rounded-xl shadow-xl h-full p-6'>
+                    <Grid container>
+                        <Grid item xs={12}>
+                            <div className='flex flex-row justify-between'>
+                                <div className='flex gap-2'>
+                                    <GridViewIcon /><div>ระบบจัดการจุดปฎิบัติงาน</div>
+                                </div>
+                                <div>
+                                    <CloseOutlinedIcon className='text-[#bbb]' />
+                                </div>
+                            </div>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Stack direction={'row'} pb={2} pt={1} gap={2} alignItems={'center'}>
+                                <Typography className=''>พื้นที่ </Typography>
+                                {
+                                    layouts.length ? <Select className='w-full' size='small' value={layoutFilter?.layoutCode} onChange={(e) => changeLayout(e.target.value)}>
+                                        {
+                                            layouts.map((layout, index) => (<MenuItem value={layout.layoutCode} key={index}>{layout.layoutName} ({layout.layoutCode})</MenuItem>))
+                                        }
+                                    </Select> : <Skeleton variant='rectangular' height={50} />
+                                }
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Stack direction={'row'} gap={1} justifyContent={'end'} pb={2}>
+                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddLayout(true)} style={{ display: 'none' }}>Add Layout</Button>
+                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddObject(true)}>ADD OBJECT</Button>
+                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddMaster(true)} >ADD Master</Button>
+                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenUpdateMaster(true)} >Update Master</Button>
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={12}>
                             <svg id='svgContent' viewBox={`0 0 1200 500`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{ border: '1px solid #ddd' }}>
                             </svg>
-                        </div>
-                    </div>
+                        </Grid>
+                    </Grid>
                 </div>
             </div>
             <DialogAddMaster open={openAddMaster} close={setOpenAddMaster} snackbar={openSnackbar} />
             <DialogDetailEquipment open={openDetailEquipment} close={setOpenDetailEquipment} draw={setDraw} eqpId={eqpIdDbClick} />
-            <DialogAddObject open={openAddObject} close={setOpenAddObject} layout={layoutSelected} />
+            <DialogAddObject open={openAddObject} close={setOpenAddObject} layout={layoutFilter} />
             <DialogUpdateMaster open={openUpdateMaster} close={setOpenUpdateMaster} />
             <DialogAddLayout open={openAddLayout} close={setOpenAddLayout} />
             <Snackbar

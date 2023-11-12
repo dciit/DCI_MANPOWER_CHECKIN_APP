@@ -8,12 +8,13 @@ import { Button, Card, CardContent, Divider, Grid, IconButton, MenuItem, Select,
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from 'react-redux'
-import { API_ADD_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ } from '../Service'
+import { API_ADD_OBJECT, API_DELETE_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ } from '../Service'
 import { LoadingButton } from '@mui/lab'
 import SaveIcon from '@mui/icons-material/Save';
 function DialogAddObject(props) {
-    const { open, close, layout } = props;
+    const { open, close } = props;
     const [loading, setLoading] = useState(false);
+    const layoutSelected = useSelector(state=>state.reducer.layoutFilter)
     let coord = null;
     let offset = null;
     let selectedElement = null;
@@ -43,7 +44,6 @@ function DialogAddObject(props) {
 
     async function init() {
         const listMaster = await API_GET_MASTER();
-
         if (masterSelected == '') {
             setMasterSelected(listMaster[0].objMasterId)
         }
@@ -53,7 +53,7 @@ function DialogAddObject(props) {
     async function handleAddObject() {
         setLoading(true);
         const res = await API_ADD_OBJECT({
-            ...object, objMasterId: masterSelected, layoutCode: layout.layoutCode
+            ...object, objMasterId: masterSelected, layoutCode: layoutSelected?.layoutCode
         });
         if (res.status == "1") {
             const getObject = await API_GET_OBJECT_BY_CODE({ objCode: res.msg });
@@ -85,9 +85,9 @@ function DialogAddObject(props) {
                     itemSvg.setAttribute('id', elObj.objCode);
                     itemSvg.setAttribute('x', elObj.objX);
                     itemSvg.setAttribute('y', elObj.objY);
-                    itemSvg.addEventListener('click', function () {
-                        setOpenCheckIn(true);
-                    })
+                    // itemSvg.addEventListener('click', function () {
+                    //     // setOpenCheckIn(true);
+                    // })
                     svg.appendChild(itemSvg);
                 } else {
                     const blob = new Blob([elObj.objSvg], { type: 'image/svg+xml' });
@@ -97,11 +97,11 @@ function DialogAddObject(props) {
                     use.setAttribute('id', elObj.objCode);
                     use.setAttribute('x', elObj.objX);
                     use.setAttribute('y', elObj.objY);
-                    use.addEventListener('click', function () {
-                        if (elObj.objType == 'MP') {
-                            setOpenCheckIn(true);
-                        }
-                    })
+                    // use.addEventListener('click', function () {
+                    //     if (elObj.objType == 'MP') {
+                    //         setOpenCheckIn(true);
+                    //     }
+                    // })
                     svg.appendChild(use);
                 }
                 initDrag(svgContent, svg);
@@ -114,8 +114,6 @@ function DialogAddObject(props) {
 
 
     }
-
-
     const initDrag = async (content, svg) => {
         svg.addEventListener('mousedown', startDrag);
         svg.addEventListener('mousemove', moveDrag);
@@ -190,7 +188,7 @@ function DialogAddObject(props) {
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
             <DialogTitle className='px-6 pt-4 pb-3' id="customized-dialog-title">
-                Add Object
+                ADD OBJECT
             </DialogTitle>
             <IconButton
                 aria-label="close"
@@ -217,7 +215,7 @@ function DialogAddObject(props) {
                         placeholder="กรุณากรอก Master Name "
                         disabled
                         variant='filled'
-                        value={layout.layoutCode}
+                        value={`${layoutSelected?.layoutCode } (${layoutSelected?.layoutName })`}
                     />
                     <Stack mb={3}>
                         <Stack mb={1}>
@@ -262,7 +260,7 @@ function DialogAddObject(props) {
                                             <Typography color={'text.secondary'}>Object Type</Typography>
                                             <Select value={object.objType} defaultValue='OTHER' size='small' fullWidth onChange={(e) => setObject({ ...object, objType: e.target.value })}>
                                                 {
-                                                    ["MP", "OTHER"].map((type, index) => {
+                                                    [ "OTHER","MP"].map((type, index) => {
                                                         return <MenuItem value={type} key={index}>{type}</MenuItem>
                                                     })
                                                 }
@@ -276,8 +274,8 @@ function DialogAddObject(props) {
                 }
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => close(false)} >Close</Button>
-                <LoadingButton loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={handleAddObject} variant='contained'>Save</LoadingButton>
+                <Button onClick={() => close(false)} >ปิดหน้าต่าง</Button>
+                <LoadingButton loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={handleAddObject} variant='contained'>เพิ่ม</LoadingButton>
             </DialogActions>
         </Dialog>
     )

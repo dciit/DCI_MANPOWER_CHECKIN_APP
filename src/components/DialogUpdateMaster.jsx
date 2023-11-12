@@ -97,8 +97,8 @@ function DialogUpdateMaster(props) {
                 }
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => close(false)} >Close</Button>
-                <LoadingButton disabled = {masters.length ? false : true} className='min-w-[6rem]' loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={() => handleUpdateMaster()} variant='contained'>Save</LoadingButton>
+                <Button onClick={() => close(false)} >ปิดหน้าต่าง</Button>
+                <LoadingButton disabled = {masters.length ? false : true} className='min-w-[6rem]' loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={() => handleUpdateMaster()} variant='contained'>บันทึก</LoadingButton>
             </DialogActions>
         </Dialog>
     )

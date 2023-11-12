@@ -7,13 +7,13 @@ function CardPositionEmployee(props) {
     const { data } = props;
     return (
         <Card variant="outlined"  >
-            <CardHeader title="WORK POSITION" className='px-3 py-2 pb-1 text-center' />
+            <CardHeader title="ข้อมูลพื้นที่ปฎิบัตงาน" className='px-3 py-2 pb-1 text-center' />
             <Divider />
             <CardContent >
                 <div className='h-[160px]'>
                     <Table className='w-full' size='small'>
                         <TableBody>
-                            <TableRow>
+                            {/* <TableRow>
                                 <TableCell width={'50%'}>WORK CODE : </TableCell>
                                 <TableCell className='font-sans font-semibold'> {data.objCode}</TableCell>
                             </TableRow>
@@ -28,6 +28,22 @@ function CardPositionEmployee(props) {
                             <TableRow>
                                 <TableCell>LINE : </TableCell>
                                 <TableCell className='font-sans font-semibold'> {data.line} ({data.subLine})</TableCell>
+                            </TableRow> */}
+                              <TableRow>
+                                <TableCell width={'50%'}>รหัส : </TableCell>
+                                <TableCell className='font-sans font-semibold'> {data?.objCode}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>ชื่อ : </TableCell>
+                                <TableCell className='font-sans font-semibold'> {data?.objTitle}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>โรงงาน : </TableCell>
+                                <TableCell className='font-sans font-semibold'> {data?.factory}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>ไลต์การผลิต : </TableCell>
+                                <TableCell className='font-sans font-semibold'> {data?.line} ({data?.subLine})</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

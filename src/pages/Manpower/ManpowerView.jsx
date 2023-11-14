@@ -107,21 +107,18 @@ function ManpowerView() {
         elObj.objSvg = elObj.objSvg.replace("{empcode}", elObj.empCode);
         elObj.objSvg = elObj.objSvg.replace("{empcode}", elObj.empCode);
 
-        // elObj.objSvg = elObj.objSvg.replace("{txtMQ}", elObj.empCode);
         (elObj.mq == "TRUE" ? ThemeTrue.bg : ThemeFalse.bg).map(
           (theme, indexTheme) => {
             elObj.objSvg = elObj.objSvg.replace(`{bgmq}`, theme);
           }
         );
 
-        // elObj.objSvg = elObj.objSvg.replace("{txtSA}", elObj.empCode);
         (elObj.sa == "TRUE" ? ThemeTrue.bg : ThemeFalse.bg).map(
           (theme, indexTheme) => {
             elObj.objSvg = elObj.objSvg.replace(`{bgsa}`, theme);
           }
         );
 
-        // elObj.objSvg = elObj.objSvg.replace("{txtOT}", elObj.empCode);
         (elObj.ot == "TRUE" ? ThemeTrue.bg : ThemeFalse.bg).map(
           (theme, indexTheme) => {
             elObj.objSvg = elObj.objSvg.replace(`{bgot}`, theme);
@@ -129,8 +126,6 @@ function ManpowerView() {
         );
 
         elObj.objSvg = elObj.objSvg.replace("{empImage}", elObj.empImage);
-
-        // elObj.objSvg = elObj.objSvg.replace("{title_color_bg}", elObj.empcode != '' ? 'green' : 'red');
         itemSvg.innerHTML = elObj.objSvg;
         itemSvg.setAttribute("id", elObj.objCode);
         itemSvg.setAttribute("x", elObj.objX);
@@ -150,7 +145,6 @@ function ManpowerView() {
         elObj.objSvg = elObj.objSvg.replace("{objName}", elObj.objTitle);
 
         itemSvg.innerHTML = elObj.objSvg;
-        itemSvg.innerHTML = elObj.objSvg;
         itemSvg
           .querySelector("rect.svgTxtTitleBg")
           .setAttribute("width", titleWidth);
@@ -159,7 +153,20 @@ function ManpowerView() {
         itemSvg.setAttribute("x", elObj.objX);
         itemSvg.setAttribute("y", elObj.objY);
         svg.appendChild(itemSvg);
-      } else {
+      } else if(elObj.objSvg.includes("animate")){
+        const itemSvg = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg"
+        );
+        itemSvg.innerHTML = elObj.objSvg;
+        itemSvg.setAttribute("id", elObj.objCode);
+        itemSvg.setAttribute("x", elObj.objX);
+        itemSvg.setAttribute("y", elObj.objY);
+        if(itemSvg.querySelector('svg').getAttribute('viewBox') != null){
+          itemSvg.querySelector('svg').removeAttribute('viewBox')
+        }
+        svg.appendChild(itemSvg);
+      }else {
         svgMaster = svgMaster.replace("{objName}", elObj.objTitle);
         svgMaster = svgMaster.replace("{empcode}", elObj.empcode);
         svgMaster = svgMaster.replace(

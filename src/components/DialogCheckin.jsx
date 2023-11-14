@@ -29,7 +29,7 @@ function DialogCheckin(props) {
         setData(objectDetail[0])
         dispatch({ type: 'SET_OBJECT_SELECTED', payload: objectDetail[0] })
     }
-
+    console.log(objectSelected)
     async function handleCheckInOut() {
         let inpEmpCode = document.querySelector('input#inpEmpCode').value;
         let inpYMD = document.querySelector('input#inpYMD').value;

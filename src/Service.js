@@ -274,7 +274,6 @@ export function API_GET_SA() { // {"searchCode": "string","searchType": "string"
 
 
 export function API_ADD_MQSA(param) { // {"objCode": "string","layOutCode": "string","dictCode": "string","dictType": "string","empCode": "string"}
-    console.log(param)
     return new Promise(resolve => {
         http.post(`/mpck/addMQSA`, param).then((res) => {
             resolve(res.data);
@@ -282,19 +281,20 @@ export function API_ADD_MQSA(param) { // {"objCode": "string","layOutCode": "str
     })
 }
 
+export function API_MANAGEMENT_LIST(param) {
+    return new Promise(resolve => {
+        http.post(`/mpck/management`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
 
 export function API_DELETE_MQSA(param) {
-    // {
-    //     "objCode": "string",
-    //     "layOutCode": "string",
-    //     "dictCode": "string",
-    //     "dictType": "string",
-    //     "empCode": "string"
-    //   }
     return new Promise(resolve => {
         http.post(`/mpck/deleteMQSA`, param).then((res) => {
             resolve(res.data);
         })
     })
 }
-API_DELETE_MQSA
+// API_DELETE_MQSA

@@ -3,8 +3,10 @@ import React from 'react'
 import DialogAddSA from '../DialogAddSA'
 import { useState } from 'react'
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { useSelector } from 'react-redux';
 function CardObjSA(props) {
     const { listSA, data } = props;
+    const login = useSelector(state => state.reducer.login);
     const [openDialogAddSA, setOpenDialogAddSA] = useState(false);
     return (
         <Card >
@@ -14,7 +16,9 @@ function CardObjSA(props) {
                     <Typography>ที่ระบบต้องการ</Typography>
                 </div>
                 <div>
-                    <Button startIcon={<AddCircleIcon />} onClick={() => setOpenDialogAddSA(true)} variant='contained' className='bg-white text-black '>จัดการ SA</Button>
+                    {
+                        (typeof login == 'boolean' && login == true) && <Button startIcon={<AddCircleIcon />} onClick={() => setOpenDialogAddSA(true)} variant='contained' className='bg-white text-black '>จัดการ SA</Button>
+                    }
                 </div>
             </div>
             <Divider />

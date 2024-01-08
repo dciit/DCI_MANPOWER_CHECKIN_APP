@@ -46,6 +46,7 @@ function DialogAddSA(props) {
             dictType: "SA",
             empCode: "99999"
         });
+        console.log(insertSA)
         insertSA.msg = insertSA.status == '1' ? 'ADD SA SUCCESS ' : insertSA.msg;
         setInsertResult(insertSA);
         setOpenSnackBar(true);
@@ -84,7 +85,7 @@ function DialogAddSA(props) {
                                 <Select value={SASelected} className='rounded-e-none w-[85%]' fullWidth size='small' onChange={(e) => setSASelected(e.target.value)}>
                                     {
                                         reduxListSA.map((item, index) => {
-                                            return <MenuItem key={index} value={item?.processCode}>{item?.processCode}:{item?.processName}</MenuItem>
+                                            return <MenuItem key={index} value={item?.code}>{item?.code}:{item?.dictDesc}</MenuItem>
                                         })
                                     }
                                 </Select>

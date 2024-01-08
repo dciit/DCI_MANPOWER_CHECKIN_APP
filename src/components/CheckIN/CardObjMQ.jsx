@@ -2,9 +2,11 @@ import { Avatar, Button, Card, CardContent, CardHeader, Divider, Table, TableBod
 import React, { useState } from 'react'
 import DialogAddMQ from '../DialogAddMQ';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { useSelector } from 'react-redux';
 function CardObjMQ(props) {
     const [openDialogAddMQ, setOpenDialogAddMQ] = useState(false);
     const { listMQ, data } = props;
+    const login = useSelector(state => state.reducer?.login);
     return (
         <Card >
             <div className='flex justify-between px-3 py-3 pb-2.5 bg-blue-600 text-white text-right'>
@@ -13,7 +15,9 @@ function CardObjMQ(props) {
                     <Typography>ที่ระบบต้องการ</Typography>
                 </div>
                 <div>
-                    <Button  startIcon = {<AddCircleIcon/>} onClick={() => setOpenDialogAddMQ(true)} variant='contained'  className='bg-white text-black '>จัดการ MQ</Button>
+                    {
+                        (typeof login == 'boolean' && login == true) && <Button startIcon={<AddCircleIcon />} onClick={() => setOpenDialogAddMQ(true)} variant='contained' className='bg-white text-black '>จัดการ MQ</Button>
+                    }
                 </div>
             </div>
             <Divider />

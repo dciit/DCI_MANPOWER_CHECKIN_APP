@@ -34,9 +34,10 @@ function DialogAddMQ(props) {
     }, [open])
 
     async function init() {
-        if (mqSelected == '') {
+        if (mqSelected == '' && Object.keys(reduxListMQ).length) {
             setMQSelected(reduxListMQ[0].processCode)
         }
+        // await initListMQ();
     }
     async function initListMQ() {
         let listMQOfObj = await API_GET_MQSA_BY_CODE({ searchCode: data.objCode, searchType: "MQ" });
@@ -85,7 +86,6 @@ function DialogAddMQ(props) {
             <DialogContent dividers>
                 <DialogContentText>
                     <Stack gap={2}>
-
                         <Stack gap={1}>
                             <Stack direction={'col'}>
                                 <Select value={mqSelected} className='rounded-e-none w-[85%]' fullWidth size='small' onChange={(e) => setMQSelected(e.target.value)}>
@@ -97,7 +97,6 @@ function DialogAddMQ(props) {
                                 </Select>
                                 <LoadingButton disabled={reduxListMQ?.length ? false : true} loading={loadingInsert ? true : false} loadingPosition='start' startIcon={<AddIcon />} variant='contained' className='rounded-s-none w-[15%]' onClick={handleAddMQ}>เพิ่ม</LoadingButton>
                             </Stack>
-
                         </Stack>
                         <Stack>
                             <Typography variant='overline'>  รายการหลักสูตรอบรม</Typography>
@@ -129,7 +128,6 @@ function DialogAddMQ(props) {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-
                         </Stack>
                     </Stack>
                 </DialogContentText>

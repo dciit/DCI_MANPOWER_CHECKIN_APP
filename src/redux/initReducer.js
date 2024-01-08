@@ -1,6 +1,7 @@
 const initialState = {
     login: false,
     username: '',
+    name:'',
     filter: {
         evaluate: {
             supplier: '',
@@ -29,6 +30,7 @@ const IndexReducer = (state = initialState, action) => {
                 objectSelected: action.payload
             }
         case 'SET_LAYOUT_SELECTED':
+            console.log(action.payload)
             return {
                 ...state,
                 layout: action.payload.layout,
@@ -41,9 +43,12 @@ const IndexReducer = (state = initialState, action) => {
                 layout: action.payload
             }
         case 'LOGIN':
+            console.log(action.payload)
             return {
                 ...state,
-                ...action.payload
+                name:action.payload.name,
+                login:true,
+                empcode: action.payload.empcode
             }
         case 'FILTER_CHANGE':
             return {

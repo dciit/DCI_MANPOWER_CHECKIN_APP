@@ -12,12 +12,16 @@ import DialogAddLayout from '../../components/DialogAddLayout';
 import { useDispatch, useSelector } from 'react-redux';
 import { API_DELETE_OBJECT, API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ } from '../../Service';
 import DialogDetailEquipment from '../../components/DialogDetailEquipment';
+import { useNavigate } from 'react-router';
+import HomeIcon from '@mui/icons-material/Home';
 function ManpowerEdit() {
+    const VITE_PATH  = import.meta.env.VITE_PATH;
     const [state, setState] = React.useState({
         open: false,
         vertical: 'top',
         horizontal: 'center',
     });
+    const navigate = useNavigate();
     const { vertical, horizontal, open } = state;
     const [openAddLayout, setOpenAddLayout] = useState(false);
     const [openAddObject, setOpenAddObject] = useState(false);
@@ -162,6 +166,9 @@ function ManpowerEdit() {
     return (
         <div className=' bg-white flex  '>
             <div className='bg-[#f9f9f9] w-full p-3'>
+                <Stack direction={'column'} alignItems={'end'} mb={2}>
+                    <Button variant='contained' startIcon = {<HomeIcon/>} className='min-w-[10em]' onClick={()=>navigate(`../${VITE_PATH}/management`)}>หน้าหลัก</Button>
+                </Stack>
                 <div className='bg-white rounded-xl shadow-xl h-full p-6'>
                     <Grid container>
                         <Grid item xs={12}>

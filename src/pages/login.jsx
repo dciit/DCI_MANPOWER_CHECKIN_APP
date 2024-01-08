@@ -15,6 +15,7 @@ import logo from './../images/icon-dci.png'
 import axios from 'axios';
 import { Backdrop, CircularProgress } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 function Copyright(props) {
     return (
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -32,6 +33,7 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function Login() {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const reducer = useSelector((state) => state.reducer);
     const [userReq, setUseReq] = useState(false);
@@ -56,9 +58,10 @@ export default function Login() {
                 setOpenBackdrop(true);
                 setUseReq(false);
                 setPwdReq(false);
-                axios.get('http://websrv01.dci.daikin.co.jp/BudgetCharts/BudgetRestService/api/authen?username=' + data.get('email') + '&password=' + encodeURIComponent(pwd)).then((res) => {
+                axios.get('https://scm.dci.co.th/BudgetCharts/BudgetRestService/api/authen?username=' + data.get('email') + '&password=' + encodeURIComponent(pwd)).then((res) => {
                     if (res.data[0]?.FullName != null) {
                         dispatch({ type: 'LOGIN', payload: { login: true, name: res.data[0]?.FullName, empcode: res.data[0].EmpCode } });
+                        navigate('/dci_manpower_checkin/management');
                         setShowLoginFalse(false)
                     } else {
                         setShowLoginFalse(true)
@@ -91,7 +94,7 @@ export default function Login() {
                     <Avatar className='mb-2' sx={{ m: 0, }} src={logo} variant="rounded" >
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Evaluate Supplier System
+                        Manpower Management
                     </Typography>
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                         <TextField

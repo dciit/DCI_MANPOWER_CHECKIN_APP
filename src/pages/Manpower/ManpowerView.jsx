@@ -6,6 +6,10 @@ import {
   Stack,
   Select,
   MenuItem,
+  Skeleton,
+  Backdrop,
+  CircularProgress,
+  IconButton,
 } from "@mui/material";
 import React from "react";
 import { useEffect } from "react";
@@ -22,12 +26,17 @@ import {
   API_GET_SA,
 } from "../../Service";
 import DialogCheckin from "../../components/DialogCheckin";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { DoubleArrow } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import HomeIcon from '@mui/icons-material/Home';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { persistor } from "../../redux/store";
 function ManpowerView() {
+  const reducer = useSelector(state => state.reducer);
   let { layout } = useParams();
-
+  const navigate = useNavigate();
+  const VITE_PATH = import.meta.env.VITE_PATH;
   const [openCheckIn, setOpenCheckIn] = useState(false);
   // const [layouts, setLayouts] = useState([]);
   // const [layoutSelected, setLayoutSelected] = useState('');
@@ -36,6 +45,7 @@ function ManpowerView() {
   const [objectCode, setObjectCode] = useState({});
   const [objSelected, setObjSelected] = useState({});
   const [layoutSelected, setLayoutSelected] = useState({});
+  const [backdrop, setBackdrop] = useState(true);
   const dispatch = useDispatch();
   // const [inpEmpCode,setInpEmpCode] = useState()
   const ThemeTrue = {
@@ -57,16 +67,17 @@ function ManpowerView() {
   const init = async () => {
     const getLayout = await API_GET_LAYOUT(layout);
     if (getLayout != null && getLayout.length) {
-
       let mq = await API_GET_MQ();
       mq = mq.filter((itemMQ) => {
+        // console.log(getLayout[0].factory)
+        // console.log(getLayout[0].subLine)
         return itemMQ.factory == getLayout[0].factory && itemMQ.subLine == getLayout[0].subLine
       })
-
       let sa = await API_GET_SA();
-      sa = sa.filter((itemSA) => {
-        return itemSA.factory == getLayout[0].factory && itemSA.subLine == getLayout[0].subLine
-      })
+      console.log(sa)
+      // sa = sa.filter((itemSA) => {
+      //   return itemSA.factory == getLayout[0].factory && itemSA.subLine == getLayout[0].subLine
+      // })
       dispatch({
         type: 'SET_LAYOUT_SELECTED', payload: {
           layout: getLayout[0],
@@ -80,6 +91,7 @@ function ManpowerView() {
   };
 
   const intialData = async () => {
+    setBackdrop(true);
     const listMaster = await API_GET_MASTER();
     const object = await API_GET_OBJECT_OF_LAYOUT({
       layoutCode: layout,
@@ -90,7 +102,7 @@ function ManpowerView() {
     svgContent.innerHTML = "";
     let svgMaster = "";
     let svg = "";
-    object.map((elObj) => {
+    await object.map((elObj) => {
       svgMaster = elObj.objSvg;
       svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       let i = 0;
@@ -153,7 +165,7 @@ function ManpowerView() {
         itemSvg.setAttribute("x", elObj.objX);
         itemSvg.setAttribute("y", elObj.objY);
         svg.appendChild(itemSvg);
-      } else if(elObj.objSvg.includes("animate")){
+      } else if (elObj.objSvg.includes("animate")) {
         const itemSvg = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "svg"
@@ -162,11 +174,11 @@ function ManpowerView() {
         itemSvg.setAttribute("id", elObj.objCode);
         itemSvg.setAttribute("x", elObj.objX);
         itemSvg.setAttribute("y", elObj.objY);
-        if(itemSvg.querySelector('svg').getAttribute('viewBox') != null){
+        if (itemSvg.querySelector('svg').getAttribute('viewBox') != null) {
           itemSvg.querySelector('svg').removeAttribute('viewBox')
         }
         svg.appendChild(itemSvg);
-      }else {
+      } else {
         svgMaster = svgMaster.replace("{objName}", elObj.objTitle);
         svgMaster = svgMaster.replace("{empcode}", elObj.empcode);
         svgMaster = svgMaster.replace(
@@ -193,6 +205,7 @@ function ManpowerView() {
       }
       svgContent.appendChild(svg);
     });
+    setBackdrop(false)
     return true;
   };
 
@@ -218,20 +231,34 @@ function ManpowerView() {
     }
   }
 
+  async function handleBacktohome() {
+    navigate(`../${VITE_PATH}/management`);
+  }
 
+  async function handleLogout() {
+    if (confirm('คุณต้องการออกจากระบบ ใช่หรือไม่ ? ')) {
+      persistor.purge();
+      navigate(`${VITE_PATH}`);
+    }
+  }
+  const login = useSelector(state => state.reducer?.login);
   return (
     <div className="h-[100%] w-[100%] bg-white flex  ">
-      <input type="hidden" id="inpObjCode" value={objSelected.objCode}></input>
+
+      <input type="hidden" id="inpObjCode" value={objSelected?.objCode}></input>
       <input type="hidden" id="inpLayoutCode" value={layout}></input>
       <input type="hidden" id="inpEmpCode" value={""}></input>
-      <input type="hidden" id="disEmpCode" value={objSelected.empCode}></input>
+      <input type="hidden" id="disEmpCode" value={objSelected?.empCode}></input>
       <input type="hidden" id="inpYMD" value={""}></input>
       <input type="hidden" id="inpShift" value={""}></input>
       <input type="hidden" id="inpType" value={""}></input>
-
       <Stack sx={{ width: "100%" }}>
-        <div className="h-[5%] flex items-center justify-center shadow-sm text-xl">
-          {layoutSelected.layoutName} ({layoutSelected.layoutCode})
+        <div className="h-[5%] flex items-center justify-center shadow-sm text-xl" style={{ borderBottom: '1px solid #e6e4e4' }}>
+          <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} className="w-full px-3">
+            <Button startIcon={<HomeIcon />} variant="contained" onClick={handleBacktohome}>กลับหน้าหลัก</Button>
+            <Typography variant="h5">{layoutSelected.layoutName} ({layoutSelected.layoutCode})</Typography>
+            <Button startIcon={<LogoutIcon />} onClick={handleLogout} variant="outlined" color="error" disabled = {!login}>ออกจากระบบ</Button>
+          </Stack>
         </div>
         <div className="h-[95%] flex items-center bg-[#e9fbff]" >
           <svg
@@ -250,6 +277,15 @@ function ManpowerView() {
         setData={setObjSelected}
         refObj={refreshObject}
       />
+      <Backdrop
+        sx={{ color: '#fff', background: '#3f51b5', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={backdrop}
+      >
+        <Stack alignItems={'center'} spacing={2}>
+          <CircularProgress color="inherit" />
+          <Typography>กำลังโหลดข้อมูล</Typography>
+        </Stack>
+      </Backdrop>
     </div>
   );
 }

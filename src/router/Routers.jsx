@@ -10,22 +10,29 @@ import QrCode from "../pages/qrcode";
 import Manpower from "../pages/manpower";
 import ManpowerView from "../pages/Manpower/ManpowerView";
 import ManpowerEdit from "../pages/Manpower/ManpowerEdit";
+import ManpowerGrid from "../pages/Manpower/ManpowerGrid";
+import Management from "../pages/management";
+import Login from "../pages/login";
 const Routers = () => {
     const dispatch = useDispatch();
-    const BasePath = import.meta.env.VITE_PATH;
+    const BASE = import.meta.env.VITE_PATH;
     const version = import.meta.env.VITE_VERSION;
     const reducer = useSelector(state => state.reducer);
     if (reducer.version == 'undefined' || reducer.version != version) {
         dispatch({ type: 'RESET', payload: { version: version, login: false } });
     }
+    console.log(BASE)
     return (
         <BrowserRouter>
             <Routes>
                 <Route element={<Layout />}>
-                    <Route path={`${BasePath}/:layout`} element={<ManpowerView />} />
-                    <Route path={`${BasePath}/edit`} element={<ManpowerEdit />} />
+                    {/* <Route path={`${BASE}/:layout`} element={<ManpowerView />} /> */}
+                    <Route path={`${BASE}/edit`} element={<ManpowerEdit />} />
+                    <Route path={`${BASE}/management`} element={<Management />} />
                 </Route>
-                <Route path={`${BasePath}/*`} element={<ManpowerView />} />
+                <Route path={`${BASE}/:layout`} element={<ManpowerView />} />
+                <Route path={`/*`} element={<Login />} />
+                <Route path={`${BASE}/login`} element={<Login />} />
             </Routes>
         </BrowserRouter>
     );

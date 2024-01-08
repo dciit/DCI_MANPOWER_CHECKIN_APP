@@ -13,41 +13,61 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import React, { useState } from 'react';
 import MailIcon from '@mui/icons-material/Mail';
-import { Badge, Divider, Paper, InputBase } from '@mui/material'
+import { Badge, Divider, Paper, InputBase, Stack } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import PinDropRoundedIcon from '@mui/icons-material/PinDropRounded';
 import DirectionsIcon from '@mui/icons-material/Directions';
+import MenuComponent from '../components/menu.component';
+import { useDispatch, useSelector } from 'react-redux';
+import logo from '../assets/icon-dci.ico'
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+import { persistor } from "../redux/store";
+import { useNavigate } from 'react-router';
 function Header() {
-    const [anchorElNav, setAnchorElNav] = useState(null);
-    const [anchorElUser, setAnchorElUser] = useState(null);
-
-    const handleOpenNavMenu = (event) => {
-        setAnchorElNav(event.currentTarget);
-    };
-    const handleOpenUserMenu = (event) => {
-        setAnchorElUser(event.currentTarget);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
-
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
-    };
-    return <div className='h-[5%] px-3 bg-white text-center text-black flex justify-between items-center leading-[1.4]' style={{ borderBottom: '1px solid #ddd' }}>
-        <div>
-            LOGO
+    const VITE_PATH = import.meta.env.VITE_PATH;
+    const navigate = useNavigate();
+    const reducer = useSelector(state => state.reducer);
+    const [openMenu, setOpenMenu] = useState(null);
+    const open = Boolean(openMenu);
+    async function handleOpenMenu(event) {
+        setOpenMenu(event.currentTarget)
+    }
+    async function handleCloseMenu() {
+        setOpenMenu(null);
+    }
+    async function handleLogout() {
+        if (confirm('คุณต้องการออกจากระบบ ใช่หรือไม่ ? ')) {
+            persistor.purge();
+            location.reload();
+        }
+    }
+    async function handleHome(){
+        navigate(`${VITE_PATH}/management`)
+    }
+    return (
+        <div className='h-[75px] bg-[#f6f8fa]' style={{ borderBottom: '1px solid #ddd' }}>
+            <Stack direction={'row'} justifyContent={'space-between'} px={3} className='h-full' alignContent={'center'}>
+                <Stack direction={'row'} alignItems={'center'} spacing={3}>
+                    {/* <Stack className='cursor-pointer'>
+                        <Box className='bg-[#f6f8fa] px-2 pb-2 pt-1 rounded-lg' style={{ border: '1px solid #ddd' }}>
+                            <MenuIcon />
+                        </Box>
+                    </Stack> */}
+                    <Stack alignItems={'center'} spacing={2} direction={'row'} className='cursor-pointer select-none' onClick={handleHome}>
+                        <Avatar src={logo} variant='square' className='w-[35px]' />
+                        <Typography className='uppercase  flex justify-center items-center text-[1.5em]' >DCI MANPOWER</Typography>
+                    </Stack>
+                </Stack>
+                <Stack justifyContent={'center'}>
+                    <div onClick={handleOpenMenu} className='flex items-center gap-2'>
+                        <Typography className=''>{reducer.name}</Typography>
+                        <Avatar>{reducer.name?.substring(3, 4)}</Avatar>
+                    </div>
+                </Stack>
+            </Stack>
+            <MenuComponent open={open} openMenu={openMenu} closeMenu={handleCloseMenu} handleOpenMenu={handleOpenMenu} logout={handleLogout} />
         </div>
-        <div className='flex gap-2 text-left cursor-pointer'>
-            <Avatar className='hover:scale-105 transition-all' src='src/images/profile.jpg' />
-            <div className='flex-col justify-start' style={{ lineHeight: 1.2 }}>
-                <div className='text-black uppercase'>Peerapong.k</div>
-                <div className='text-[#9ca3af] text-[14px] '>peerapong.k@dci.daikin.co.jp</div>
-            </div>
-        </div>
-    </div>
+    )
 }
 export default Header;

@@ -29,7 +29,7 @@ function DialogCheckin(props) {
         setData(objectDetail[0])
         dispatch({ type: 'SET_OBJECT_SELECTED', payload: objectDetail[0] })
     }
-    console.log(objectSelected)
+    // console.log(objectSelected)
     async function handleCheckInOut() {
         let inpEmpCode = document.querySelector('input#inpEmpCode').value;
         let inpYMD = document.querySelector('input#inpYMD').value;
@@ -53,13 +53,12 @@ function DialogCheckin(props) {
     }
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='lg'>
-            <DialogTitle className='text-center'>
-                ข้อมูลพื้นที่ปฎิบัติงานและพนักงาน
-            </DialogTitle>
+            <DialogTitle className='text-center'>ข้อมูลพื้นที่ปฎิบัติงานและพนักงาน</DialogTitle>
             <DialogContent>
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <button style={{ display: 'none' }} id="handleCheckInOut" onClick={handleCheckInOut}></button>
+                        <button style={{ display: 'none' }} id="handleCheckInOut" onClick={handleCheckInOut}>CHECKIN</button>
+                        {/* style={{ display: 'none' }}  */}
                         <Stack gap={2}>
                             <CardPosition data={objectSelected} />
                         </Stack>
@@ -90,7 +89,7 @@ function DialogCheckin(props) {
                                                     <TimelineConnector />
                                                     <TimelineDot color={`${vLog.cktype == 'IN' ? 'success' : 'error'}`}>
                                                         {
-                                                            iLog == 0 ? <CheckCircleIcon /> : ''
+                                                            (iLog == 0 && (typeof objectSelected.empCode !== 'undefined' && objectSelected.empCode != "")) ? <CheckCircleIcon /> : ''
                                                         }
                                                     </TimelineDot>
                                                     <TimelineConnector />
@@ -102,7 +101,6 @@ function DialogCheckin(props) {
                                                     <Typography> {vLog.empCode} [{vLog.posit}]</Typography>
                                                 </TimelineContent>
                                             </TimelineItem>
-
                                         }) : <Typography className='w-full text-center'>ไม่พบประวัติการเข้าทำงาน</Typography>
                                     }
                                 </Timeline>
@@ -130,7 +128,7 @@ function DialogCheckin(props) {
                                                     <TimelineConnector />
                                                     <TimelineDot color={`${vLog.cktype == 'IN' ? 'success' : 'error'}`}>
                                                         {
-                                                            iLog == 0 ? <CheckCircleIcon /> : ''
+                                                            (iLog == 0 && (typeof objectSelected.empCode !== 'undefined' && objectSelected.empCode != "")) ? <CheckCircleIcon /> : ''
                                                         }
                                                     </TimelineDot>
                                                     <TimelineConnector />

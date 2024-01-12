@@ -74,7 +74,6 @@ function ManpowerView() {
         return itemMQ.factory == getLayout[0].factory && itemMQ.subLine == getLayout[0].subLine
       })
       let sa = await API_GET_SA();
-      console.log(sa)
       // sa = sa.filter((itemSA) => {
       //   return itemSA.factory == getLayout[0].factory && itemSA.subLine == getLayout[0].subLine
       // })
@@ -147,9 +146,9 @@ function ManpowerView() {
           setOpenCheckIn(true);
         });
         svg.appendChild(itemSvg);
-      } else if (elObj.objSvg.includes("svgTxtTitleMsg")) {
+      } else if (elObj.objSvg.includes("svgTxtTitleMsg") || elObj.objSvg.includes("WidthFollowText")) {
         let titleLen = elObj.objTitle.length;
-        let titleWidth = titleLen * 8 + 20;
+        let titleWidth = (titleLen * 8) + 20;
         const itemSvg = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "svg"
@@ -157,10 +156,27 @@ function ManpowerView() {
         elObj.objSvg = elObj.objSvg.replace("{objName}", elObj.objTitle);
 
         itemSvg.innerHTML = elObj.objSvg;
+        var areaFree = document.getElementById('bg')
+        var iSpan = document.createElement('span');
+        iSpan.innerHTML = elObj.objTitle;
+        iSpan.setAttribute('refId', elObj.objCode)
+        iSpan.style.fontSize = '10px'
+        areaFree.appendChild(iSpan)
+        var oSpanAgain = areaFree.querySelector(`span[refid=${elObj.objCode}]`);
+        var spanWidth = oSpanAgain.offsetWidth;
+        oSpanAgain.remove();
+        console.log(spanWidth)
+        // var nodes = itemSvg.querySelector('.svgTxtTitleMsg')
         itemSvg
           .querySelector("rect.svgTxtTitleBg")
-          .setAttribute("width", titleWidth);
-
+          .setAttribute("width", Math.ceil(parseInt(spanWidth)) + 20);
+        // itemSvg
+        //   .querySelector("rect.bgTitle")
+        //   .setAttribute("width", Math.ceil(parseInt(spanWidth)) + 20);
+        if(itemSvg.querySelector("svg#bgTitle") != null){
+          itemSvg.querySelector("svg#bgTitle").setAttribute("width", Math.ceil(parseInt(spanWidth)) + 20);
+        } 
+        
         itemSvg.setAttribute("id", elObj.objCode);
         itemSvg.setAttribute("x", elObj.objX);
         itemSvg.setAttribute("y", elObj.objY);
@@ -257,8 +273,10 @@ function ManpowerView() {
           <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} className="w-full px-3">
             <Button startIcon={<HomeIcon />} variant="contained" onClick={handleBacktohome}>กลับหน้าหลัก</Button>
             <Typography variant="h5">{layoutSelected.layoutName} ({layoutSelected.layoutCode})</Typography>
-            <Button startIcon={<LogoutIcon />} onClick={handleLogout} variant="outlined" color="error" disabled = {!login}>ออกจากระบบ</Button>
+            <Button startIcon={<LogoutIcon />} onClick={handleLogout} variant="outlined" color="error" disabled={!login}>ออกจากระบบ</Button>
           </Stack>
+        </div>
+        <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
         </div>
         <div className="h-[95%] flex items-center bg-[#e9fbff]" >
           <svg

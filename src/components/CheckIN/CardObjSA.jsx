@@ -23,7 +23,7 @@ function CardObjSA(props) {
             </div>
             <Divider />
             <CardContent className='p-0'>
-                <Table size='small'>
+                <Table size='small' className='bg-blue-50'>
                     <TableHead>
                         <TableRow>
                             <TableCell className='py-1 font-sans text-[#626262] w-[45%]'>รหัส</TableCell>

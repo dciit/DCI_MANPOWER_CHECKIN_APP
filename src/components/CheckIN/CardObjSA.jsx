@@ -1,13 +1,24 @@
 import { Avatar, Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography, Button } from '@mui/material'
-import React from 'react'
+import React, { useEffect } from 'react'
 import DialogAddSA from '../DialogAddSA'
 import { useState } from 'react'
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useSelector } from 'react-redux';
+import { API_GET_OBJECT_INFO } from '../../Service';
 function CardObjSA(props) {
-    const { listSA, data } = props;
+    const { data, refObj } = props;
     const login = useSelector(state => state.reducer.login);
     const [openDialogAddSA, setOpenDialogAddSA] = useState(false);
+    const [listSA, setListSA] = useState([]);
+    useEffect(() => {
+        init();
+    }, [openDialogAddSA]);
+    async function init() {
+        let getListSA = await API_GET_OBJECT_INFO({ objCode: data.objCode });
+        if (getListSA != null && typeof getListSA == 'object' && Object.keys(getListSA).length) {
+            setListSA(getListSA[0].objSA);
+        }
+    }
     return (
         <Card >
             <div className='flex justify-between px-3 py-3 pb-2.5 bg-blue-600 text-white text-right'>
@@ -37,12 +48,12 @@ function CardObjSA(props) {
                                     <TableCell className='text-[#b61d1d]'>({sa.saCode}) </TableCell>
                                     <TableCell className='font-semibold'>{sa.saName}</TableCell>
                                 </TableRow>
-                            }) : <TableRow><TableCell colSpan={2} className='text-center font-semibold text-red-400'>* ไม่พบสกิลเฉพาะทางที่ระบบต้องการ</TableCell></TableRow>
+                            }) : <TableRow><TableCell colspan={2} className='text-center font-semibold text-red-400'>* ไม่พบสกิลเฉพาะทางที่ระบบต้องการ</TableCell></TableRow>
                         }
                     </TableBody>
                 </Table>
             </CardContent>
-            <DialogAddSA open={openDialogAddSA} close={setOpenDialogAddSA} data={data} />
+            <DialogAddSA open={openDialogAddSA} close={setOpenDialogAddSA} data={data} refObj={refObj} />
         </Card>
     )
 }

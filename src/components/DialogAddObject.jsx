@@ -2,37 +2,30 @@ import React, { useEffect } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
 import DialogActions from '@mui/material/DialogActions'
 import { Button, Card, CardContent, Divider, Grid, IconButton, MenuItem, Select, Skeleton, Stack, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from 'react-redux'
-import { API_ADD_OBJECT, API_DELETE_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ } from '../Service'
+import { API_DELETE_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ, API_ADD_OBJECT } from '../Service'
 import { LoadingButton } from '@mui/lab'
 import SaveIcon from '@mui/icons-material/Save';
 function DialogAddObject(props) {
     const { open, close } = props;
     const [loading, setLoading] = useState(false);
-    const layoutSelected = useSelector(state=>state.reducer.layoutFilter)
+    const layoutSelected = useSelector(state => state.reducer.layoutFilter)
     let coord = null;
     let offset = null;
     let selectedElement = null;
-    const ThemeTrue = {
-        bg: ['yellow', '#bba17a', '#b88a45'],
-        text: '#333333'
-    }
-    const ThemeFalse = {
-        bg: ['#fff', '#6d1803', '#6d210f'],
-        text: 'white'
-    }
     const [object, setObject] = useState({
         layoutCode: '',
-        objType: "MP",
+        objType: "OTHER",
         objTitle: "",
         objSubTitle: "",
         objX: 0,
-        objY: 0
+        objY: 0,
+        objWidth: 0,
+        objHeight: 0
     });
     const [masters, setMasters] = useState([]);
     const [masterSelected, setMasterSelected] = useState('');
@@ -50,69 +43,91 @@ function DialogAddObject(props) {
         setMasters(listMaster);
     }
 
+    useEffect(() => {
+    }, [object])
+
     async function handleAddObject() {
-        setLoading(true);
-        const res = await API_ADD_OBJECT({
-            ...object, objMasterId: masterSelected, layoutCode: layoutSelected?.layoutCode
-        });
-        if (res.status == "1") {
-            const getObject = await API_GET_OBJECT_BY_CODE({ objCode: res.msg });
-            let svgContent = document.querySelector("#svgContent");
-            let svg = '';
-            getObject.map((elObj) => {
-                svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                let i = 0;
-                if (elObj.objSvg.includes('animateMotion')) {
-                    const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    elObj.objSvg = elObj.objSvg.replace("<defs>", "");
-                    elObj.objSvg = elObj.objSvg.replace("{objName}", elObj.objTitle);
-                    elObj.objSvg = elObj.objSvg.replace("{objName}", elObj.objTitle);
 
-                    elObj.objSvg = elObj.objSvg.replace("{empcode}", elObj.empCode);
-                    elObj.objSvg = elObj.objSvg.replace("{empcode}", elObj.empCode);
-
-                    (elObj.mq == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
-                        elObj.objSvg = elObj.objSvg.replace(`{bgmq}`, theme);
-                    });
-                    (elObj.sa == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
-                        elObj.objSvg = elObj.objSvg.replace(`{bgsa}`, theme);
-                    });
-                    (elObj.ot == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
-                        elObj.objSvg = elObj.objSvg.replace(`{bgot}`, theme);
-                    });
-                    elObj.objSvg = elObj.objSvg.replace("{empImage}", elObj.empImage);
-                    itemSvg.innerHTML = elObj.objSvg;
-                    itemSvg.setAttribute('id', elObj.objCode);
-                    itemSvg.setAttribute('x', elObj.objX);
-                    itemSvg.setAttribute('y', elObj.objY);
-                    // itemSvg.addEventListener('click', function () {
-                    //     // setOpenCheckIn(true);
-                    // })
-                    svg.appendChild(itemSvg);
-                } else {
-                    const blob = new Blob([elObj.objSvg], { type: 'image/svg+xml' });
-                    const url = URL.createObjectURL(blob);
-                    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-                    use.setAttribute('href', url + '#' + elObj.objMasterId);
-                    use.setAttribute('id', elObj.objCode);
-                    use.setAttribute('x', elObj.objX);
-                    use.setAttribute('y', elObj.objY);
-                    // use.addEventListener('click', function () {
-                    //     if (elObj.objType == 'MP') {
-                    //         setOpenCheckIn(true);
-                    //     }
-                    // })
-                    svg.appendChild(use);
-                }
-                initDrag(svgContent, svg);
+        try {
+            setLoading(true);
+            const res = await API_ADD_OBJECT({
+                ...object, objMasterId: masterSelected, layoutCode: layoutSelected?.layoutCode
             });
-            setLoading(false);
-        } else {
-            alert('ไม่สามารถเพิ่ม Object ได้ !');
-            setLoading(false);
+            if (res.status == "1") {
+                const getObject = await API_GET_OBJECT_BY_CODE({ objCode: res.msg });
+                let svgContent = document.querySelector("#svgContent");
+                let svg = '';
+                getObject.map((elObj) => {
+                    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    let i = 0;
+                    if (elObj.objSvg.includes('animateMotion')) {
+                        const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        elObj.objSvg = elObj.objSvg.replace("<defs>", "");
+                        elObj.objSvg = elObj.objSvg.replace("{objName}", elObj.objTitle);
+                        elObj.objSvg = elObj.objSvg.replace("{objName}", elObj.objTitle);
+
+                        elObj.objSvg = elObj.objSvg.replace("{empcode}", elObj.empCode);
+                        elObj.objSvg = elObj.objSvg.replace("{empcode}", elObj.empCode);
+
+                        (elObj.mq == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
+                            elObj.objSvg = elObj.objSvg.replace(`{bgmq}`, theme);
+                        });
+                        (elObj.sa == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
+                            elObj.objSvg = elObj.objSvg.replace(`{bgsa}`, theme);
+                        });
+                        (elObj.ot == 'TRUE' ? ThemeTrue.bg : ThemeFalse.bg).map((theme, indexTheme) => {
+                            elObj.objSvg = elObj.objSvg.replace(`{bgot}`, theme);
+                        });
+                        elObj.objSvg = elObj.objSvg.replace("{empImage}", elObj.empImage);
+                        itemSvg.innerHTML = elObj.objSvg;
+                        itemSvg.setAttribute('id', elObj.objCode);
+                        itemSvg.setAttribute('x', elObj.objX);
+                        itemSvg.setAttribute('y', elObj.objY);
+                        svg.appendChild(itemSvg);
+                    } else {
+                        let title = elObj.objTitle;
+                        elObj.objSvg = elObj.objSvg.replace("{objName}", title);
+                        const itemSvg = document.createElementNS(
+                            "http://www.w3.org/2000/svg",
+                            "svg"
+                        );
+                        itemSvg.innerHTML = elObj.objSvg;
+                        if (elObj.objSvg.includes("svgTxtTitleMsg") || elObj.objSvg.includes("WidthFollowText")) {
+                            let bgTitle = itemSvg.querySelectorAll('svg#bgTitle');
+                            let bgTitleReact = itemSvg.querySelectorAll('rect.svgTxtTitleBg');
+                            let areaFree = document.getElementById('bg')
+                            let iSpan = document.createElement('span');
+                            iSpan.innerHTML = elObj.objTitle;
+                            iSpan.setAttribute('refId', elObj.objCode)
+                            iSpan.style.fontSize = '10px'
+                            areaFree.appendChild(iSpan)
+                            let oSpanAgain = areaFree.querySelector(`span[refid=${elObj.objCode}]`);
+                            let spanWidth = oSpanAgain.offsetWidth;
+                            oSpanAgain.remove();
+                            let width = Math.ceil(parseInt(spanWidth)) + 50;
+                            bgTitle[0].setAttribute('width', width);
+                            bgTitleReact[0].setAttribute('width', width);
+                        }
+                        const blob = new Blob([itemSvg.innerHTML], { type: 'image/svg+xml' });
+                        const url = URL.createObjectURL(blob);
+                        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                        use.setAttribute('href', url + '#' + elObj.objMasterId);
+                        use.setAttribute('id', elObj.objCode);
+                        use.setAttribute('x', elObj.objX);
+                        use.setAttribute('y', elObj.objY);
+                        svg.appendChild(use);
+                    }
+                    initDrag(svgContent, svg);
+                });
+                setLoading(false);
+            } else {
+                alert('ไม่สามารถเพิ่ม Object ได้ !');
+                setLoading(false);
+            }
+        } catch (e) {
+            console.log(e)
+            setLoading(false)
         }
-
-
     }
     const initDrag = async (content, svg) => {
         svg.addEventListener('mousedown', startDrag);
@@ -215,7 +230,7 @@ function DialogAddObject(props) {
                         placeholder="กรุณากรอก Master Name "
                         disabled
                         variant='filled'
-                        value={`${layoutSelected?.layoutCode } (${layoutSelected?.layoutName })`}
+                        value={`${layoutSelected?.layoutCode} (${layoutSelected?.layoutName})`}
                     />
                     <Stack mb={3}>
                         <Stack mb={1}>
@@ -253,18 +268,30 @@ function DialogAddObject(props) {
                                     </Stack>
                                     <Stack p={1}>
                                         <Typography color={'text.secondary'}>SubTitle</Typography>
-                                        <TextField size='small'  placeholder='กรุณากรอกรายละเอียด' value={object.objSubTitle ?? ''} onChange={(e) => setObject({ ...object, objSubTitle: e.target.value })}></TextField>
+                                        <TextField size='small' placeholder='กรุณากรอกรายละเอียด' value={object.objSubTitle ?? ''} onChange={(e) => setObject({ ...object, objSubTitle: e.target.value })}></TextField>
                                     </Stack>
                                     <Grid container >
                                         <Grid item xs={12} gap={1} p={1}>
                                             <Typography color={'text.secondary'}>Object Type</Typography>
                                             <Select value={object.objType} defaultValue='OTHER' size='small' fullWidth onChange={(e) => setObject({ ...object, objType: e.target.value })}>
                                                 {
-                                                    [ "OTHER","MP"].map((type, index) => {
+                                                    ["OTHER", "MP"].map((type, index) => {
                                                         return <MenuItem value={type} key={index}>{type}</MenuItem>
                                                     })
                                                 }
                                             </Select>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Stack p={1}>
+                                                <Typography color={'text.secondary'}>Width</Typography>
+                                                <TextField type='number' size='small' placeholder='กรุณาระบุความกว้างของชิ้นงาน' value={object.objWidth} onChange={(e) => setObject({ ...object, objWidth: e.target.value != '' ? parseFloat(e.target.value) : 0 })}></TextField>
+                                            </Stack>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Stack p={1}>
+                                                <Typography color={'text.secondary'}>Height</Typography>
+                                                <TextField type='number' size='small' placeholder='กรุณาระบุความสูงของชิ้นงาน' value={object.objHeight} onChange={(e) => setObject({ ...object, objHeight: e.target.value != '' ? parseFloat(e.target.value) : 0 })}></TextField>
+                                            </Stack>
                                         </Grid>
                                     </Grid>
                                 </Stack>

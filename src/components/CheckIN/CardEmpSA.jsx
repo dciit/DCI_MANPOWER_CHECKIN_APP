@@ -3,7 +3,6 @@ import React from 'react'
 
 function CardEmpSA(props) {
     const { listSA } = props;
-    console.log(listSA)
     return (
         <Card >
             <div className='flex gap-2 items-center px-3 py-3 p bg-green-600 text-white text-right'>
@@ -26,7 +25,7 @@ function CardEmpSA(props) {
                                     <TableCell className='text-[#b61d1d] py-1'>({sa.saCode}) </TableCell>
                                     <TableCell className='font-semibold py-1'>{sa.saName}</TableCell>
                                 </TableRow>
-                            }) : <TableRow><TableCell colSpan={2} className='text-center font-semibold text-red-400 py-1'>* พนักงานยังไม่มีสกิลเฉพาะทาง</TableCell></TableRow>
+                            }) : <TableRow><TableCell colspan={2} className='text-center font-semibold text-red-400 py-1'>* พนักงานยังไม่มีสกิลเฉพาะทาง</TableCell></TableRow>
                         }
                     </TableBody>
                 </Table>

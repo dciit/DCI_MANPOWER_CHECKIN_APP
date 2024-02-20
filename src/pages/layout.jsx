@@ -8,7 +8,7 @@ function Layout() {
         {
             reducer?.login
                 ?
-                <div className='h-[100%] select-none '>
+                <div className='h-[100%] select-none'>
                     <Header />
                     <Outlet />
                 </div>

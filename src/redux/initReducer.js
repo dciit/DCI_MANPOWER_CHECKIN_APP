@@ -1,7 +1,7 @@
 const initialState = {
     login: false,
     username: '',
-    name:'',
+    name: '',
     filter: {
         evaluate: {
             supplier: '',
@@ -11,18 +11,24 @@ const initialState = {
     },
     version: 0,
     objectSelected: null,
-    layoutFilter: null,
+    layoutFilters: null,
     layout: {},
     sa: [],
-    mt: []
+    mq: [],
+    shift: ''
 }
 
 const IndexReducer = (state = initialState, action) => {
     switch (action.type) {
-        case 'SET_LAYOUT_FILTER_SELECTED' :
+        case 'SET_SHIFT':
             return {
                 ...state,
-                layoutFilter:action.payload
+                shift: action.payload
+            }
+        case 'SET_LAYOUT_FILTER_SELECTED':
+            return {
+                ...state,
+                layoutFilter: action.payload
             }
         case 'SET_OBJECT_SELECTED':
             return {
@@ -30,7 +36,6 @@ const IndexReducer = (state = initialState, action) => {
                 objectSelected: action.payload
             }
         case 'SET_LAYOUT_SELECTED':
-            console.log(action.payload)
             return {
                 ...state,
                 layout: action.payload.layout,
@@ -43,12 +48,12 @@ const IndexReducer = (state = initialState, action) => {
                 layout: action.payload
             }
         case 'LOGIN':
-            console.log(action.payload)
             return {
                 ...state,
-                name:action.payload.name,
-                login:true,
-                empcode: action.payload.empcode
+                name: action.payload.name,
+                login: true,
+                empcode: action.payload.empcode,
+                layoutFilter : null
             }
         case 'FILTER_CHANGE':
             return {

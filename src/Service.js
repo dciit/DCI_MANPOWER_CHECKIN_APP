@@ -53,7 +53,6 @@ export async function ServiceGetMasterEquipment() {
 }
 
 export async function ServiceAddEquipment(param) {
-    console.log(param)
     return await new Promise(resolve => {
         http.post(`/equipment/add`, param).then((res) => {
             resolve(res.data);
@@ -119,7 +118,6 @@ export function ServiceDelEquipmentOfLayout(eqpId) {
 }
 
 export function ServiceUpdateMaster(param) {
-    console.log(param)
     return new Promise(resolve => {
         http.post(`/master/equipment/update`, param).then((res) => {
             resolve(res.data);
@@ -138,7 +136,6 @@ export function API_GET_MASTER(objCode = '') {
 
 
 export function API_ADD_OBJECT(param) {
-    console.log(param)
     return new Promise(resolve => {
         http.post(`/mpck/addObject`, param).then((res) => {
             resolve(res.data);
@@ -181,7 +178,6 @@ export function API_GET_OBJECT_OF_LAYOUT(param) {
 }
 
 export function API_UPDATE_POSITION_OBJ(param) {
-    console.log(param)
     return new Promise(resolve => {
         http.post(`/mpck/editObjectPosition`, param).then((res) => {
             resolve(res.data);
@@ -297,4 +293,55 @@ export function API_DELETE_MQSA(param) {
         })
     })
 }
-// API_DELETE_MQSA
+
+
+export function API_MAN_SKILL(param) {
+    return new Promise(resolve => {
+        http.post(`/mpck/getManSkills`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function API_UPLOAD_FILE(param) {
+    return new Promise(resolve => {
+        http.post(`/mpck/setFiles`, param, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function API_UPDATE_OBJ(param) {
+    return new Promise(resolve => {
+        http.post(`/mpck/updateObject`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function API_UPDATE_PRIORITY(param) {
+    return new Promise(resolve => {
+        http.post(`/mpck/updatePriority`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+export function API_EDIT_OBJECT(param) {
+    return new Promise(resolve => {
+        http.post(`/mpck/editObject`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function API_ANDON_BOARD(param) {
+    return new Promise(resolve => {
+        http.post(`/mpck/getDataAndonboard`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}

@@ -17,9 +17,7 @@ function Management() {
     const [objCode, setObjCode] = useState('');
     const [objSelect, setObjSelect] = useState({});
     const [mq, setMq] = useState([]);
-    const [listMQ, setListMQ] = useState([]); // รายการ MQ ทั้งหมด
     const [sa, setSA] = useState([]);
-    const [listSA, setListSA] = useState([]); // รายการ SA ทั้งหมด
     const [loading, setLoading] = useState(true);
     const handleChange = async (event, newFac) => {
         setFac(newFac);
@@ -72,29 +70,29 @@ function Management() {
         setSA(listMQSA.filter((v, k) => v.dictType == 'SA'));
     }
     async function handleOpenLayout(v) {
-        navigate(`../dci_manpower_checkin/${v.layoutCode}`)
+        navigate(`../dcimanpower/${v.layoutCode}`)
     }
     async function handleOpenEdit(){
-        navigate(`../dci_manpower_checkin/edit`);
+        navigate(`../dcimanpower/edit`);
     }
     return (
         <div className='p-6'>
             <Stack direction={'column'} alignItems={'end'}>
                 <Button variant='contained' startIcon={<AutoAwesomeMosaicIcon/>} onClick={handleOpenEdit}>จัดการตำแหน่งจุดเช็คอิน</Button>
                 <Paper className='w-[100%]'>
-                    <TabContext value={fac} >
+                    <TabContext value={fac}  key={'1'}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList onChange={handleChange} >
                                 <Tab className='font-semibold' label="FACTORY 1" value="1" />
                                 <Tab className='font-semibold' label="FACTORY 2" value="2" />
                                 <Tab className='font-semibold' label="FACTORY 3" value="3" />
+                                <Tab className='font-semibold' label="ODM" value="odm" />
                             </TabList>
                         </Box>
                         {
                             loading ? <Stack><CircularProgress /><Typography>กำลังโหลดข้อมูล ...</Typography></Stack> :
                                 [...Array(3)].map((iLoop, oLoop) => {
                                     var index = (oLoop + 1).toString();
-                                    console.log(layout)
                                     return <TabPanel value={index} className='bg-[#f6f8fa]'> {
                                         fac == index && <Grid container spacing={3}>
                                             {

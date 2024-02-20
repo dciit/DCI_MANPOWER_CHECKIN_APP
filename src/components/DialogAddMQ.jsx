@@ -88,7 +88,7 @@ function DialogAddMQ(props) {
                     <Stack gap={2}>
                         <Stack gap={1}>
                             <Stack direction={'col'}>
-                                <Select value={mqSelected} className='rounded-e-none w-[85%]' fullWidth size='small' onChange={(e) => setMQSelected(e.target.value)}>
+                                <Select value={mqSelected} className='rounded-e-none w-[85%]' fullWidth size='small' onChange={(e) => setMQSelected(e.target.value)} disabled={(reduxListMQ != null && typeof reduxListMQ == 'object' && reduxListMQ.length) ? false : true}>
                                     {
                                         reduxListMQ.map((item, index) => {
                                             return <MenuItem key={index} value={item.processCode}>{item.processCode}:{item.processName}</MenuItem>
@@ -122,7 +122,7 @@ function DialogAddMQ(props) {
                                                     </TableCell>
                                                 </TableRow>
                                             }) : <TableRow>
-                                                <TableCell colSpan={3} className='text-center font-semibold text-red-500'>* ไม่พบหลักสูตรอบรมที่ระบบต้องการ</TableCell>
+                                                <TableCell colspan={3} className='text-center font-semibold text-red-500'>* ไม่พบหลักสูตรอบรมที่ระบบต้องการ</TableCell>
                                             </TableRow>
                                         }
                                     </TableBody>

@@ -14,8 +14,11 @@ import { API_DELETE_OBJECT, API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_OF_LA
 import DialogDetailEquipment from '../../components/DialogDetailEquipment';
 import { useNavigate } from 'react-router';
 import HomeIcon from '@mui/icons-material/Home';
+import DialogEditObject from '../../components/DialogEditObject';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import DialogEditPriority from '../../components/DialogEditPriority';
 function ManpowerEdit() {
-    const VITE_PATH  = import.meta.env.VITE_PATH;
+    const VITE_PATH = import.meta.env.VITE_PATH;
     const [state, setState] = React.useState({
         open: false,
         vertical: 'top',
@@ -23,10 +26,13 @@ function ManpowerEdit() {
     });
     const navigate = useNavigate();
     const { vertical, horizontal, open } = state;
+    const [openEdit, setOpenEdit] = useState(false);
+    const [objCodeEdit, setObjCodeEdit] = useState('');
     const [openAddLayout, setOpenAddLayout] = useState(false);
     const [openAddObject, setOpenAddObject] = useState(false);
     const [openDetailEquipment, setOpenDetailEquipment] = useState(false);
     const [openUpdateMaster, setOpenUpdateMaster] = useState(false);
+    const [openPriority, setOpenPriority] = useState(false);
     const [eqpIdDbClick, setEqpIdDbClick] = useState('');
     const [openAddMaster, setOpenAddMaster] = useState(false);
     const [layouts, setLayouts] = useState([]);
@@ -36,7 +42,7 @@ function ManpowerEdit() {
     let offset = null;
     let selectedElement = null;
     let svgContent = '';
-    const layoutFilter = useSelector(state => state.reducer.layoutFilter);
+    const layoutFilter = useSelector(state => state.reducer?.layoutFilter);
     useEffect(() => {
         init();
     }, [layoutFilter]);
@@ -53,35 +59,51 @@ function ManpowerEdit() {
         if (res) {
             let svgs = document.querySelectorAll('svg#svgContent svg');
             svgs.forEach((item) => {
+                // item.addEventListener('dblclick', dbClick);
                 item.addEventListener('mousedown', startDrag);
                 item.addEventListener('mousemove', moveDrag);
                 item.addEventListener('mouseup', endDrag);
                 item.addEventListener('mouseleave', leaveDrag);
-                item.addEventListener('dblclick', dbClick);
-            })
+            });
         }
     }
-    const dbClick = async (evt) => {
-        if (confirm('คุณต้องการลบ ใช่หรือไม่ ?')) {
-            let id = evt.target.getAttribute("id");
-            const del = await API_DELETE_OBJECT({ objCode: id });
-            if (del.status) {
-                document.querySelector(`#${id}`).remove();
-            }
+    // const dbClick = async (evt) => {
+    //     let id = evt.target.getAttribute("id");
+    //     console.log(id)
+    //     // if (confirm('คุณต้องการลบ ใช่หรือไม่ ?')) {
+    //     //     let id = evt.target.getAttribute("id");
+    //     //     const del = await API_DELETE_OBJECT({ objCode: id });
+    //     //     if (del.status) {
+    //     //         document.querySelector(`#${id}`).remove();
+    //     //     }
+    //     // }
+    //     setObjCodeEdit(id);
+    // }
+
+    useEffect(() => {
+        if (objCodeEdit != '') {
+            setOpenEdit(true);
         }
-    }
+    }, [objCodeEdit]);
+
     function leaveDrag(evt) {
         evt.target.classList.remove('draggable');
         let eqpId = evt.target.lastElementChild.id;
         document.querySelector(`use#${eqpId}`).classList.remove('draggable')
     }
-    function startDrag(evt) {
-        evt.target.classList.add('draggable');
-        selectedElement = evt;
-        if (selectedElement.target.classList.contains('draggable')) {
-            offset = getMousePosition(selectedElement);
-            offset.x -= parseFloat(selectedElement.target.getAttributeNS(null, "x"));
-            offset.y -= parseFloat(selectedElement.target.getAttributeNS(null, "y"));
+    function startDrag(e) {
+        if (e.which == 1) {
+            e.target.classList.add('draggable');
+            selectedElement = e;
+            if (selectedElement.target.classList.contains('draggable')) {
+                offset = getMousePosition(selectedElement);
+                offset.x -= parseFloat(selectedElement.target.getAttributeNS(null, "x"));
+                offset.y -= parseFloat(selectedElement.target.getAttributeNS(null, "y"));
+            }
+        } else if (e.which == 3) {
+            document.addEventListener('contextmenu', e => e?.cancelable && e.preventDefault());
+            let id = e.target.getAttribute("id");
+            setObjCodeEdit(id);
         }
     }
     function moveDrag(evt) {
@@ -94,25 +116,28 @@ function ManpowerEdit() {
         }
     }
     async function endDrag(evt) {
-        selectedElement = evt;
-        let objCode = selectedElement.target.getAttribute("id");
-        let axisX = coord.x - offset.x;
-        let axisY = coord.y - offset.y;
-        if (selectedElement != null) {
-            const res = await API_UPDATE_POSITION_OBJ({
-                objCode: objCode,
-                objX: axisX,
-                objY: axisY
-            });
+        if (coord != '' && coord != null) {
+            selectedElement = evt;
+            let objCode = selectedElement.target.getAttribute("id");
+            let axisX = coord.x - offset.x;
+            let axisY = coord.y - offset.y;
+            console.log(axisX, axisY)
+            if (selectedElement != null) {
+                const res = await API_UPDATE_POSITION_OBJ({
+                    objCode: objCode,
+                    objX: axisX,
+                    objY: axisY
+                });
+            }
+            if (selectedElement != null) {
+                selectedElement.target.classList.remove('draggable')
+            }
+            if (objCode != null) {
+                document.querySelector(`use#${objCode}`).classList.remove('draggable')
+            }
+            evt.target.classList.remove('draggable')
+            selectedElement = null;
         }
-        if (selectedElement != null) {
-            selectedElement.target.classList.remove('draggable')
-        }
-        if (objCode != null) {
-            document.querySelector(`use#${objCode}`).classList.remove('draggable')
-        }
-        evt.target.classList.remove('draggable')
-        selectedElement = null;
     }
     function getMousePosition(evt) {
         var CTM = evt.target.getScreenCTM();
@@ -124,7 +149,7 @@ function ManpowerEdit() {
     const intialData = async () => {
         const listLayout = await API_GET_LAYOUT();
         if (layoutFilter == null) {
-            dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: listLayout[0] })
+            dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: listLayout[0] });
         }
         const listMaster = await API_GET_MASTER();
         const object = await API_GET_OBJECT_OF_LAYOUT({
@@ -142,11 +167,53 @@ function ManpowerEdit() {
             masterItem = masterItem.length ? masterItem[0] : {};
             svgMaster = masterItem.objSvg;
             svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            let i = 0;
+            let title = elObj.objTitle;
+            svgMaster = svgMaster.replace("{objName}", title);
             svgMaster = svgMaster.replace("{title}", elObj.eqpTitle);
             svgMaster = svgMaster.replace("{empcode}", elObj.empcode);
             svgMaster = svgMaster.replace("{title_color_bg}", elObj.empcode != '' ? 'green' : 'red');
-            const blob = new Blob([svgMaster], { type: 'image/svg+xml' });
+            svgMaster = svgMaster.replace("{obj_man_skill}", '00');
+            const itemSvg = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "svg"
+            );
+            itemSvg.innerHTML = svgMaster;
+            if (elObj.objSvg.includes("svgTxtTitleMsg") || elObj.objSvg.includes("WidthFollowText")) {
+                let bgTitle = itemSvg.querySelectorAll('svg#bgTitle');
+                let bgTitleReact = itemSvg.querySelectorAll('rect.svgTxtTitleBg');
+                let areaFree = document.getElementById('bg')
+                let iSpan = document.createElement('span');
+                iSpan.innerHTML = elObj.objTitle;
+                iSpan.setAttribute('refId', elObj.objCode)
+                iSpan.style.fontSize = '10px'
+                areaFree.appendChild(iSpan)
+                let oSpanAgain = areaFree.querySelector(`span[refid=${elObj.objCode}]`);
+                let spanWidth = oSpanAgain.offsetWidth;
+                oSpanAgain.remove();
+                let width = Math.ceil(parseInt(spanWidth)) + 50;
+                bgTitle[0].setAttribute('width', width);
+                bgTitleReact[0].setAttribute('width', width);
+            }
+
+            // IF BAGKGROUND SET WIDTH & HEIGHT
+            if (elObj.objSvg.includes('bg-set')) {
+                let BgParent = itemSvg.querySelector('#bgTitle');
+                let BGChild = BgParent.querySelector('rect');
+                let svgChild = itemSvg.querySelector('g>svg');
+                BGChild.setAttribute('width', elObj.objWidth);
+                BGChild.setAttribute('height', elObj.objHeight);
+                BGChild.setAttribute('fill', elObj.objBackgroundColor != '' ? elObj.objBackgroundColor : 'blue');
+                BGChild.setAttribute('stroke', elObj.objBorderColor != '' ? elObj.objBorderColor : 'black')
+                if (elObj.objBorderColor != '') {
+                    BGChild.setAttribute('stroke-width', elObj.objBorderColor != '' ? 3 : 0)
+                }
+                svgChild.setAttribute('width', elObj.objWidth);
+                svgChild.setAttribute('height', elObj.objHeight);
+
+                // console.log(itemSvg)
+            }
+            // END 
+            const blob = new Blob([itemSvg.innerHTML], { type: 'image/svg+xml' });
             const url = URL.createObjectURL(blob);
             const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
             use.setAttribute('href', url + '#' + elObj.objMasterId);
@@ -160,14 +227,15 @@ function ManpowerEdit() {
     }
 
     function changeLayout(layout) {
-        let index = layouts.findIndex(el => el.layoutCode == layout)
+        let index = layouts.findIndex(el => el.layoutCode == layout);
         dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: layouts[index] })
     }
+
     return (
         <div className=' bg-white flex  '>
             <div className='bg-[#f9f9f9] w-full p-3'>
                 <Stack direction={'column'} alignItems={'end'} mb={2}>
-                    <Button variant='contained' startIcon = {<HomeIcon/>} className='min-w-[10em]' onClick={()=>navigate(`../${VITE_PATH}/management`)}>หน้าหลัก</Button>
+                    <Button variant='contained' startIcon={<HomeIcon />} className='min-w-[10em]' onClick={() => navigate(`../${VITE_PATH}/management`)}>หน้าหลัก</Button>
                 </Stack>
                 <div className='bg-white rounded-xl shadow-xl h-full p-6'>
                     <Grid container>
@@ -196,14 +264,16 @@ function ManpowerEdit() {
                         <Grid item xs={12}>
                             <Stack direction={'row'} gap={1} justifyContent={'end'} pb={2}>
                                 <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddLayout(true)} style={{ display: 'none' }}>Add Layout</Button>
+                                <Button variant="contained" startIcon={<PriorityHighIcon />} color='error' onClick={() => setOpenPriority(true)} >Set Priority</Button>
                                 <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddObject(true)}>ADD OBJECT</Button>
                                 <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddMaster(true)} >ADD Master</Button>
                                 <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenUpdateMaster(true)} >Update Master</Button>
                             </Stack>
                         </Grid>
                         <Grid item xs={12}>
-                            <svg id='svgContent' viewBox={`0 0 1200 500`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{ border: '1px solid #ddd' }}>
-                            </svg>
+                            {
+                                (layoutFilter != 'null' && layoutFilter != null && typeof layoutFilter == 'object' && Object.keys(layoutFilter).length) ? <svg id='svgContent' viewBox={`0 0 ${layoutFilter.width} ${layoutFilter.height}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{ border: '2px dotted red' }}></svg> : ''
+                            }
                         </Grid>
                     </Grid>
                 </div>
@@ -213,6 +283,8 @@ function ManpowerEdit() {
             <DialogAddObject open={openAddObject} close={setOpenAddObject} layout={layoutFilter} />
             <DialogUpdateMaster open={openUpdateMaster} close={setOpenUpdateMaster} />
             <DialogAddLayout open={openAddLayout} close={setOpenAddLayout} />
+            <DialogEditPriority open={openPriority} close={setOpenPriority} />
+            <DialogEditObject open={openEdit} close={setOpenEdit} objCode={objCodeEdit} setObjCode={setObjCodeEdit} />
             <Snackbar
                 anchorOrigin={{ vertical, horizontal }}
                 open={open}
@@ -220,6 +292,17 @@ function ManpowerEdit() {
                 message="I love snacks"
                 key={vertical + horizontal}
             />
+
+            <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
+            </div>
+            <div className="h-[95%] flex items-center bg-[#e9fbff]" >
+                <svg
+                    id="svgContent"
+                    viewBox={`0 0 1200 500`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="xMidYMid meet"
+                ></svg>
+            </div>
         </div >
     )
 }

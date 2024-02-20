@@ -1,14 +1,24 @@
 import { Avatar, Badge, Button, Card, CardContent, CardHeader, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DialogAddMQ from '../DialogAddMQ';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useSelector } from 'react-redux';
+import { API_GET_OBJECT_INFO } from '../../Service';
 
 function CardObjMQ(props) {
     const [openDialogAddMQ, setOpenDialogAddMQ] = useState(false);
-    const { listMQ, data } = props;
+    const { data } = props;
     const login = useSelector(state => state.reducer?.login);
-
+    const [listMQ, setListMQ] = useState([]);
+    useEffect(() => {
+        init();
+    }, [openDialogAddMQ]);
+    async function init() {
+        let getListMQ = await API_GET_OBJECT_INFO({ objCode: data.objCode });
+        if (getListMQ != null && typeof getListMQ == 'object' && Object.keys(getListMQ).length) {
+            setListMQ(getListMQ[0].objMQ);
+        }
+    }
     return (
         <Card >
             <div className='flex justify-between px-3 py-3 pb-2.5 bg-blue-600 text-white text-right'>
@@ -38,7 +48,7 @@ function CardObjMQ(props) {
                                     <TableCell className='text-blue-600  py-1'>({mq.mqCode}) </TableCell>
                                     <TableCell className='py-1'>{mq.mqName}</TableCell>
                                 </TableRow>
-                            }) : <TableRow><TableCell colSpan={2} className='text-center font-semibold text-red-400 py-1'>* ไม่พบหลักสูตรอบรมที่ระบบต้องการ</TableCell></TableRow>
+                            }) : <TableRow><TableCell colspan={2} className='text-center font-semibold text-red-400 py-1'>* ไม่พบหลักสูตรอบรมที่ระบบต้องการ</TableCell></TableRow>
                         }
                     </TableBody>
                 </Table>

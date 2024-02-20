@@ -1,17 +1,13 @@
-import { Avatar, Divider, Button, Card, Stack } from '@mui/material'
+import { Button } from '@mui/material'
 import React from 'react'
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { API_GET_LAYOUT, ServiceGetLayoutAndEquipment, ServiceGetLayouts, ServiceUpdateAxis } from '../Service';
+import { API_GET_LAYOUT } from '../Service';
 import DialogCheckin from '../components/DialogCheckin';
 function Manpower() {
     const [openCheckIn, setopenCheckIn] = useState(false);
-    const [layouts, setLayouts] = useState([]);
     const [layout, setLayout] = useState([]);
-    const [equipment, setEquipment] = useState([]);
     const [eqpIdTemp, setEqpIdTemp] = useState('1');
-    let svgContent = '';
-    let countEmp = 12;
     useEffect(() => {
         init();
     }, []);
@@ -27,58 +23,6 @@ function Manpower() {
         if (layout == '') {
             setLayout(resLayouts[0])
         }
-        return false;
-        const res = await ServiceGetLayoutAndEquipment(layout == '' ? resLayouts[0].layoutCode : layout.layoutCode);
-        setLayouts(res.layout);
-        res.equipment.map((el, index) => {
-            let svg = el.objSvg;
-            svg = svg.replace('{name}', el.eqpTitle);
-            svg = svg.replace('{color}', 'red');
-            res.equipment[index].objSvg = svg;
-        })
-        setEquipment(res.equipment);
-        svgContent = document.querySelector("#svgContent");
-        let svgMaster = '';
-        let svg = '';
-        res.equipment.map((elEqp, indexEqp) => {
-            svgMaster = elEqp.objSvg;
-            svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            let i = 0;
-            let x = i * 100;
-            if (elEqp.objSvg.includes('animateMotion')) {
-                const itemSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                elEqp.objSvg = elEqp.objSvg.replace("<defs>", "");
-                itemSvg.innerHTML = elEqp.objSvg;
-                itemSvg.setAttribute('id', elEqp.eqpId);
-                itemSvg.setAttribute('x', elEqp.eqpX);
-                itemSvg.setAttribute('y', elEqp.eqpY);
-                svg.appendChild(itemSvg);
-            } else {
-                svgMaster = svgMaster.replace("{title}", elEqp.eqpTitle);
-                svgMaster = svgMaster.replace("{empcode}", elEqp.empcode);
-                // svgMaster = svgMaster.replace("{image}", elEqp.image);
-                svgMaster = svgMaster.replace("{title_color_bg}", elEqp.empcode != '' ? '#e3f25e' : '#37c5de');
-                svgMaster = svgMaster.replace("{ot_color_bg}", elEqp.ot ? '#e3f25e' : '#37c5de');
-                svgMaster = svgMaster.replace("{mq_color_bg}", elEqp.mq ? '#e3f25e' : '#37c5de');
-                svgMaster = svgMaster.replace("{sa_color_bg}", elEqp.sa ? '#e3f25e' : '#37c5de');
-                svgMaster = svgMaster.replace("{ot_color_text}", 'black');
-                svgMaster = svgMaster.replace("{mq_color_text}", 'black');
-                svgMaster = svgMaster.replace("{sa_color_text}", 'black');
-                svgMaster = svgMaster.replace("{ot_text}", 'OT');
-                svgMaster = svgMaster.replace("{mq_text}", 'MQ');
-                svgMaster = svgMaster.replace("{sa_text}", 'SA');
-                const blob = new Blob([svgMaster], { type: 'image/svg+xml' });
-                const url = URL.createObjectURL(blob);
-                const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-                use.setAttribute('href', url + '#' + elEqp.objId);
-                use.setAttribute('id', elEqp.eqpId);
-                use.setAttribute('x', elEqp.eqpX);
-                use.setAttribute('y', elEqp.eqpY);
-                svg.appendChild(use);
-            }
-            svgContent.appendChild(svg);
-        });
-        return true;
     }
     function setEvent(evt) {
         var svg = evt.target;
@@ -87,8 +31,10 @@ function Manpower() {
     function dbClick(evt) {
         let id = evt.target.getAttribute("id");
         setEqpIdTemp(id);
-        setopenCheckIn(true);
     }
+    useEffect(() => {
+        setopenCheckIn(true);
+    }, [eqpIdTemp])
     const initialDraggle = async () => {
         const svgLayout = document.querySelector('#svgContent');
         svgLayout.addEventListener('load', setEvent);
@@ -103,7 +49,7 @@ function Manpower() {
     }
     return (
         <>
-            <div>
+            <div>   
                 <div className='hidden' id='divObjCode'>{eqpIdTemp}</div>
                 <input type='hidden' id='inpObjCode' value={eqpIdTemp}></input>
                 <Button id='btnEvent' className='hidden bg-green-500 text-white' onClick={() => AlertEqpId()}>ALERT</Button>

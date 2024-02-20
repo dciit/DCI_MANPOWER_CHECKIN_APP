@@ -7,6 +7,12 @@
     src: local('inter'), url('./fonts/GeneralSans-Semibold.ttf') format('woff');
 }
 
+@font-face {
+    font-family: 'apple';
+    src: local('inter'), url('./fonts/SF-Pro-Display-Light.otf') format('woff');
+}
+
+
 .shadow-mstr {
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px !important;
 }
@@ -37,7 +43,7 @@ body,
     height: 100%;
 }
 
-* {
+#svgContent * {
     font-family: 'inter';
 }
 
@@ -189,4 +195,123 @@ body,
     }
 }
 
+.tbBorder td,
+.tbBorder th {
+    border-top: 1px solid;
+}
 
+.tbBorder tr:last-child td {
+    border-bottom: 1px solid;
+}
+
+.tbBorder * {
+    border-color: #ddd !important;
+}
+
+.tbBorder {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tbBorder tbody tr:first-child td {
+    border-top-width: 0 !important;
+}
+
+.shadow-navbar {
+    box-shadow: 12px 0 15px -4px rgba(31, 73, 125, 0.8), -12px 0 8px -4px rgba(31, 73, 125, 0.8);
+}
+
+.shadow-nav-menu {
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.ds-content * {
+    font-family: monospace;
+}
+
+table.tb-man-detail,
+table.tb-man-detail th,
+table.tb-man-detail td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table.tb-man-detail td:not(:first-child) {
+    text-align: center;
+}
+
+.man-no-checkin {
+    background: #ff7878;
+}
+
+#svgContent {
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+.tab-menu {}
+
+.toolbar-menu .MuiTouchRipple-root::content {
+    color: red !important;
+}
+
+.card-mtr {
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.menu-active {
+    color: #007aff !important;
+    font-weight: bold;
+}
+
+.card-header span,
+.card-header svg {
+    color: #3c53c9;
+}
+
+.bg-mp-check-in {
+    background: linear-gradient(-90deg ,#069130,#0f9738,#36e04d);
+    background-size: 200% 200%;
+    animation: gradient 2s ease infinite;
+    color: white ;
+    padding: 2px 2px;
+}
+
+.bg-mp-absend{
+    background: linear-gradient(45deg ,#e93333,#eb2121,#d40808);
+    background-size: 200% 200%;
+    animation: gradientAbsend 3s ease infinite;
+    color: white ;
+    padding: 2px 2px;
+}
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes gradientAbsend {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+div[role="presentation"]{
+    z-index: 999 !important;
+}

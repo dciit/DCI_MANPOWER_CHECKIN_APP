@@ -13,6 +13,7 @@ import ManpowerEdit from "../pages/Manpower/ManpowerEdit";
 import ManpowerGrid from "../pages/Manpower/ManpowerGrid";
 import Management from "../pages/management";
 import Login from "../pages/login";
+import Dashboard from "../pages/Dashboard/dashboard";
 const Routers = () => {
     const dispatch = useDispatch();
     const BASE = import.meta.env.VITE_PATH;
@@ -21,7 +22,6 @@ const Routers = () => {
     if (reducer.version == 'undefined' || reducer.version != version) {
         dispatch({ type: 'RESET', payload: { version: version, login: false } });
     }
-    console.log(BASE)
     return (
         <BrowserRouter>
             <Routes>
@@ -33,6 +33,8 @@ const Routers = () => {
                 <Route path={`${BASE}/:layout`} element={<ManpowerView />} />
                 <Route path={`/*`} element={<Login />} />
                 <Route path={`${BASE}/login`} element={<Login />} />
+                <Route path={`${BASE}/view/:layout`} element={<ManpowerView />} />
+                <Route path={`${BASE}/dashboard`} element={<Dashboard />} />
             </Routes>
         </BrowserRouter>
     );

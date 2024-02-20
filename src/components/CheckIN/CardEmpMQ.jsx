@@ -25,7 +25,7 @@ function CardEmpMQ(props) {
                                     <TableCell className='text-[#b61d1d] py-1'>({mq.mqCode}) </TableCell>
                                     <TableCell className='font-semibold py-1'>{mq.mqName}</TableCell>
                                 </TableRow>
-                            }) : <TableRow><TableCell colSpan={2} className='text-center font-semibold text-red-400 py-1'>* พนักงานยังไม่ได้รับการอบรม</TableCell></TableRow>
+                            }) : <TableRow><TableCell colspan={2} className='text-center font-semibold text-red-400 py-1'>* พนักงานยังไม่ได้รับการอบรม</TableCell></TableRow>
                         }
                     </TableBody>
                 </Table>

@@ -15,10 +15,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab'
 import AddIcon from '@mui/icons-material/Add';
 function DialogAddSA(props) {
-    const { open, close, data } = props;
+    const { open, close, data, refObj } = props;
     const dispatch = useDispatch();
     const [SASelected, setSASelected] = useState('');
-    const [listSA, setListSA] = useState([]);
     const reduxListSA = useSelector(state => state.reducer.sa);
     const objectSelected = useSelector(state => state.reducer.objectSelected);
     const layout = useSelector(state => state.reducer.layout);
@@ -46,7 +45,6 @@ function DialogAddSA(props) {
             dictType: "SA",
             empCode: "99999"
         });
-        console.log(insertSA)
         insertSA.msg = insertSA.status == '1' ? 'ADD SA SUCCESS ' : insertSA.msg;
         setInsertResult(insertSA);
         setOpenSnackBar(true);
@@ -117,7 +115,7 @@ function DialogAddSA(props) {
                                                     </TableCell>
                                                 </TableRow>
                                             }) : <TableRow>
-                                                <TableCell colSpan={3} className='text-center font-semibold text-red-500'>* ไม่พบสกิลเฉพาะทางที่ระบบต้องการ</TableCell>
+                                                <TableCell colspan={3} className='text-center font-semibold text-red-500'>* ไม่พบสกิลเฉพาะทางที่ระบบต้องการ</TableCell>
                                             </TableRow>
                                         }
                                     </TableBody>

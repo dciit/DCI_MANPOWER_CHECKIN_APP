@@ -16,6 +16,7 @@ import axios from 'axios';
 import { Backdrop, CircularProgress } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import { persistor } from '../redux/store'
 function Copyright(props) {
     return (
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -58,10 +59,11 @@ export default function Login() {
                 setOpenBackdrop(true);
                 setUseReq(false);
                 setPwdReq(false);
-                axios.get('https://scm.dci.co.th/BudgetCharts/BudgetRestService/api/authen?username=' + data.get('email') + '&password=' + encodeURIComponent(pwd)).then((res) => {
+                axios.get('http://websrv01.dci.daikin.co.jp/BudgetCharts/BudgetRestService/api/authen?username=' + data.get('email') + '&password=' + encodeURIComponent(pwd)).then((res) => {
                     if (res.data[0]?.FullName != null) {
+                        persistor.purge();
                         dispatch({ type: 'LOGIN', payload: { login: true, name: res.data[0]?.FullName, empcode: res.data[0].EmpCode } });
-                        navigate('/dci_manpower_checkin/management');
+                        navigate('/dcimanpower/management');
                         setShowLoginFalse(false)
                     } else {
                         setShowLoginFalse(true)

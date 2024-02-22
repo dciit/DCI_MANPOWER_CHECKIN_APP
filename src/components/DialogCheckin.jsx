@@ -61,23 +61,15 @@ function DialogCheckin(props) {
                     "ckshift": inpShift,
                     "cktype": inpType
                 });
-                console.log({
-                    "objCode": data.objCode,
-                    "empCode": inpEmpCode,
-                    "ckdate": inpYMD,
-                    "ckshift": inpShift,
-                    "cktype": inpType
-                })
                 if (checkin.status == "1") {
                     setData({});
-                    alert(`empcode : ${inpEmpCode} ,ckshift : ${inpYMD} ,ckdate : ${inpShift} ,cktype : ${inpType} ,`);
                     init();
                     refObj(data.objCode);
                     refHeaderManpower();
-                    await sleep(5000)
+                    await sleep(3500)
                     backdrop(false);
                 } else if (checkin.status == "0") {
-                    await sleep(5000)
+                    await sleep(3500)
                     backdrop(false);
                     alert(checkin.msg);
                 }

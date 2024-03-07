@@ -25,7 +25,7 @@ function DialogSelectLine(props) {
         setLayouts(res);
     }
     async function handleSelectLine(layoutCode) {
-        navigate(`../${VITE_PATH}/${layoutCode}`);
+        navigate(`../${VITE_PATH}/view/${layoutCode}`);
         location.reload();
     }
     return (

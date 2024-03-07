@@ -28,6 +28,13 @@ export function servGetEquipment() {
         })
     })
 }
+export function API_GET_LIST_ANDONBOARD() {
+    return new Promise(resolve => {
+        http.get(`/mpck/getListAndonBoard`).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
 export function GetPoint() {
     return new Promise(resolve => {
         http.get(`/point/get`).then((res) => {

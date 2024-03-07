@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { Outlet } from "react-router";
 import Login from "./login";
 import Header from "./header";
+import ToolbarComponent from "../components/ToolbarComponent";
 function Layout() {
     const reducer = useSelector(state => state.reducer);
     return <>
@@ -9,7 +10,7 @@ function Layout() {
             reducer?.login
                 ?
                 <div className='h-[100%] select-none'>
-                    <Header />
+                    <ToolbarComponent />
                     <Outlet />
                 </div>
                 : <Login />

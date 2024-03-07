@@ -15,7 +15,8 @@ const initialState = {
     layout: {},
     sa: [],
     mq: [],
-    shift: ''
+    shift: '',
+    activeMenuToolbar: ''
 }
 
 const IndexReducer = (state = initialState, action) => {
@@ -53,7 +54,7 @@ const IndexReducer = (state = initialState, action) => {
                 name: action.payload.name,
                 login: true,
                 empcode: action.payload.empcode,
-                layoutFilter : null
+                layoutFilter: null
             }
         case 'FILTER_CHANGE':
             return {
@@ -70,6 +71,12 @@ const IndexReducer = (state = initialState, action) => {
             resetState.version = action.payload.version;
             resetState.login = false;
             return resetState;
+        case 'UPDATE_MENU_TOOLBAR':
+            console.log(action.payload)
+            return {
+                ...state,
+                activeMenuToolbar: action.payload
+            }
         default:
             return state
     }

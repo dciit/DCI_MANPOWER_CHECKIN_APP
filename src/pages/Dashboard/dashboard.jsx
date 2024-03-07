@@ -62,7 +62,6 @@ function Dashboard() {
                             layouts.filter(o => o.layoutName != 'TEST' && o.layoutStatus == 'ACTIVE').map((oMap, iMap) => {
                                 console.log(oMap)
                                 return <Tab icon={<ApiSharpIcon/>} iconPosition='top' label={oMap.layoutName} className='text-white'>
-
                                 </Tab>
                                 return <div className='w-[150px] bg-red-500'>
                                     <span className='text-[14px] text-white'>{oMap.layoutName}</span>

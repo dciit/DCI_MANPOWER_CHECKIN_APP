@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
 import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic';
 function Management() {
+    const VITE_PATH = import.meta.env.VITE_PATH;
     const navigate = useNavigate();
     const [once, setOnce] = useState(true);
     const [fac, setFac] = useState('1');
@@ -70,17 +71,17 @@ function Management() {
         setSA(listMQSA.filter((v, k) => v.dictType == 'SA'));
     }
     async function handleOpenLayout(v) {
-        navigate(`../dcimanpower/${v.layoutCode}`)
+        navigate(`../${VITE_PATH}/view/${v.layoutCode}`)
     }
-    async function handleOpenEdit(){
-        navigate(`../dcimanpower/edit`);
+    async function handleOpenEdit() {
+        navigate(`../${VITE_PATH}/edit`);
     }
     return (
         <div className='p-6'>
             <Stack direction={'column'} alignItems={'end'}>
-                <Button variant='contained' startIcon={<AutoAwesomeMosaicIcon/>} onClick={handleOpenEdit}>จัดการตำแหน่งจุดเช็คอิน</Button>
+                <Button variant='contained' startIcon={<AutoAwesomeMosaicIcon />} onClick={handleOpenEdit}>จัดการตำแหน่งจุดเช็คอิน</Button>
                 <Paper className='w-[100%]'>
-                    <TabContext value={fac}  key={'1'}>
+                    <TabContext value={fac} key={'1'}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList onChange={handleChange} >
                                 <Tab className='font-semibold' label="FACTORY 1" value="1" />
@@ -104,18 +105,6 @@ function Management() {
                                                                     <Typography variant='h4' >{v.layoutName}</Typography>
                                                                     <Button variant='contained' startIcon={<SearchIcon />}>ดูรายละเอียด</Button>
                                                                 </Stack>
-                                                                {/* <Grid container spacing={2} >
-                                                    {
-                                                        v?.listObj.map((oObj, kObj) => {
-                                                            // console.log(oObj)
-                                                            return <Grid item xs={4} key={kObj} className='hover:scale-105 duration-300 transition-all' onClick={() => handleOpenMQSA(oObj.objCode)}>
-                                                                <Paper className='h-[50px] flex justify-center pt-1' >
-                                                                    <Typography>{oObj.objTitle} {oObj.objCode}</Typography>
-                                                                </Paper>
-                                                            </Grid>
-                                                        })
-                                                    }
-                                                </Grid> */}
                                                             </CardContent>
                                                         </Card>
                                                     </Grid>

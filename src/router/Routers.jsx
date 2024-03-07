@@ -1,19 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "../pages/layout";
-import Page404 from "../pages/page404";
 import { useDispatch, useSelector } from "react-redux";
-import PageOne from "../pages/diagramsvg";
-import DiagramSVG from "../pages/diagramsvg";
-import Templete from "../pages/TemplateManpower";
-import Home from "../pages/home";
-import QrCode from "../pages/qrcode";
-import Manpower from "../pages/manpower";
 import ManpowerView from "../pages/Manpower/ManpowerView";
 import ManpowerEdit from "../pages/Manpower/ManpowerEdit";
-import ManpowerGrid from "../pages/Manpower/ManpowerGrid";
 import Management from "../pages/management";
 import Login from "../pages/login";
 import Dashboard from "../pages/Dashboard/dashboard";
+import Efficiency from "../pages/efficiency";
 const Routers = () => {
     const dispatch = useDispatch();
     const BASE = import.meta.env.VITE_PATH;
@@ -29,8 +22,9 @@ const Routers = () => {
                     {/* <Route path={`${BASE}/:layout`} element={<ManpowerView />} /> */}
                     <Route path={`${BASE}/edit`} element={<ManpowerEdit />} />
                     <Route path={`${BASE}/management`} element={<Management />} />
+                    <Route path={`${BASE}/efficiency`} element={<Efficiency/>}/>
                 </Route>
-                <Route path={`${BASE}/:layout`} element={<ManpowerView />} />
+                {/* <Route path={`${BASE}/:layout`} element={<ManpowerView />} /> */}
                 <Route path={`/*`} element={<Login />} />
                 <Route path={`${BASE}/login`} element={<Login />} />
                 <Route path={`${BASE}/view/:layout`} element={<ManpowerView />} />

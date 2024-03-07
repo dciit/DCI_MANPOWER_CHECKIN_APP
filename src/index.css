@@ -313,5 +313,5 @@ table.tb-man-detail td:not(:first-child) {
 }
 
 div[role="presentation"]{
-    z-index: 999 !important;
+    z-index: 999999 !important;
 }

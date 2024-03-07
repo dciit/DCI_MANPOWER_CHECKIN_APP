@@ -31,15 +31,16 @@ import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { persistor } from "../../redux/store";
 import moment from "moment";
-import ApiSharpIcon from '@mui/icons-material/ApiSharp';
-import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
 import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
 import DialogSelectLine from "../../components/DialogSelectLine";
 import CircleIcon from '@mui/icons-material/Circle';
+import ToolbarComponent from "../../components/ToolbarComponent";
+import HomeIcon from '@mui/icons-material/Home';
 function ManpowerView() {
+  const [yAxis, setYAxis] = useState([]);
   const [openSelectLine, setOpenSelectLine] = useState(false);
   const [numLoop, setNumLoop] = useState(0);
   let { layout } = useParams();
@@ -58,6 +59,7 @@ function ManpowerView() {
   const [openTab, setOpenTab] = useState(widthNav);
   const [percentCheckIn, setPercentCheckIn] = useState(0);
   let shiftRedux = useSelector(state => state.reducer.shift);
+  let login = useSelector(state => state.reducer.login);
   const [summaryMQ, setSummaryMQ] = useState({});
   const [summarySA, setSummarySA] = useState({});
   const [foreman, setForeman] = useState({});
@@ -77,15 +79,23 @@ function ManpowerView() {
   let svgContent = "";
   useEffect(() => {
     if (once) {
-      initDT();
-      init();
-      setObjSelected({});
-      setOnce(false);
-      const interval = setInterval(() => {
-        console.log('loop num ')
-        setNumLoop(numLoop + 1);
-      }, 10000);
-      return () => clearInterval(interval);
+      console.log(layout)
+      if (layout == 'all' || layout.length == '') {
+        setOpenSelectLine(true);
+      } else {
+        [...Array(7)].map((o, i) => {
+          setYAxis([...yAxis, ...yAxis]);
+        })
+        initDT();
+        init();
+        setObjSelected({});
+        setOnce(false);
+        const interval = setInterval(() => {
+          console.log('loop num ')
+          setNumLoop(numLoop + 1);
+        }, 10000);
+        return () => clearInterval(interval);
+      }
     }
   }, [once]);
 
@@ -94,7 +104,9 @@ function ManpowerView() {
       intialData();
     }
   }, [refreshContent])
-
+  useEffect(() => {
+    console.log(yAxis)
+  }, [yAxis])
   async function initDT() {
     let fmTime = 'HH:mm:ss'
     let hh_current = moment().format('HH');
@@ -348,17 +360,6 @@ function ManpowerView() {
       genSummarySA();
     }
   }, [backdrop])
-
-  // async function handleChangeMenuActive(event, menuNumber) {
-  //   console.log(menuNumber)
-  //   setMenuActive(menuNumber);
-  // }
-
-
-  const handleSelectMenu = (event, newValue) => {
-    setLayoutSelected({ ...layouts[newValue] });
-  };
-
   function createViewMQSA(elObj, elSVG) {
     elSVG.innerHTML = elObj.objSvg;
 
@@ -589,6 +590,11 @@ function ManpowerView() {
       console.log(e)
     }
   }
+
+  function newTab(link = '') {
+    window.open(link, '_blank');
+  }
+
   return (
     <div className='bg-[#f3f3f3] h-[100%]' style={{ fontFamily: 'apple' }}>
       <input type="hidden" id="inpObjCode" value={objSelected?.objCode}></input>
@@ -600,24 +606,13 @@ function ManpowerView() {
       <input type="hidden" id="inpType" value={inpType}></input>
 
       <Grid container height={'100%'} alignContent={'start'}>
-        <Grid item xs={12} py={1} className="bg-[#556ee5]">
-          <div className="toolbar flex items-center px-[7.5%] gap-6 cursor-pointer">
-            {
-              [
-                { text: 'MANPOWER CHECK-IN', icon: <FmdGoodOutlinedIcon />, active: true },
-                { text: 'LINE EFFICIENCY', icon: <ApiSharpIcon />, active: false }
-              ].map((oMenu, iMenu) => {
-                return <div key={iMenu} className={`${oMenu.active ? 'text-white' : 'text-[#fff9]'} flex  items-center gap-1`} style={{ letterSpacing: '1px' }}>
-                  {oMenu.icon}
-                  <span>{oMenu.text}</span>
-                </div>
-              })
-            }
-          </div>
-        </Grid>
+        <ToolbarComponent />
         <Grid item xs={12}>
-          <div className="flex items-center px-[24px] py-[16px]">
+          <div className="flex items-center px-[24px] py-[16px] gap-6">
             <span className="text-[1.5em] font-bold text-[#484f57]" style={{ letterSpacing: '1px' }}>MANPOWER CHECK-IN</span>
+            {
+              login && <Button size="small" variant="contained" startIcon={<HomeIcon/>} onClick={()=>newTab(`../../${VITE_PATH}/management`)}>ระบบหลังบ้าน</Button>
+            }
           </div>
         </Grid>
         <Grid item container xs={12} px={3} spacing={2} className="bg-[#f3f3f3] select-none">
@@ -625,7 +620,7 @@ function ManpowerView() {
             {
               andon.map((oAndon, iAndon) => (
                 <Grid key={iAndon} item xs={12} md={6} lg={12}>
-                  <Card>
+                  <Card onClick={() => newTab(`http://dciweb.dci.daikin.co.jp/lineeff/RealtimeEff.aspx?Board=${oAndon?.boardId}`)}>
                     <CardHeader
                       className="card-header bg-[#d4def9]"
                       action={
@@ -888,7 +883,6 @@ function ManpowerView() {
                             {/* 3dac62 */}
                           </Stack>
                         </Grid>
-
                         <Grid item xs={4}>
                           <Stack alignItems={'center'}>
                             <Typography variant="h3" className={`font-semibold `} style={{ letterSpacing: '1px', fontFamily: 'inter' }}>
@@ -901,6 +895,9 @@ function ManpowerView() {
                           </Stack>
                         </Grid>
                       </Grid>
+                      {/* <Stack>
+                        asdasd
+                      </Stack> */}
                     </Stack>}
                 />
                 <CardContent className="pb-0" style={{ borderTop: '1px solid rgb(241 241 241)' }} >

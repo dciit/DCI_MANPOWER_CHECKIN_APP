@@ -352,3 +352,11 @@ export function API_ANDON_BOARD(param) {
         })
     })
 }
+
+export function API_GET_MQSA_OF_EMPCODE(empcode = '') {
+    return new Promise(resolve => {
+        http.get(`/mpck/getsamqofempcode/${empcode}`).then((res) => {
+            resolve(res.data);
+        })
+    })
+}

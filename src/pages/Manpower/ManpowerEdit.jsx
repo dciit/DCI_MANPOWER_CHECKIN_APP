@@ -191,8 +191,10 @@ function ManpowerEdit() {
                 let spanWidth = oSpanAgain.offsetWidth;
                 oSpanAgain.remove();
                 let width = Math.ceil(parseInt(spanWidth)) + 50;
-                bgTitle[0].setAttribute('width', width);
-                bgTitleReact[0].setAttribute('width', width);
+                if(Object.keys(bgTitle).length){
+                    bgTitle[0].setAttribute('width', width);
+                    bgTitleReact[0].setAttribute('width', width);
+                }
             }
 
             // IF BAGKGROUND SET WIDTH & HEIGHT
@@ -251,7 +253,7 @@ function ManpowerEdit() {
                         </Grid>
                         <Grid item xs={12}>
                             <Stack direction={'row'} pb={2} pt={1} gap={2} alignItems={'center'}>
-                                <Typography className=''>พื้นที่ </Typography>
+                                <Typography className=''>พื้นที่ 11111111</Typography>
                                 {
                                     layouts.length ? <Select className='w-full' size='small' value={layoutFilter?.layoutCode} onChange={(e) => changeLayout(e.target.value)}>
                                         {

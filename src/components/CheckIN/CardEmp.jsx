@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Card, CardHeader, Avatar, IconButton, CardContent, Typography, Divider, Grid, Stack, Button, Table, TableBody, TableRow, TableCell, styled, Badge } from '@mui/material'
+import { Card, CardHeader, Avatar, IconButton, CardContent, Typography, Divider, Grid, Stack, Button, Table, TableBody, TableRow, TableCell, styled, Badge, CircularProgress } from '@mui/material'
 import CardEmpMQ from './CardEmpMQ';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CardEmpSA from './CardEmpSA';
@@ -32,7 +32,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 function CardEmp(props) {
-    const { data, eventCheckIn, refInpEmpCode } = props;
+    const { data, eventCheckIn, refInpEmpCode, MQSAofEmpcode, loadingBtnCheckIn } = props;
     const RowContent = (props) => {
         return <Stack >
             <Typography className='text-[14px] font-sans'>{props.title}</Typography>
@@ -58,41 +58,61 @@ function CardEmp(props) {
                             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                             variant="dot"
                         >
-                            <Avatar aria-label="recipe" src={data?.empImage} sx={{ width: 128, height: 128 }} style={{ border: '1px solid #CCCCCC' }}>
-                            </Avatar>
+                            {
+                                Object.keys(MQSAofEmpcode).length ? <Avatar aria-label="recipe" src={MQSAofEmpcode?.empImage} sx={{ width: 128, height: 128 }} style={{ border: '1px solid #CCCCCC' }}>
+                                </Avatar> : <Avatar aria-label="recipe" src={data?.empImage} sx={{ width: 128, height: 128 }} style={{ border: '1px solid #CCCCCC' }}>
+                                </Avatar>
+                            }
                         </StyledBadge>
-                        <span>
-                            {data?.empCode}
-                        </span>
+                        {
+                            Object.keys(MQSAofEmpcode).length ? <span>{MQSAofEmpcode?.empCode}</span> : <span>{data?.empCode}</span>
+                        }
+
                     </Grid>
                     <Grid item xs={6}>
                         <div className='flex  flex-col  justify-center'>
-                            <RowContent title='ชื่อ ' value={data?.empName} />
-                            <RowContent title='ตำแหน่ง ' value={data?.empPosit} />
-                            <RowContent title='อายุงาน ' value={`${data?.empWorkYear} ปี ${(Math.floor((data?.empWorkDay - (data?.empWorkYear * 365)) / 31)) > 0 ? (Math.floor((data?.empWorkDay - (data?.empWorkYear * 365)) / 31) + ' เดือน') : ''} `} />
+                            {
+                                Object.keys(MQSAofEmpcode).length ?
+                                    <>
+                                        <RowContent title='ชื่อ ' value={MQSAofEmpcode?.empName} />
+                                        <RowContent title='ตำแหน่ง ' value={MQSAofEmpcode?.empPosit} />
+                                        <RowContent title='อายุงาน ' value={`${MQSAofEmpcode?.empWorkYear} ปี ${(Math.floor((MQSAofEmpcode?.empWorkDay - (MQSAofEmpcode?.empWorkYear * 365)) / 31)) > 0 ? (Math.floor((MQSAofEmpcode?.empWorkDay - (MQSAofEmpcode?.empWorkYear * 365)) / 31) + ' เดือน') : ''} `} />
+                                    </> :
+                                    <>
+                                        <RowContent title='ชื่อ ' value={data?.empName} />
+                                        <RowContent title='ตำแหน่ง ' value={data?.empPosit} />
+                                        <RowContent title='อายุงาน ' value={`${data?.empWorkYear} ปี ${(Math.floor((data?.empWorkDay - (data?.empWorkYear * 365)) / 31)) > 0 ? (Math.floor((data?.empWorkDay - (data?.empWorkYear * 365)) / 31) + ' เดือน') : ''} `} />
+                                    </>
+                            }
+
                         </div >
                     </Grid>
                     <Grid item xs={12}>
                         {
-                            data?.empCode != '' ? (
-                                empcode != '' ? <div onClick={eventCheckIn} className=' h-[100px] pb-2 cursor-pointer ring-2 ring-red-500 w-full rounded-xl bg-mp-absend  flex items-center justify-center shadow-2xl gap-2' >
-                                    <CheckCircleIcon className='text-[3em]' /><span className='text-[3em] text-white'>CHECK OUT</span>
-                                </div> : ''
-
-
-                            ) : (
-                                empcode != '' ? <div onClick={eventCheckIn} className='h-[100px] pb-2 cursor-pointer ring-2 ring-green-500 w-full rounded-xl bg-mp-check-in  flex items-center justify-center shadow-2xl gap-2' >
-                                    <CheckCircleIcon className='text-[3em]' /><span className='text-[3em] text-white'>CHECK IN</span>
-                                </div> : ''
-                            )
+                            loadingBtnCheckIn ? <Stack justifyContent={'center'} alignItems={'center'} gap={1}>
+                                <CircularProgress />
+                                <Typography>ระบบกำลังตรวจสอบใบอนุญาติการทำงาน</Typography>
+                            </Stack> :
+                                data?.empCode != '' ? (
+                                    empcode != '' ? <div onClick={eventCheckIn} className=' h-[100px] pb-2 cursor-pointer ring-2 ring-red-500 w-full rounded-xl bg-mp-absend  flex items-center justify-center shadow-2xl gap-2' >
+                                        <CheckCircleIcon className='text-[3em]' /><span className='text-[3em] text-white'>CHECK OUT</span>
+                                    </div> : ''
+                                ) : (
+                                    empcode != '' ? <div onClick={eventCheckIn} className='h-[100px] pb-2 cursor-pointer ring-2 ring-green-500 w-full rounded-xl bg-mp-check-in  flex items-center justify-center shadow-2xl gap-2' >
+                                        <CheckCircleIcon className='text-[3em]' /><span className='text-[3em] text-white'>CHECK IN</span>
+                                    </div> : ''
+                                )
                         }
-
                     </Grid>
                     <Grid item xs={12}>
-                        <CardEmpMQ listMQ={data?.empMQ} />
+                        {
+                            (Object.keys(MQSAofEmpcode).length && typeof MQSAofEmpcode.empMQ != 'undefined') ? <CardEmpMQ listMQ={MQSAofEmpcode?.empMQ} /> : <CardEmpMQ listMQ={data?.empMQ} />
+                        }
                     </Grid>
                     <Grid item xs={12}>
-                        <CardEmpSA listSA={data?.empSA} />
+                        {
+                            (Object.keys(MQSAofEmpcode).length && typeof MQSAofEmpcode.empSA != 'undefined') ? <CardEmpSA listSA={MQSAofEmpcode?.empSA} /> : <CardEmpSA listSA={data?.empSA} />
+                        }
                     </Grid>
                 </Grid>
             </CardContent>

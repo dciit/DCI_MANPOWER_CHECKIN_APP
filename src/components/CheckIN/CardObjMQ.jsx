@@ -7,7 +7,7 @@ import { API_GET_OBJECT_INFO } from '../../Service';
 
 function CardObjMQ(props) {
     const [openDialogAddMQ, setOpenDialogAddMQ] = useState(false);
-    const { data } = props;
+    const { data, mq, refInpEmpCode } = props;
     const login = useSelector(state => state.reducer?.login);
     const [listMQ, setListMQ] = useState([]);
     useEffect(() => {
@@ -37,16 +37,20 @@ function CardObjMQ(props) {
                 <Table className='bg-blue-50'>
                     <TableHead>
                         <TableRow>
-                            <TableCell className='py-1 font-sans text-[#626262]  w-[45%]'>รหัส</TableCell>
+                            <TableCell className='py-1 font-sans text-[#626262]  w-[35%]'>รหัส</TableCell>
                             <TableCell className='py-1 font-sans text-[#626262]'>ชื่อหลักสูตร</TableCell>
+                            <TableCell className='py-1 font-sans text-[#626262] w-[15%] text-center'>#</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {
-                            (listMQ?.length) ? listMQ.map((mq, index) => {
+                            (listMQ?.length) ? listMQ.map((oMQ, index) => {
+                                let filter = (typeof mq == 'object' && mq.filter(o => o.mqCode == oMQ.mqCode).length) ? true : false;
+                                let style = refInpEmpCode.current.value != '' ? (!filter && refInpEmpCode.current.value != '' ? 'text-red-500 font-semibold' : 'text-green-600') : 'text-blue-500';
                                 return <TableRow key={index}>
-                                    <TableCell className='text-blue-600  py-1'>({mq.mqCode}) </TableCell>
-                                    <TableCell className='py-1'>{mq.mqName}</TableCell>
+                                    <TableCell className={` ${style} py-1`}>({oMQ.mqCode}) </TableCell>
+                                    <TableCell className={` ${style} py-1 `}>{oMQ.mqName}</TableCell>
+                                    <TableCell className={`p-0 text-center ${!filter && 'text-red-500 font-semibold'}  `}>{ (!filter && style != 'text-blue-500') && 'ไม่ผ่าน'}</TableCell>
                                 </TableRow>
                             }) : <TableRow><TableCell colspan={2} className='text-center font-semibold text-red-400 py-1'>* ไม่พบหลักสูตรอบรมที่ระบบต้องการ</TableCell></TableRow>
                         }

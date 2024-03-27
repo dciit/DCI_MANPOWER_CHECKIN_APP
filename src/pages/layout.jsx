@@ -5,6 +5,7 @@ import Header from "./header";
 import ToolbarComponent from "../components/ToolbarComponent";
 function Layout() {
     const reducer = useSelector(state => state.reducer);
+    alert(1)
     return <>
         {
             reducer?.login

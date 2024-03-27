@@ -3,7 +3,7 @@ import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
 import { Avatar, Box, Card, CardContent, CardHeader, Divider, Grid, IconButton, Stack, Tab, Tabs, Typography, DialogContent, TableContainer, Paper, Table, TableHead, TableBody, TableRow, TableCell, InputBase, DialogTitle, DialogActions, CircularProgress } from '@mui/material'
 import moment from 'moment/moment'
-import { API_CHECK_INOUT, API_GET_MQSA_OF_LAYOUT, API_GET_OBJECT, API_GET_OBJECT_BY_CODE, API_GET_OBJECT_INFO } from '../Service'
+import { API_CHECK_INOUT, API_GET_MQSA_OF_EMPCODE, API_GET_OBJECT_INFO } from '../Service'
 import { useDispatch, useSelector } from 'react-redux'
 import CardPosition from './CheckIN/CardPosition'
 import CardEmp from './CheckIN/CardEmp'
@@ -19,6 +19,7 @@ function DialogCheckin(props) {
     const { open, close, data, setData, refObj, refHeaderManpower, backdrop, inpType, refInpEmpCode, inpEmpCode } = props;
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
+    const [loadingBtnCheckIn, setLoadingBtnCheckIn] = useState(false);
     const objectSelected = useSelector(state => state.reducer.objectSelected);
     useEffect(() => {
         if (open) {
@@ -40,6 +41,7 @@ function DialogCheckin(props) {
         }
     }
     async function handleCheckInOut() {
+        setLoadingBtnCheckIn(true);
         let inpEmpCode = document.querySelector('input#inpEmpCode').value;
         let inpYMD = document.querySelector('input#inpYMD').value;
         let inpShift = document.querySelector('input#inpShift').value;
@@ -73,9 +75,34 @@ function DialogCheckin(props) {
                     backdrop(false);
                     alert(checkin.msg);
                 }
+                setLoadingBtnCheckIn(false);
             }
         }
     }
+
+
+    // (##) REAL-TIME READ CARD
+    const [empcode, setEmpcode] = useState();
+    const [MQSAofEmpcode, setMQSAofEmpcode] = useState([]);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            console.log(refInpEmpCode.current.value)
+            setEmpcode(refInpEmpCode.current.value);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
+    useEffect(() => {
+        if (refInpEmpCode.current.value != '') {
+            initCompareCert();
+        } else {
+            setMQSAofEmpcode([]);
+        }
+    }, [empcode]);
+    async function initCompareCert() {
+        let apiCompareCert = await API_GET_MQSA_OF_EMPCODE(refInpEmpCode.current.value);
+        setMQSAofEmpcode(apiCompareCert);
+    }
+    // (##) END 
 
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='lg'>
@@ -91,12 +118,12 @@ function DialogCheckin(props) {
                             <Grid item xs={12} sm={12} md={6} lg={6}>
                                 <button style={{ display: 'none' }} id="handleCheckInOut" onClick={handleCheckInOut}>CHECKIN</button>
                                 <Stack gap={2}>
-                                    <CardPosition data={data} />
+                                    <CardPosition data={data} refInpEmpCode={refInpEmpCode} MQSAofEmpcode={MQSAofEmpcode} />
                                 </Stack>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={6}>
                                 <Stack gap={2}>
-                                    <CardEmp data={objectSelected} eventCheckIn={handleCheckInOut} refInpEmpCode={refInpEmpCode} />
+                                    <CardEmp data={objectSelected} eventCheckIn={handleCheckInOut} loadingBtnCheckIn = {loadingBtnCheckIn} refInpEmpCode={refInpEmpCode} MQSAofEmpcode={MQSAofEmpcode} />
                                 </Stack>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={6}>

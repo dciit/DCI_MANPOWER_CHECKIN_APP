@@ -31,14 +31,14 @@ import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { persistor } from "../../redux/store";
 import moment from "moment";
-import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
 import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
 import DialogSelectLine from "../../components/DialogSelectLine";
 import CircleIcon from '@mui/icons-material/Circle';
 import ToolbarComponent from "../../components/ToolbarComponent";
-import HomeIcon from '@mui/icons-material/Home';
+import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import ComponentButtonAction from "../../components/button.action";
 function ManpowerView() {
   const [yAxis, setYAxis] = useState([]);
   const [openSelectLine, setOpenSelectLine] = useState(false);
@@ -79,7 +79,6 @@ function ManpowerView() {
   let svgContent = "";
   useEffect(() => {
     if (once) {
-      console.log(layout)
       if (layout == 'all' || layout.length == '') {
         setOpenSelectLine(true);
       } else {
@@ -91,7 +90,6 @@ function ManpowerView() {
         setObjSelected({});
         setOnce(false);
         const interval = setInterval(() => {
-          console.log('loop num ')
           setNumLoop(numLoop + 1);
         }, 10000);
         return () => clearInterval(interval);
@@ -104,9 +102,9 @@ function ManpowerView() {
       intialData();
     }
   }, [refreshContent])
-  useEffect(() => {
-    console.log(yAxis)
-  }, [yAxis])
+  // useEffect(() => {
+  //   console.log(yAxis)
+  // }, [yAxis])
   async function initDT() {
     let fmTime = 'HH:mm:ss'
     let hh_current = moment().format('HH');
@@ -135,7 +133,6 @@ function ManpowerView() {
   }, [numLoop]);
 
   useEffect(() => {
-
     const intervalAndonBoard = setInterval(() => {
       getAndonBoardData();
     }, 180000);
@@ -386,9 +383,9 @@ function ManpowerView() {
     let txtMQ = elSVG.querySelector('.txt_mq');
 
     if (txtMQ != null) {
-      if (elObj.objCode == 'MP2401110050') {
-        console.log(elObj)
-      }
+      // if (elObj.objCode == 'MP2401110050') {
+      //   console.log(elObj)
+      // }
       if (typeof elObj.objMQ != 'undefined' && elObj.objMQ.length) {
         // if (elObj.objCode == 'OTH2311100105') {
         //   console.log(txtMQ)
@@ -519,13 +516,6 @@ function ManpowerView() {
       navigate(`${VITE_PATH}`);
     }
   }
-
-  // const ArrNavMenu = [
-  //   { text: 'home', icon: <Home />, active: true },
-  //   { text: 'andno board', icon: <Home />, active: false },
-  //   { text: 'manpower', icon: <Home />, active: false }
-  // ]
-
   function InitNavMenu({ text, icon, active }) {
     return <Box>
       <Stack className={`py-1 pl-3 ${openTab == widthNav && 'pr-3'} bg-white rounded-xl  shadow-nav-menu cursor-pointer text-black font-mono  ${active && 'bg-[#efefef]'}`} justifyContent={'start'} direction={'row'} alignItems={'center'} justifyItems={'center'}>
@@ -536,8 +526,6 @@ function ManpowerView() {
       </Stack>
     </Box>
   }
-  // useEffect(() => {
-  // }, [openTab]);
   async function genSummaryMQ() {
     let MQSACount = 0;
     let MQSAchieve = 0;
@@ -564,7 +552,6 @@ function ManpowerView() {
       console.log(e)
     }
   }
-
   async function genSummarySA() {
     let SACount = 0;
     let SAchieve = 0;
@@ -590,16 +577,15 @@ function ManpowerView() {
       console.log(e)
     }
   }
-
   function newTab(link = '') {
     window.open(link, '_blank');
   }
-
+  const [openDialogCheckCert, setOpenDialogCheckCert] = useState(false);
   return (
     <div className='bg-[#f3f3f3] h-[100%]' style={{ fontFamily: 'apple' }}>
       <input type="hidden" id="inpObjCode" value={objSelected?.objCode}></input>
       <input type="hidden" id="inpLayoutCode" value={layout}></input>
-      <input type="hidden" id="inpEmpCode" value={inpEmpCode} ref={refInpEmpCode}></input>
+      <input type="hidden" readOnly id="inpEmpCode" value={inpEmpCode} ref={refInpEmpCode}></input>
       <input type="hidden" id="disEmpCode" value={objSelected?.empCode}></input>
       <input type="hidden" id="inpYMD" value={""}></input>
       <input type="hidden" id="inpShift" value={""}></input>
@@ -607,14 +593,7 @@ function ManpowerView() {
 
       <Grid container height={'100%'} alignContent={'start'}>
         <ToolbarComponent />
-        <Grid item xs={12}>
-          <div className="flex items-center px-[24px] py-[16px] gap-6">
-            <span className="text-[1.5em] font-bold text-[#484f57]" style={{ letterSpacing: '1px' }}>MANPOWER CHECK-IN</span>
-            {
-              login && <Button size="small" variant="contained" startIcon={<HomeIcon/>} onClick={()=>newTab(`../../${VITE_PATH}/management`)}>ระบบหลังบ้าน</Button>
-            }
-          </div>
-        </Grid>
+        <ComponentButtonAction />
         <Grid item container xs={12} px={3} spacing={2} className="bg-[#f3f3f3] select-none">
           <Grid container item xs={12} md={3} lg={2} spacing={2} alignContent={'start'}>
             {
@@ -927,7 +906,7 @@ function ManpowerView() {
                   className="bg-[#d4def9] card-header"
                   action={
                     <IconButton aria-label="settings">
-                      <Diversity3OutlinedIcon />
+                      <ElectricBoltIcon />
                     </IconButton>
                   }
                   title="MAN"

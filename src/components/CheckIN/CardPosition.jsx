@@ -2,11 +2,11 @@ import { Card, CardHeader, CircularProgress, Avatar, IconButton, CardContent, Ty
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import CardObjMQ from './CardObjMQ';
 import CardObjSA from './CardObjSA';
-import { API_EDIT_OBJECT, API_GET_OBJECT_BY_CODE, API_MAN_SKILL, API_UPLOAD_FILE } from '../../Service';
+import { API_EDIT_OBJECT, API_GET_MQSA_OF_EMPCODE, API_GET_OBJECT_BY_CODE, API_MAN_SKILL, API_UPLOAD_FILE } from '../../Service';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 function CardPositionEmployee(props) {
-    const { data } = props;
+    const { data, refInpEmpCode, MQSAofEmpcode } = props;
     const [obj, setObj] = useState(data);
     const [loading, setLoading] = useState(true);
     const [manskill, setManskill] = useState();
@@ -22,9 +22,9 @@ function CardPositionEmployee(props) {
     }
     async function setImage(path) {
         setTimeout(() => {
-            try{
+            try {
                 refImg.current.src = path != '' ? `${path}?${Math.random()}` : defaultImg;
-            }catch (e){
+            } catch (e) {
                 console.log(e.message)
             }
         }, 1000);
@@ -42,7 +42,6 @@ function CardPositionEmployee(props) {
         }
     }
     async function initObj() {
-        console.log(data)
         let res = await API_GET_OBJECT_BY_CODE({ objCode: data.objCode });
         if (res != null && typeof res == 'object' && Object.keys(res).length) {
             setObj(res[0]);
@@ -58,6 +57,9 @@ function CardPositionEmployee(props) {
             setObj({ ...obj, objPosition: param.objPosition });
         }
     }
+
+
+
     return (
         <Card variant="outlined">
             <CardHeader title="ข้อมูลพื้นที่ปฎิบัติงาน" className='px-3 py-2 pb-1 text-center' />
@@ -65,9 +67,9 @@ function CardPositionEmployee(props) {
             <CardContent >
                 <Card >
                     <Grid container spacing={1} p={1}>
-                        {
+                        {/* {
                             login
-                        }
+                        } */}
                         <Grid item xs={6}>
                             <Stack className='cursor-pointer ' gap={1}>
                                 <img ref={refImg} className='w-[100%]  min-h-[200px] rounded-md' />
@@ -120,8 +122,8 @@ function CardPositionEmployee(props) {
 
                 </Card>
                 <Stack gap={2} mt={3}>
-                    <CardObjMQ listMQ={data?.objMQ} data={data} />
-                    <CardObjSA listSA={data?.objSA} data={data} />
+                    <CardObjMQ listMQ={data?.objMQ} data={data} refInpEmpCode={refInpEmpCode} mq={MQSAofEmpcode?.empMQ} />
+                    <CardObjSA listSA={data?.objSA} data={data} refInpEmpCode={refInpEmpCode} sa={MQSAofEmpcode?.empSA} />
                     <div className='h-[300px] overflow-auto'>
                         <Grid item xs={12}>
                             <Card className='select-none'>

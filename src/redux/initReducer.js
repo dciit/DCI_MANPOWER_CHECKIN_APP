@@ -16,7 +16,8 @@ const initialState = {
     sa: [],
     mq: [],
     shift: '',
-    activeMenuToolbar: ''
+    activeMenuToolbar: '',
+    cardEmp: ''
 }
 
 const IndexReducer = (state = initialState, action) => {

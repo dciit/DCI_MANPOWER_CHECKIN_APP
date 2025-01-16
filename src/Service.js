@@ -133,9 +133,9 @@ export function ServiceUpdateMaster(param) {
 }
 
 
-export function API_GET_MASTER(objCode = '') {
+export function API_GET_MASTER(objCode = '', layoutCode = '') {
     return new Promise(resolve => {
-        http.post(`/mpck/getMasterList`, { objCode: objCode }).then((res) => {
+        http.post(`/mpck/getMasterList`, { objCode: objCode, layoutCode: layoutCode }).then((res) => {
             resolve(res.data);
         })
     })
@@ -360,3 +360,21 @@ export function API_GET_MQSA_OF_EMPCODE(empcode = '') {
         })
     })
 }
+
+
+export function API_GET_LAYOUT_DETAIL(layoutCode = '') {
+    return new Promise(resolve => {
+        http.get(`/mpck/getLayoutDetail/${layoutCode}`).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function APIGetObjectsByLayoutCode(layoutCode = '') {
+    return new Promise(resolve => {
+        http.get(`/mpck/getObjectsByLayoutCode/${layoutCode}`).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+

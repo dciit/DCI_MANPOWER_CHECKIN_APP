@@ -6,7 +6,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useSelector } from 'react-redux';
 import { API_GET_OBJECT_INFO } from '../../Service';
 function CardObjSA(props) {
-    const { data, refObj, sa } = props;
+    const { data, refObj, sa, refInpEmpCode } = props;
     const login = useSelector(state => state.reducer.login);
     const [openDialogAddSA, setOpenDialogAddSA] = useState(false);
     const [listSA, setListSA] = useState([]);
@@ -45,11 +45,29 @@ function CardObjSA(props) {
                     <TableBody>
                         {
                             (listSA?.length) ? listSA.map((oSA, index) => {
-                                let filter = (typeof sa == 'object' && sa.filter(o => o.saCode == oSA.saCode).length) ? true : false;
+                                let empcode = data?.empCode ? data.empCode : '';
+                                let style = 'text-blue-500';
+                                let filter = false;
+                                let txtCert = '';
+                                try {
+                                    if (empcode != '') { // มีการ checkin เข้าทำงาน
+
+                                    } else {
+                                        filter = (typeof sa == 'object' && Object.keys(sa).length  && sa.filter(o => o.saCode == oSA.saCode).length) ? true : false;
+                                        if (refInpEmpCode.current.value != '') { // กำลังแตะบัตรพนักงาน
+                                            if (!filter) {
+                                                txtCert = 'ไม่ผ่าน'
+                                                style = 'text-red-500 font-semibold'
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    alert(e.message)
+                                }
                                 return <TableRow key={index}>
-                                    <TableCell className={` ${!filter ? 'text-red-500 font-semibold' : 'text-green-600'} py-1`}>({oMQ.saCode}) </TableCell>
-                                    <TableCell className={`py-1 ${!filter ? 'text-red-500 font-semibold' : 'text-green-600'}`}>{oMQ.saName}</TableCell>
-                                    <TableCell className={`p-0 text-center ${!filter && 'text-red-500 font-semibold'}  `}>{!filter && 'ไม่ผ่าน'}</TableCell>
+                                    <TableCell className={` ${style} py-1`}>({oSA.saCode}) </TableCell>
+                                    <TableCell className={` ${style} py-1`}>{oSA.saName}</TableCell>
+                                    <TableCell className={`p-0 text-center ${style}`}>{txtCert}</TableCell>
                                 </TableRow>
                             }) : <TableRow><TableCell colspan={2} className='text-center font-semibold text-red-400'>* ไม่พบสกิลเฉพาะทางที่ระบบต้องการ</TableCell></TableRow>
                         }

@@ -1,4 +1,4 @@
-import { Avatar, Divider, Button, Typography, Stack, Select, MenuItem, Snackbar, Skeleton, Grid } from '@mui/material'
+import { Avatar, Divider, Typography, Stack, MenuItem, Snackbar, Skeleton, Grid, Backdrop, CircularProgress } from '@mui/material'
 import React from 'react'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -10,13 +10,19 @@ import DialogUpdateMaster from '../../components/DialogUpdateMaster';
 import DialogAddObject from '../../components/DialogAddObject';
 import DialogAddLayout from '../../components/DialogAddLayout';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_DELETE_OBJECT, API_GET_LAYOUT, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ } from '../../Service';
+import { API_GET_LAYOUT, API_GET_LAYOUT_DETAIL, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ, APIGetObjectsByLayoutCode } from '../../Service';
 import DialogDetailEquipment from '../../components/DialogDetailEquipment';
 import { useNavigate } from 'react-router';
 import HomeIcon from '@mui/icons-material/Home';
 import DialogEditObject from '../../components/DialogEditObject';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import DialogEditPriority from '../../components/DialogEditPriority';
+import DialogSettingLayout from '../../components/dialog.setting.layout';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { PlusOne } from '@mui/icons-material';
+import DialogAddMP from '../../components/dialog.add.mp';
+import { Select, Button } from 'antd';
+import { HomeOutlined, InfoOutlined, PlusCircleOutlined, SettingOutlined } from '@ant-design/icons';
 function ManpowerEdit() {
     const VITE_PATH = import.meta.env.VITE_PATH;
     const [state, setState] = React.useState({
@@ -37,49 +43,89 @@ function ManpowerEdit() {
     const [openAddMaster, setOpenAddMaster] = useState(false);
     const [layouts, setLayouts] = useState([]);
     const [draw, setDraw] = useState(true);
+    const [openSettingLayout, setOpenSettingLayout] = useState(false);
     const dispatch = useDispatch();
     let coord = null;
     let offset = null;
     let selectedElement = null;
     let svgContent = '';
-    const layoutFilter = useSelector(state => state.reducer?.layoutFilter);
+    const reduxLayout = useSelector(state => state.reducer?.layoutFilter);
+    const [once, setOnce] = useState(true);
+    const [layoutSelected, setLayoutSelected] = useState({});
+    const [load, setLoad] = useState(true);
+    const [openAddMP, setOpenAddMP] = useState(false);
+    const [objects, setObjects] = useState([]);
     useEffect(() => {
-        init();
-    }, [layoutFilter]);
+        setLoad(true);
+        if (once) {
+            init();
+            setOnce(false);
+        }
+    }, [once]);
+
+
+    const getLayoutList = async () => {
+        let APIGetLayouts = await API_GET_LAYOUT();
+        console.log('1')
+        setLayouts(APIGetLayouts);
+    }
+    async function GetLayoutDetail(layoutCode) {
+        let oLayout = await API_GET_LAYOUT_DETAIL(layoutCode);
+        setLayoutSelected(oLayout);
+    }
+
+    const init = async () => {
+        await getLayoutList();
+    }
+    useEffect(() => {
+        if (layouts.length) {
+            console.log(2)
+            let layoutCode = '';
+            if (reduxLayout?.layoutCode != undefined && Object.keys(reduxLayout).length > 0) {
+                layoutCode = reduxLayout.layoutCode;
+            } else {
+                layoutCode = layouts[0].layoutCode;
+            }
+            GetLayoutDetail(layoutCode)
+        }
+    }, [layouts])
+    useEffect(() => {
+        if (Object.keys(layoutSelected).length) {
+            console.log(4)
+            setLoad(true);
+            var svgContent = document.querySelector("#svgContent");
+            svgContent.innerHTML = '';
+            try {
+                if (layoutSelected != null && layoutSelected != undefined && Object.keys(layoutSelected).length) {
+                    dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: layoutSelected })
+                    drawLayout();
+                }
+            } catch (e) {
+                alert(e.message)
+                setLoad(false);
+            }
+        }
+    }, [layoutSelected])
 
     const openSnackbar = (newState) => () => {
         setState({ ...newState, open: true });
     };
-
     const handleClose = () => {
         setState({ ...state, open: false });
     };
-    const init = async () => {
-        const res = await intialData();
+    const drawLayout = async () => {
+        const res = await drawObject();
         if (res) {
             let svgs = document.querySelectorAll('svg#svgContent svg');
             svgs.forEach((item) => {
-                // item.addEventListener('dblclick', dbClick);
                 item.addEventListener('mousedown', startDrag);
                 item.addEventListener('mousemove', moveDrag);
                 item.addEventListener('mouseup', endDrag);
                 item.addEventListener('mouseleave', leaveDrag);
             });
+            setLoad(false);
         }
     }
-    // const dbClick = async (evt) => {
-    //     let id = evt.target.getAttribute("id");
-    //     console.log(id)
-    //     // if (confirm('คุณต้องการลบ ใช่หรือไม่ ?')) {
-    //     //     let id = evt.target.getAttribute("id");
-    //     //     const del = await API_DELETE_OBJECT({ objCode: id });
-    //     //     if (del.status) {
-    //     //         document.querySelector(`#${id}`).remove();
-    //     //     }
-    //     // }
-    //     setObjCodeEdit(id);
-    // }
-
     useEffect(() => {
         if (objCodeEdit != '') {
             setOpenEdit(true);
@@ -121,8 +167,12 @@ function ManpowerEdit() {
             let objCode = selectedElement.target.getAttribute("id");
             let axisX = coord.x - offset.x;
             let axisY = coord.y - offset.y;
-            console.log(axisX, axisY)
             if (selectedElement != null) {
+                console.log({
+                    objCode: objCode,
+                    objX: axisX,
+                    objY: axisY
+                })
                 const res = await API_UPDATE_POSITION_OBJ({
                     objCode: objCode,
                     objX: axisX,
@@ -146,16 +196,13 @@ function ManpowerEdit() {
             y: (evt.clientY - CTM.f) / CTM.d
         };
     }
-    const intialData = async () => {
-        const listLayout = await API_GET_LAYOUT();
-        if (layoutFilter == null) {
-            dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: listLayout[0] });
-        }
+
+    const drawObject = async () => {
         const listMaster = await API_GET_MASTER();
-        const object = await API_GET_OBJECT_OF_LAYOUT({
-            layoutCode: layoutFilter?.layoutCode,
-        });
-        setLayouts(listLayout);
+        const object = await API_GET_OBJECT_OF_LAYOUT(layoutSelected);
+        setObjects(object.map((o) => {
+            return { ...o, draggable: false }
+        }));
         svgContent = document.querySelector("#svgContent");
         svgContent.innerHTML = '';
         let svgMaster = '';
@@ -178,20 +225,47 @@ function ManpowerEdit() {
                 "svg"
             );
             itemSvg.innerHTML = svgMaster;
-            if (elObj.objSvg.includes("svgTxtTitleMsg") || elObj.objSvg.includes("WidthFollowText")) {
+
+            if (elObj.objSvg.includes("svgTxtTitle") && elObj.objSvg.includes("WidthFollowText")) {
+                let textTitle = itemSvg.querySelectorAll('text');
                 let bgTitle = itemSvg.querySelectorAll('svg#bgTitle');
                 let bgTitleReact = itemSvg.querySelectorAll('rect.svgTxtTitleBg');
                 let areaFree = document.getElementById('bg')
                 let iSpan = document.createElement('span');
                 iSpan.innerHTML = elObj.objTitle;
-                iSpan.setAttribute('refId', elObj.objCode)
-                iSpan.style.fontSize = '10px'
+                iSpan.setAttribute('refId', elObj.objCode);
+                iSpan.style.fontSize = `${elObj.objFontSize}px`
                 areaFree.appendChild(iSpan)
                 let oSpanAgain = areaFree.querySelector(`span[refid=${elObj.objCode}]`);
                 let spanWidth = oSpanAgain.offsetWidth;
                 oSpanAgain.remove();
                 let width = Math.ceil(parseInt(spanWidth)) + 50;
-                if(Object.keys(bgTitle).length){
+                if (textTitle.length > 0) {
+                    textTitle[0].setAttribute('fill', elObj.objFontColor);
+                }
+                if (Object.keys(bgTitle).length) {
+                    bgTitle[0].setAttribute('width', width);
+                    bgTitleReact[0].setAttribute('width', width);
+                    bgTitleReact[0].style.strokeWidth = elObj.objBorderWidth;
+                    bgTitleReact[0].style.stroke = elObj.objBorderColor != '' ? elObj.objBorderColor : '#000000';
+                    bgTitleReact[0].style.fill = elObj.objBackgroundColor != '' ? elObj.objBackgroundColor : '#ffffff';
+                }
+            }
+            else if (elObj.objSvg.includes("svgTxtBigTitle")) {
+                let bgTitle = itemSvg.querySelectorAll('svg#bgTitle');
+                let bgTitleReact = itemSvg.querySelectorAll('rect.svgTxtBigTitleBg');
+                let areaFree = document.getElementById('bg')
+                let iSpan = document.createElement('span');
+                iSpan.innerHTML = elObj.objTitle;
+                iSpan.setAttribute('refId', elObj.objCode)
+                areaFree.appendChild(iSpan)
+                let oSpanBuffer = areaFree.querySelector(`span[refid=${elObj.objCode}]`);
+                // oSpanBuffer.styl
+                let spanWidth = oSpanBuffer.offsetWidth;
+                oSpanBuffer.remove();
+                let len = elObj.objTitle.length;
+                let width = Math.ceil(parseInt(spanWidth)) + (len < 20 ? 100 : 115);
+                if (Object.keys(bgTitle).length) {
                     bgTitle[0].setAttribute('width', width);
                     bgTitleReact[0].setAttribute('width', width);
                 }
@@ -206,13 +280,9 @@ function ManpowerEdit() {
                 BGChild.setAttribute('height', elObj.objHeight);
                 BGChild.setAttribute('fill', elObj.objBackgroundColor != '' ? elObj.objBackgroundColor : 'blue');
                 BGChild.setAttribute('stroke', elObj.objBorderColor != '' ? elObj.objBorderColor : 'black')
-                if (elObj.objBorderColor != '') {
-                    BGChild.setAttribute('stroke-width', elObj.objBorderColor != '' ? 3 : 0)
-                }
+                BGChild.setAttribute('stroke-width', elObj.objBorderWidth);
                 svgChild.setAttribute('width', elObj.objWidth);
                 svgChild.setAttribute('height', elObj.objHeight);
-
-                // console.log(itemSvg)
             }
             // END 
             const blob = new Blob([itemSvg.innerHTML], { type: 'image/svg+xml' });
@@ -228,16 +298,15 @@ function ManpowerEdit() {
         return true;
     }
 
-    function changeLayout(layout) {
-        let index = layouts.findIndex(el => el.layoutCode == layout);
-        dispatch({ type: 'SET_LAYOUT_FILTER_SELECTED', payload: layouts[index] })
+    function ChangeLayout(layoutCode) {
+        let index = layouts.findIndex(el => el.layoutCode == layoutCode);
+        setLayoutSelected(layouts[index]);
     }
-
     return (
         <div className=' bg-white flex  '>
             <div className='bg-[#f9f9f9] w-full p-3'>
                 <Stack direction={'column'} alignItems={'end'} mb={2}>
-                    <Button variant='contained' startIcon={<HomeIcon />} className='min-w-[10em]' onClick={() => navigate(`../${VITE_PATH}/management`)}>หน้าหลัก</Button>
+                    <Button type='primary' icon={<HomeOutlined />} className='min-w-[10em]' onClick={() => navigate(`../${VITE_PATH}/management`)}>หน้าหลัก</Button>
                 </Stack>
                 <div className='bg-white rounded-xl shadow-xl h-full p-6'>
                     <Grid container>
@@ -253,28 +322,36 @@ function ManpowerEdit() {
                         </Grid>
                         <Grid item xs={12}>
                             <Stack direction={'row'} pb={2} pt={1} gap={2} alignItems={'center'}>
-                                <Typography className=''>พื้นที่ 11111111</Typography>
+                                <Typography className=''>พื้นที่</Typography>
                                 {
-                                    layouts.length ? <Select className='w-full' size='small' value={layoutFilter?.layoutCode} onChange={(e) => changeLayout(e.target.value)}>
-                                        {
-                                            layouts.map((layout, index) => (<MenuItem value={layout.layoutCode} key={index}>{layout.layoutName} ({layout.layoutCode})</MenuItem>))
-                                        }
-                                    </Select> : <Skeleton variant='rectangular' height={50} />
+                                    layouts.length ? <Select disabled={load} showSearch className='w-full' value={layoutSelected?.layoutCode} options={layouts.map((layout) => ({ label: layout.layoutName, value: layout.layoutCode }))} onChange={(e) => ChangeLayout(e)} optionRender={({ label, value }) => {
+                                        return <div>{`${label} (${value})`}</div>
+                                    }} /> : <Skeleton variant='rectangular' height={50} />
                                 }
                             </Stack>
                         </Grid>
-                        <Grid item xs={12}>
-                            <Stack direction={'row'} gap={1} justifyContent={'end'} pb={2}>
-                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddLayout(true)} style={{ display: 'none' }}>Add Layout</Button>
-                                <Button variant="contained" startIcon={<PriorityHighIcon />} color='error' onClick={() => setOpenPriority(true)} >Set Priority</Button>
-                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddObject(true)}>ADD OBJECT</Button>
-                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddMaster(true)} >ADD Master</Button>
-                                <Button variant="contained" startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenUpdateMaster(true)} >Update Master</Button>
-                            </Stack>
+                        <Grid item xs={12} className='pb-6 pt-3' sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div className='flex  items-center gap-2'>
+                                <Button type='primary' icon={<PlusCircleOutlined />} onClick={() => setOpenAddMP(true)}>เพิ่มจุดเช็คอิน</Button>
+                            </div>
+                            <div className='flex  items-center gap-2'>
+                                <Button type='primary' icon={<PlusCircleOutlined />} onClick={() => setOpenAddObject(true)}>Add Object</Button>
+                                <Button type='primary' icon={<PlusCircleOutlined />} onClick={() => setOpenAddMaster(true)} >Add Master</Button>
+                                <Button startIcon={<SettingOutlined />} onClick={() => setOpenSettingLayout(true)}>Setting Layout</Button>
+                                <Button icon={<AddCircleOutlineOutlinedIcon />} onClick={() => setOpenAddLayout(true)} style={{ display: 'none' }}>Add Layout</Button>
+                                <Button icon={<InfoOutlined />} color='error' onClick={() => setOpenPriority(true)} >Set Priority</Button>
+                                <Button icon={<PlusCircleOutlined />} onClick={() => setOpenUpdateMaster(true)} >Update Master</Button>
+                            </div>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={12} style={{
+                            width: reduxLayout?.width,
+                            height: reduxLayout?.height,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
                             {
-                                (layoutFilter != 'null' && layoutFilter != null && typeof layoutFilter == 'object' && Object.keys(layoutFilter).length) ? <svg id='svgContent' viewBox={`0 0 ${layoutFilter.width} ${layoutFilter.height}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{ border: '2px dotted red' }}></svg> : ''
+                                (reduxLayout != 'null' && reduxLayout != null && typeof reduxLayout == 'object' && Object.keys(reduxLayout).length) ? <svg id='svgContent' viewBox={`0 0 ${reduxLayout.width} ${reduxLayout.height}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{ border: '2px dotted red', width: reduxLayout.width, height: reduxLayout.height }}></svg> : ''
                             }
                         </Grid>
                     </Grid>
@@ -282,7 +359,7 @@ function ManpowerEdit() {
             </div>
             <DialogAddMaster open={openAddMaster} close={setOpenAddMaster} snackbar={openSnackbar} />
             <DialogDetailEquipment open={openDetailEquipment} close={setOpenDetailEquipment} draw={setDraw} eqpId={eqpIdDbClick} />
-            <DialogAddObject open={openAddObject} close={setOpenAddObject} layout={layoutFilter} />
+            <DialogAddObject open={openAddObject} close={setOpenAddObject} layout={reduxLayout} />
             <DialogUpdateMaster open={openUpdateMaster} close={setOpenUpdateMaster} />
             <DialogAddLayout open={openAddLayout} close={setOpenAddLayout} />
             <DialogEditPriority open={openPriority} close={setOpenPriority} />
@@ -294,7 +371,6 @@ function ManpowerEdit() {
                 message="I love snacks"
                 key={vertical + horizontal}
             />
-
             <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
             </div>
             <div className="h-[95%] flex items-center bg-[#e9fbff]" >
@@ -305,6 +381,17 @@ function ManpowerEdit() {
                     preserveAspectRatio="xMidYMid meet"
                 ></svg>
             </div>
+            <Backdrop
+                sx={{ color: '#fff', zIndex: 99999 }}
+                open={load}
+            >
+                <div className='flex flex-col items-center gap-2'>
+                    <span>กำลังโหลดข้อมูลพื้นที่ </span>
+                    <CircularProgress color="inherit" />
+                </div>
+            </Backdrop>
+            <DialogSettingLayout open={openSettingLayout} setOpen={setOpenSettingLayout} layout={layoutSelected} />
+            <DialogAddMP open={openAddMP} setOpen={setOpenAddMP} layoutCode={layoutSelected?.layoutCode} once={once} setOnce={setOnce} />
         </div >
     )
 }

@@ -1,11 +1,17 @@
 import { useSelector } from "react-redux";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import Login from "./login";
-import Header from "./header";
 import ToolbarComponent from "../components/ToolbarComponent";
+import { useEffect } from "react";
 function Layout() {
+    const base = import.meta.env.VITE_PATH;
     const reducer = useSelector(state => state.reducer);
-    alert(1)
+    const navigate = useNavigate();
+    // useEffect(()=>{
+    //     if(typeof reducer.login != 'undefined' && reducer.login == true){
+    //         navigate(`${base}/management`);
+    //     }
+    // },[])
     return <>
         {
             reducer?.login

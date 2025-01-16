@@ -39,13 +39,18 @@ function CardEmp(props) {
             <Typography className={`pl-3 font-semibold text-[21px] font-sans `}>{props.value != '' ? props.value : '-'}</Typography>
         </Stack>
     }
-    const [empcode, setEmpcode] = useState();
+    const [empcode, setEmpcode] = useState('');
     useEffect(() => {
         const interval = setInterval(() => {
-            setEmpcode(refInpEmpCode.current.value);
+            if (refInpEmpCode.current != undefined) {
+                setEmpcode(refInpEmpCode.current.value);
+            }
         }, 1000);
         return () => clearInterval(interval);
-    }, [])
+    }, []);
+    useEffect(() => {
+        console.log(empcode)
+    }, [empcode])
     return (
         <Card variant="outlined" className='min-h-[200px]' >
             <CardHeader title="ข้อมูลพนักงาน" className='px-3 py-2 pb-1 text-center' />
@@ -59,20 +64,20 @@ function CardEmp(props) {
                             variant="dot"
                         >
                             {
-                                Object.keys(MQSAofEmpcode).length ? <Avatar aria-label="recipe" src={MQSAofEmpcode?.empImage} sx={{ width: 128, height: 128 }} style={{ border: '1px solid #CCCCCC' }}>
+                                (Object.keys(MQSAofEmpcode).length && data.empCode == '') ? <Avatar aria-label="recipe" src={MQSAofEmpcode?.empImage} sx={{ width: 128, height: 128 }} style={{ border: '1px solid #CCCCCC' }}>
                                 </Avatar> : <Avatar aria-label="recipe" src={data?.empImage} sx={{ width: 128, height: 128 }} style={{ border: '1px solid #CCCCCC' }}>
                                 </Avatar>
                             }
                         </StyledBadge>
                         {
-                            Object.keys(MQSAofEmpcode).length ? <span>{MQSAofEmpcode?.empCode}</span> : <span>{data?.empCode}</span>
+                            (Object.keys(MQSAofEmpcode).length && data.empCode == '') ? <span>{MQSAofEmpcode?.empCode}</span> : <span>{data?.empCode}</span>
                         }
 
                     </Grid>
                     <Grid item xs={6}>
                         <div className='flex  flex-col  justify-center'>
                             {
-                                Object.keys(MQSAofEmpcode).length ?
+                                (Object.keys(MQSAofEmpcode).length && data.empCode == '') ?
                                     <>
                                         <RowContent title='ชื่อ ' value={MQSAofEmpcode?.empName} />
                                         <RowContent title='ตำแหน่ง ' value={MQSAofEmpcode?.empPosit} />
@@ -94,11 +99,11 @@ function CardEmp(props) {
                                 <Typography>ระบบกำลังตรวจสอบใบอนุญาติการทำงาน</Typography>
                             </Stack> :
                                 data?.empCode != '' ? (
-                                    empcode != '' ? <div onClick={eventCheckIn} className=' h-[100px] pb-2 cursor-pointer ring-2 ring-red-500 w-full rounded-xl bg-mp-absend  flex items-center justify-center shadow-2xl gap-2' >
+                                    (empcode != '' && empcode != '-') ? <div onClick={eventCheckIn} className=' h-[100px] pb-2 cursor-pointer ring-2 ring-red-500 w-full rounded-xl bg-mp-absend  flex items-center justify-center shadow-2xl gap-2' >
                                         <CheckCircleIcon className='text-[3em]' /><span className='text-[3em] text-white'>CHECK OUT</span>
                                     </div> : ''
                                 ) : (
-                                    empcode != '' ? <div onClick={eventCheckIn} className='h-[100px] pb-2 cursor-pointer ring-2 ring-green-500 w-full rounded-xl bg-mp-check-in  flex items-center justify-center shadow-2xl gap-2' >
+                                    (empcode != '' && empcode != '-') ? <div onClick={eventCheckIn} className='h-[100px] pb-2 cursor-pointer ring-2 ring-green-500 w-full rounded-xl bg-mp-check-in  flex items-center justify-center shadow-2xl gap-2' >
                                         <CheckCircleIcon className='text-[3em]' /><span className='text-[3em] text-white'>CHECK IN</span>
                                     </div> : ''
                                 )
@@ -106,12 +111,12 @@ function CardEmp(props) {
                     </Grid>
                     <Grid item xs={12}>
                         {
-                            (Object.keys(MQSAofEmpcode).length && typeof MQSAofEmpcode.empMQ != 'undefined') ? <CardEmpMQ listMQ={MQSAofEmpcode?.empMQ} /> : <CardEmpMQ listMQ={data?.empMQ} />
+                            (Object.keys(MQSAofEmpcode).length && typeof MQSAofEmpcode.empMQ != 'undefined' && data?.empCode == '') ? <CardEmpMQ listMQ={MQSAofEmpcode?.empMQ} /> : <CardEmpMQ listMQ={data?.empMQ} />
                         }
                     </Grid>
                     <Grid item xs={12}>
                         {
-                            (Object.keys(MQSAofEmpcode).length && typeof MQSAofEmpcode.empSA != 'undefined') ? <CardEmpSA listSA={MQSAofEmpcode?.empSA} /> : <CardEmpSA listSA={data?.empSA} />
+                            (Object.keys(MQSAofEmpcode).length && typeof MQSAofEmpcode.empSA != 'undefined' && data?.empCode == '') ? <CardEmpSA listSA={MQSAofEmpcode?.empSA} /> : <CardEmpSA listSA={data?.empSA} />
                         }
                     </Grid>
                 </Grid>

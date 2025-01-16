@@ -2,6 +2,9 @@ const initialState = {
     login: false,
     username: '',
     name: '',
+    tabs: {
+        fac: '1'
+    },
     filter: {
         evaluate: {
             supplier: '',
@@ -22,6 +25,11 @@ const initialState = {
 
 const IndexReducer = (state = initialState, action) => {
     switch (action.type) {
+        case 'SET_TAB_FAC':
+            return {
+                ...state,
+                tabs: { ...state.tabs, fac: action.payload }
+            }
         case 'SET_SHIFT':
             return {
                 ...state,

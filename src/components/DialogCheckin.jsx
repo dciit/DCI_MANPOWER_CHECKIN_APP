@@ -23,6 +23,7 @@ function DialogCheckin(props) {
     const objectSelected = useSelector(state => state.reducer.objectSelected);
     useEffect(() => {
         if (open) {
+            setLoadingBtnCheckIn(false);
             init();
         }
     }, [open]);
@@ -46,7 +47,12 @@ function DialogCheckin(props) {
         let inpYMD = document.querySelector('input#inpYMD').value;
         let inpShift = document.querySelector('input#inpShift').value;
         let inpType = document.querySelector('input#inpType').value;
-        if (inpEmpCode != '') {
+        if (inpEmpCode == '-') {
+            alert('กรุณาตรวจสอบ Port ของเครื่องสแกนบัตร ติดต่อ IT เบียร์ (250)');
+            setLoadingBtnCheckIn(false);
+            return false;
+        }
+        if (inpEmpCode != '' && inpEmpCode.length == 5) {
             let state = false;
             data.empCode = data?.empCode == undefined ? '' : data.empCode;
             if (data?.empCode != '' && inpType == 'OUT' || data?.empCode == '' && inpType == 'IN') {
@@ -77,6 +83,8 @@ function DialogCheckin(props) {
                 }
                 setLoadingBtnCheckIn(false);
             }
+        } else {
+            setLoadingBtnCheckIn(false);
         }
     }
 
@@ -86,13 +94,12 @@ function DialogCheckin(props) {
     const [MQSAofEmpcode, setMQSAofEmpcode] = useState([]);
     useEffect(() => {
         const interval = setInterval(() => {
-            console.log(refInpEmpCode.current.value)
             setEmpcode(refInpEmpCode.current.value);
-        }, 1000);
+        }, 1500);
         return () => clearInterval(interval);
     }, []);
     useEffect(() => {
-        if (refInpEmpCode.current.value != '') {
+        if (refInpEmpCode.current != undefined && refInpEmpCode.current.value != '' && refInpEmpCode.current.value != '-') {
             initCompareCert();
         } else {
             setMQSAofEmpcode([]);
@@ -123,7 +130,7 @@ function DialogCheckin(props) {
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={6}>
                                 <Stack gap={2}>
-                                    <CardEmp data={objectSelected} eventCheckIn={handleCheckInOut} loadingBtnCheckIn = {loadingBtnCheckIn} refInpEmpCode={refInpEmpCode} MQSAofEmpcode={MQSAofEmpcode} />
+                                    <CardEmp data={objectSelected} eventCheckIn={handleCheckInOut} loadingBtnCheckIn={loadingBtnCheckIn} refInpEmpCode={refInpEmpCode} MQSAofEmpcode={MQSAofEmpcode} />
                                 </Stack>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={6}>

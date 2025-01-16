@@ -17,7 +17,6 @@ function DialogSelectLine(props) {
     useEffect(() => {
         if (open) {
             init();
-            console.log(layoutSelected)
         }
     }, [open]);
     async function init() {
@@ -46,7 +45,7 @@ function DialogSelectLine(props) {
                         <TableBody>
                             {
                                 layouts.length ? layouts.filter(o => o.layoutName != 'TEST').map((o, i) => {
-                                    return <TableRow>
+                                    return <TableRow key={i}>
                                         <TableCell className='text-center'>{o.layoutCode}</TableCell>
                                         <TableCell className='text-left pl-3 font-semibold'>{o.layoutName}</TableCell>
                                         <TableCell className='text-center'>

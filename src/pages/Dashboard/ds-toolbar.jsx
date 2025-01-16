@@ -8,8 +8,8 @@ function DSToolbar() {
             <div className='logo w-[5%] text-white flex justify-center items-center' ><PowerSettingsNewIcon /></div>
             <div className='flex w-[80%] gap-12 items-center '>
                 {
-                    ['Manpower Check-in', 'Andno board', 'MENU3'].map((oMenu, iMenu) => {
-                        return <div className='text-white px-3 uppercase font-normal'>{oMenu}</div>
+                    ['Manpower Check-in', 'Andno board', 'MENU3'].map((o, i) => {
+                        return <div key={i} className='text-white px-3 uppercase font-normal'>{o}</div>
                     })
                 }
             </div>

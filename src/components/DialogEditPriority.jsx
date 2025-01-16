@@ -41,9 +41,6 @@ function DialogEditPriority(props) {
             await initObject();
         }
     }
-
-  
-
     async function handleSync(objCode, priority, index) {
         let newObject = objects;
         objects.map((o, i) => {
@@ -113,9 +110,8 @@ function DialogEditPriority(props) {
                                                     <Button startIcon={<ArrowUpwardIcon />} color='success' onClick={() => handlePriority(oObj.objCode, 'up')}></Button>
                                                     <Button startIcon={<ArrowDownwardIcon />} color='error' onClick={() => handlePriority(oObj.objCode, 'down')}></Button>
                                                     <Button variant={`${sync == oObj.objPriority ? 'contained' : 'outlined'}`} startIcon={<SyncIcon className={`${oObj?.sync ? 'animate-spin' : ''}`} />} onClick={() => handleSync(oObj.objCode, oObj.objPriority, iObj)}></Button>
-                                                  
-                                                    <Button startIcon={<ArrowUpwardIcon/>} variant='contained' color='success' onClick={() => handlePriority(oObj.objCode,'front')}>บนสุด</Button>
-                                                    <Button  startIcon={<ArrowDownwardIcon/>} variant='contained' color='error' onClick={() => handlePriority(oObj.objCode,'back')}>ล่างสุด</Button>
+                                                    <Button startIcon={<ArrowUpwardIcon/>} variant='contained' color='success' onClick={() => handlePriority(oObj.objCode,'front')}>หลังสุด</Button>
+                                                    <Button  startIcon={<ArrowDownwardIcon/>} variant='contained' color='error' onClick={() => handlePriority(oObj.objCode,'back')}>หน้าสุด</Button>
                                                 </ButtonGroup>
                                             </TableCell>
                                         </TableRow>

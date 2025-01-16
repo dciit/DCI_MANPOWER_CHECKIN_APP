@@ -45,12 +45,29 @@ function CardObjMQ(props) {
                     <TableBody>
                         {
                             (listMQ?.length) ? listMQ.map((oMQ, index) => {
-                                let filter = (typeof mq == 'object' && mq.filter(o => o.mqCode == oMQ.mqCode).length) ? true : false;
-                                let style = refInpEmpCode.current.value != '' ? (!filter && refInpEmpCode.current.value != '' ? 'text-red-500 font-semibold' : 'text-green-600') : 'text-blue-500';
+                                let empcode = data?.empCode ? data.empCode : '';
+                                let style = 'text-blue-500';
+                                let filter = false;
+                                let txtCert = '';
+                                try {
+                                    if (empcode != '') { // มีการ checkin เข้าทำงาน
+
+                                    } else {
+                                        filter = (typeof mq == 'object' && Object.keys(mq).length && mq.filter(o => o.mqCode == oMQ.mqCode).length) ? true : false;
+                                        if (refInpEmpCode.current.value != '') { // กำลังแตะบัตรพนักงาน
+                                            if (!filter) {
+                                                txtCert = 'ไม่ผ่าน'
+                                                style = 'text-red-500 font-semibold'
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    alert(e.message)
+                                }
                                 return <TableRow key={index}>
                                     <TableCell className={` ${style} py-1`}>({oMQ.mqCode}) </TableCell>
-                                    <TableCell className={` ${style} py-1 `}>{oMQ.mqName}</TableCell>
-                                    <TableCell className={`p-0 text-center ${!filter && 'text-red-500 font-semibold'}  `}>{ (!filter && style != 'text-blue-500') && 'ไม่ผ่าน'}</TableCell>
+                                    <TableCell className={` ${style} py-1`}>{oMQ.mqName}</TableCell>
+                                    <TableCell className={`p-0 text-center ${style}`}>{txtCert}</TableCell>
                                 </TableRow>
                             }) : <TableRow><TableCell colspan={2} className='text-center font-semibold text-red-400 py-1'>* ไม่พบหลักสูตรอบรมที่ระบบต้องการ</TableCell></TableRow>
                         }

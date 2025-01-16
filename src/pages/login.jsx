@@ -36,7 +36,6 @@ const defaultTheme = createTheme();
 export default function Login() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const reducer = useSelector((state) => state.reducer);
     const [userReq, setUseReq] = useState(false);
     const [pwdReq, setPwdReq] = useState(false);
     const [openBackdrop, setOpenBackdrop] = useState(false)
@@ -70,7 +69,6 @@ export default function Login() {
                         setOpenBackdrop(false);
                     }
                 }).catch((error) => {
-                    console.log(error)
                     alert('ไม่สามารถเข้าสู่ระบบได้ เนื่องจาก ' + error.message)
                     setShowLoginFalse(true)
                 })

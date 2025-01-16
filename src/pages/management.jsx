@@ -1,17 +1,21 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { API_GET_MQ, API_GET_MQSA_BY_CODE, API_GET_OBJECT_BY_CODE, API_GET_OBJECT_INFO, API_GET_OBJECT_OF_LAYOUT, API_MANAGEMENT_LIST } from '../Service';
-import { Box, Card, CardContent, Grid, Paper, Tab, Tabs, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Stack, ListItem, List, Divider, IconButton, Select, MenuItem, CircularProgress } from '@mui/material';
+import { Box, Card, CardContent, Grid, Paper, Tab, Tabs, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Stack, ListItem, List, Divider, IconButton, Select, MenuItem, CircularProgress } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { useNavigate } from 'react-router';
 import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 function Management() {
     const VITE_PATH = import.meta.env.VITE_PATH;
+    const redux = useSelector((state) => state.reducer)
     const navigate = useNavigate();
     const [once, setOnce] = useState(true);
-    const [fac, setFac] = useState('1');
+    const [fac, setFac] = useState((redux?.tabs == undefined || redux?.tabs?.fac == undefined) ? '1' : redux.tabs.fac);
     const [layout, setLayout] = useState([]);
     const [obj, setObj] = useState([]);
     const [openMQSA, setOpenMQSA] = useState(false);
@@ -20,31 +24,36 @@ function Management() {
     const [mq, setMq] = useState([]);
     const [sa, setSA] = useState([]);
     const [loading, setLoading] = useState(true);
-    const handleChange = async (event, newFac) => {
+    const dispatch = useDispatch();
+    const [layouts, setLayouts] = useState([]);
+    const handleChange = async (_, newFac) => {
         setFac(newFac);
-        await reObjByLayout();
+        dispatch({ type: 'SET_TAB_FAC', payload: newFac })
+        // await reObjByLayout();
     };
     useEffect(() => {
         if (once) {
             init();
         }
-    }, [once]);
-    useEffect(() => {
-        initData();
-    }, [fac])
-    async function reObjByLayout() {
-        setObj(layout.filter((v, k) => v.factory == fac))
-    }
+    }, [once, fac]);
+    // useEffect(() => {
+    //     initData();
+    // }, [fac])
+    // async function reObjByLayout() {
+    //     console.log(layout)
+    //     setObj(layout.filter((v, k) => v.factory == fac))
+    // }
     async function init() {
-        await initData();
-        setOnce(false);
+        var RESGetLayoutOfFac = await API_MANAGEMENT_LIST({ factory: fac });
+        setLayouts(RESGetLayoutOfFac);
     }
     async function initData() {
+        console.log(fac)
         var listFactory = await API_MANAGEMENT_LIST({ factory: fac });
+        console.log(listFactory)
         setLayout(listFactory);
     }
     async function handleOpenMQSA(code) {
-        console.log(code)
         setObjCode(code);
         setOpenMQSA(true);
     }
@@ -78,49 +87,67 @@ function Management() {
     }
     return (
         <div className='p-6'>
-            <Stack direction={'column'} alignItems={'end'}>
-                <Button variant='contained' startIcon={<AutoAwesomeMosaicIcon />} onClick={handleOpenEdit}>จัดการตำแหน่งจุดเช็คอิน</Button>
+            <div className='flex flex-col gap-3 items-end'>
+                <Button type='primary' icon={<AutoAwesomeMosaicIcon />} className='w-fit' onClick={handleOpenEdit}>จัดการตำแหน่งจุดเช็คอิน</Button>
                 <Paper className='w-[100%]'>
-                    <TabContext value={fac} key={'1'}>
+                    <TabContext value={fac}  >
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList onChange={handleChange} >
                                 <Tab className='font-semibold' label="FACTORY 1" value="1" />
                                 <Tab className='font-semibold' label="FACTORY 2" value="2" />
                                 <Tab className='font-semibold' label="FACTORY 3" value="3" />
-                                <Tab className='font-semibold' label="ODM" value="odm" />
+                                <Tab className='font-semibold' label="ODM" value="ODM" />
                             </TabList>
                         </Box>
                         {
                             loading ? <Stack><CircularProgress /><Typography>กำลังโหลดข้อมูล ...</Typography></Stack> :
-                                [...Array(3)].map((iLoop, oLoop) => {
-                                    var index = (oLoop + 1).toString();
-                                    return <TabPanel value={index} className='bg-[#f6f8fa]'> {
-                                        fac == index && <Grid container spacing={3}>
+                                <div className='py-2'>
+                                    <table className='w-full'>
+                                        <tbody>
                                             {
-                                                Object.keys(layout).length ? layout.map((v, k) => {
-                                                    return <Grid item xs={12} sm={6} md={6} lg={3} key={k} onClick={() => handleOpenLayout(v)}>
-                                                        <Card className='cursor-pointer '>
-                                                            <CardContent >
-                                                                <Stack>
-                                                                    <Typography variant='h4' >{v.layoutName}</Typography>
-                                                                    <Button variant='contained' startIcon={<SearchIcon />}>ดูรายละเอียด</Button>
-                                                                </Stack>
-                                                            </CardContent>
-                                                        </Card>
-                                                    </Grid>
-                                                }) : <Grid container>
-                                                    <Grid item xs={12} className='p-3 text-center'>
-                                                        <Typography>ไม่พบข้อมูล</Typography>
-                                                    </Grid>
-                                                </Grid>
+                                                layouts.length > 0 ?
+                                                    layouts.map((o, i) => {
+                                                        console.log(o)
+                                                        return <tr key={i} >
+                                                            <td className='pl-3 w-[20%]'>{o.layoutCode}</td>
+                                                            <td className='font-semibold w-[30%]'>{o.layoutName}</td>
+                                                            <td className='w-[50%] pr-3 text-right'><Button onClick={() => handleOpenLayout(o)} type='primary' icon={<SearchOutlined />}>ดูเพิ่มเติม</Button></td>
+                                                        </tr>
+                                                    })
+                                                    : <tr><td colSpan={3} className='text-center'>ไม่พบข้อมูล</td></tr>
                                             }
-                                        </Grid>
-                                    }</TabPanel>
-                                })
+                                        </tbody>
+                                    </table>
+                                </div>
+                            // [...Array(3)].map((iLoop, oLoop) => {
+                            //     var index = (oLoop + 1).toString();
+                            //     return <TabPanel key={oLoop} value={index} className='bg-[#f6f8fa]'> {
+                            //         fac == index && <Grid container >
+                            //             {
+                            //                 Object.keys(layout).length ? layout.map((v, k) => {
+                            //                     return <Grid item xs={12} sm={6} md={6} lg={3} key={k} onClick={() => handleOpenLayout(v)}>
+                            //                         <Card className='cursor-pointer '>
+                            //                             <CardContent >
+                            //                                 <Stack>
+                            //                                     <Typography variant='h4' >{v.layoutName}</Typography>
+                            //                                     <Button variant='contained' startIcon={<SearchIcon />}>ดูรายละเอียด</Button>
+                            //                                 </Stack>
+                            //                             </CardContent>
+                            //                         </Card>
+                            //                     </Grid>
+                            //                 }) : <Grid container>
+                            //                     <div className='p-3 text-center'>
+                            //                         <span>ไม่พบข้อมูล</span>
+                            //                     </div>
+                            //                 </Grid>
+                            //             }
+                            //         </Grid>
+                            //     }</TabPanel>
+                            // })
                         }
                     </TabContext>
                 </Paper>
-            </Stack>
+            </div>
             <Dialog open={openMQSA} onClose={handleCloseMQSA} fullWidth maxWidth='sm' >
                 <DialogTitle >
                     <Typography>แก้ไขข้อมูล</Typography>

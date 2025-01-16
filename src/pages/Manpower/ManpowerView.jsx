@@ -1,5 +1,4 @@
 import {
-  Button,
   Typography,
   Stack,
   Backdrop,
@@ -15,6 +14,8 @@ import {
 import React, { useRef } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import { AiOutlineTeam } from "react-icons/ai";
+
 ("../Service");
 import {
   API_ANDON_BOARD,
@@ -25,7 +26,6 @@ import {
   API_GET_OBJECT_OF_LAYOUT,
   API_GET_SA,
 } from "../../Service";
-import LoopIcon from '@mui/icons-material/Loop';
 import DialogCheckin from "../../components/DialogCheckin";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,8 +37,11 @@ import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined';
 import DialogSelectLine from "../../components/DialogSelectLine";
 import CircleIcon from '@mui/icons-material/Circle';
 import ToolbarComponent from "../../components/ToolbarComponent";
-import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import SearchIcon from '@mui/icons-material/Search';
+import PeopleIcon from '@mui/icons-material/People';
 import ComponentButtonAction from "../../components/button.action";
+import { ArrowUpOutlined, ExclamationCircleOutlined } from "@ant-design/icons"
+import { Button } from "antd";
 function ManpowerView() {
   const [yAxis, setYAxis] = useState([]);
   const [openSelectLine, setOpenSelectLine] = useState(false);
@@ -102,9 +105,6 @@ function ManpowerView() {
       intialData();
     }
   }, [refreshContent])
-  // useEffect(() => {
-  //   console.log(yAxis)
-  // }, [yAxis])
   async function initDT() {
     let fmTime = 'HH:mm:ss'
     let hh_current = moment().format('HH');
@@ -164,6 +164,7 @@ function ManpowerView() {
     const getLayout = await API_GET_LAYOUT(layout);
     if (getLayout != null && getLayout.length) {
       let mq = await API_GET_MQ();
+      console.log(getLayout[0])
       mq = mq.filter((itemMQ) => {
         return itemMQ.factory == getLayout[0].factory && itemMQ.subLine == getLayout[0].subLine
       })
@@ -223,11 +224,12 @@ function ManpowerView() {
           BGChild.setAttribute('height', elObj.objHeight);
           BGChild.setAttribute('fill', elObj.objBackgroundColor != '' ? elObj.objBackgroundColor : 'blue');
           BGChild.setAttribute('stroke', elObj.objBorderColor != '' ? elObj.objBorderColor : 'black')
-          if (elObj.objBorderColor != '') {
-            BGChild.setAttribute('stroke-width', elObj.objBorderColor != '' ? 3 : 0)
-          }
+          // if (elObj.objBorderColor != '') {
+          //   BGChild.setAttribute('stroke-width', elObj.objBorderColor != '' ? 3 : 0)
+          // }
           svgChild.setAttribute('width', elObj.objWidth);
           svgChild.setAttribute('height', elObj.objHeight);
+          svgChild.setAttribute('stroke-width', elObj.objBorderWidth);
           const blob = new Blob([itemSvg.innerHTML], { type: "image/svg+xml" });
           const url = URL.createObjectURL(blob);
           const use = document.createElementNS(
@@ -281,7 +283,49 @@ function ManpowerView() {
           });
           itemSvg = createViewMQSA(elObj, itemSvg);
           svg.appendChild(itemSvg);
-        } else if (elObj.objSvg.includes("svgTxtTitleMsg") || elObj.objSvg.includes("WidthFollowText")) {
+        } else if (elObj.objSvg.includes("svgTxtTitle") && elObj.objSvg.includes("WidthFollowText")) {
+          const itemSvg = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg"
+          );
+          elObj.objSvg = elObj.objSvg.replace("{objName}", elObj.objTitle);
+          itemSvg.innerHTML = elObj.objSvg;
+
+          let areaFree = document.getElementById('bg');
+          let iSpan = document.createElement('span');
+          iSpan.innerHTML = elObj.objTitle;
+          iSpan.setAttribute('refId', elObj.objCode);
+          iSpan.style.fontSize = `${elObj.objFontSize}px`
+          areaFree.appendChild(iSpan);
+          let oSpanAgain = areaFree.querySelector(`span[refid=${elObj.objCode}]`);
+          let spanWidth = oSpanAgain.offsetWidth;
+          oSpanAgain.remove();
+
+          let text = itemSvg.querySelectorAll('text');
+          let widthBg = 0;
+          if (text.length > 0) {
+            widthBg = Math.ceil(parseInt(spanWidth)) + 50;
+          }
+          let bg = itemSvg.querySelectorAll('svg#bgTitle');
+          if (bg.length > 0) {
+            bg[0].setAttribute('width', widthBg);
+          }
+          let rect = itemSvg.querySelectorAll('rect.svgTxtTitleBg');
+          if (rect.length > 0) {
+            rect[0].setAttribute('width', widthBg);
+          }
+          if (itemSvg.querySelector("svg#bgTitle") != null) {
+            let textTitle = itemSvg.querySelectorAll('text');
+            if (textTitle.length > 0) {
+              textTitle[0].setAttribute('fill', elObj.objFontColor);
+            }
+            // itemSvg.querySelector("svg#bgTitle").setAttribute("width", Math.ceil(parseInt(spanWidth)) + 50);
+          }
+          itemSvg.setAttribute("id", elObj.objCode);
+          itemSvg.setAttribute("x", elObj.objX);
+          itemSvg.setAttribute("y", elObj.objY);
+          svg.appendChild(itemSvg);
+        } else if (elObj.objSvg.includes("svgTxtBigTitle")) {
           const itemSvg = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "svg"
@@ -292,16 +336,16 @@ function ManpowerView() {
           var iSpan = document.createElement('span');
           iSpan.innerHTML = elObj.objTitle;
           iSpan.setAttribute('refId', elObj.objCode)
-          iSpan.style.fontSize = '10px'
           areaFree.appendChild(iSpan)
           var oSpanAgain = areaFree.querySelector(`span[refid=${elObj.objCode}]`);
           var spanWidth = oSpanAgain.offsetWidth;
           oSpanAgain.remove();
+          let len = elObj.objTitle.length;
           itemSvg
-            .querySelector("rect.svgTxtTitleBg")
-            .setAttribute("width", Math.ceil(parseInt(spanWidth)) + 50);
+            .querySelector("rect.svgTxtBigTitleBg")
+            .setAttribute("width", Math.ceil(parseInt(spanWidth)) + (len < 20 ? 100 : 115));
           if (itemSvg.querySelector("svg#bgTitle") != null) {
-            itemSvg.querySelector("svg#bgTitle").setAttribute("width", Math.ceil(parseInt(spanWidth)) + 50);
+            itemSvg.querySelector("svg#bgTitle").setAttribute("width", Math.ceil(parseInt(spanWidth)) + (len < 20 ? 100 : 115));
           }
           itemSvg.setAttribute("id", elObj.objCode);
           itemSvg.setAttribute("x", elObj.objX);
@@ -335,6 +379,7 @@ function ManpowerView() {
           use.setAttribute("id", elObj.objCode);
           use.setAttribute("x", elObj.objX);
           use.setAttribute("y", elObj.objY);
+          console.log(use)
           use.addEventListener("click", function () {
             if (elObj.objType == "MP") {
               setObjSelected(elObj);
@@ -383,13 +428,7 @@ function ManpowerView() {
     let txtMQ = elSVG.querySelector('.txt_mq');
 
     if (txtMQ != null) {
-      // if (elObj.objCode == 'MP2401110050') {
-      //   console.log(elObj)
-      // }
       if (typeof elObj.objMQ != 'undefined' && elObj.objMQ.length) {
-        // if (elObj.objCode == 'OTH2311100105') {
-        //   console.log(txtMQ)
-        // }
         bgMQ.style.fill = 'yello';
         txtMQ.style.fill = 'black';
       } else {
@@ -413,12 +452,6 @@ function ManpowerView() {
       document
         .querySelector(`svg#${objCode} .img_profile`)
         .setAttribute("href", res.empImage);
-
-      // document.querySelector(`svg#${objCode} .bg_sa`).style.fill = "yellow";
-      // document.querySelector(`svg#${objCode} .bg_ot`).style.fill = "yellow";
-
-      // document.querySelector(`svg#${objCode} .txt_sa`).style.fill = "black";
-      // document.querySelector(`svg#${objCode} .txt_ot`).style.fill = "black";
       document.querySelector(`svg#${objCode} .bg_img`).style.fill = 'white';
       document.querySelector(`svg#${objCode} .txt_empcode`).textContent = res.empCode;
       if (typeof res.objMQ != 'undefined' && typeof res.objMQ == 'object' && Object.keys(res.objMQ).length) { // CHECK-IN AND HAVE "MQ"
@@ -590,60 +623,64 @@ function ManpowerView() {
       <input type="hidden" id="inpYMD" value={""}></input>
       <input type="hidden" id="inpShift" value={""}></input>
       <input type="hidden" id="inpType" value={inpType}></input>
-
-      <Grid container height={'100%'} alignContent={'start'}>
+      <div className="flex flex-col h-[100%]">
         <ToolbarComponent />
-        <ComponentButtonAction />
-        <Grid item container xs={12} px={3} spacing={2} className="bg-[#f3f3f3] select-none">
-          <Grid container item xs={12} md={3} lg={2} spacing={2} alignContent={'start'}>
+        {/* <ComponentButtonAction /> */}
+        <div className="h-[92.5%] bg-[#f3f3f3] select-none flex  p-3 gap-3 ">
+          <div className="flex flex-col gap-3 w-[15%]">
             {
-              andon.map((oAndon, iAndon) => (
-                <Grid key={iAndon} item xs={12} md={6} lg={12}>
-                  <Card onClick={() => newTab(`http://dciweb.dci.daikin.co.jp/lineeff/RealtimeEff.aspx?Board=${oAndon?.boardId}`)}>
-                    <CardHeader
-                      className="card-header bg-[#d4def9]"
-                      action={
-                        <IconButton aria-label="settings">
-                          <LoopIcon className="  " />
-                        </IconButton>
-                      }
-                      title="ANDON BOARD"
-                      subheader={<Stack direction={'row'} alignItems={'center'}>
-                        <Typography variant="caption" className={`font-semibold ${foreman?.empName != undefined ? `text-[#556ee5]` : `text-red-500 `}`}>{`${foreman?.empName != undefined ? `${foreman?.empName} (Foreman)` : ` (Foreman) Absend`}`}</Typography>
-                      </Stack>}
-                    />
-                    <CardContent className="pt-2">
-                      <Grid container>
-                        <Grid item xs={12}>
-                          <Typography variant="caption" className="text-[#484f57]">Result {oAndon?.boardId != undefined ? `(BoardId : ${oAndon?.boardId})` : ''}</Typography>
-                        </Grid>
-                        <Grid item xs={4} style={{ borderRight: '1px solid #ddd' }}>
-                          <Stack alignItems={'center'}>
-                            <Typography variant="caption">Plan</Typography>
-                            <Typography variant="h4" className="font-semibold" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.plan}</Typography>
-                            <Typography variant="caption" className="bg-blue-500 px-2 text-white rounded-full">TRG : {oAndon.dailyPlan.toLocaleString('en')}</Typography>
-                          </Stack>
-                        </Grid>
-                        <Grid item xs={4} style={{ borderRight: '1px solid #ddd' }}>
-                          <Stack alignItems={'center'} className="bg-gray-100-500">
-                            <Typography variant="caption" className="mr-1" >Actual</Typography>
-                            <Typography variant="h4" className="font-semibold text-[#3dac62]" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.actual}</Typography>
-                            <Stack direction={'row'}  >
-                              <Typography variant="caption" >({(oAndon.plan != 0 && oAndon.actual != 0) ? ((oAndon.actual / oAndon.plan) * 100).toFixed(2) : 0}%)</Typography>
-                            </Stack>
-                          </Stack>
-                        </Grid>
-                        <Grid item xs={4}>
-                          <Stack alignItems={'center'} className="bg-gray-100-500">
-                            <Typography variant="caption">Diff</Typography>
-                            <Typography variant="h4" className="font-semibold text-red-500" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.diff}</Typography>
-                          </Stack>
-                        </Grid>
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))
+              andon.length == 0 ? <div className="h-full bg-white shadow-md rounded-md p-6 text-red-500">
+                No information found for 'Andno board'
+              </div> : <div className="bg-[#556ee5] p-3 text-white flex flex-col gap-3 rounded-md">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[1.5em]">ANDNO BOARD</span>
+                  <div className={`pl-3  pt-1 pb-2 rounded-md shadow-md font-semibold ${foreman?.empName != undefined ? `text-[#556ee5]` : `text-red-500 `} text-[#556ee5] bg-white`}>{`${foreman?.empName != undefined ? `${foreman?.empName} (Foreman)` : ` (Foreman) Absend`}`}</div>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {
+                    andon.map((oAndon, iAndon) => (
+                      <div key={iAndon} className="">
+                        <Card onClick={() => newTab(`http://dciweb.dci.daikin.co.jp/lineeff/RealtimeEff.aspx?Board=${oAndon?.boardId}`)}>
+                          <CardHeader
+                            sx={{ paddingBottom: 0 }}
+                            action={
+                              <IconButton >
+                                <SearchIcon className="text-white" />
+                              </IconButton>
+                            }
+                            subheader={<div className="bg-white rounded-md flex items-center justify-center w-fit gap-1">
+                              BoardId : {oAndon?.boardId}
+                            </div>}
+                          />
+                          <CardContent className="">
+                            <div className="flex gap-6 items-center justify-around">
+                              <div>
+                                <Typography variant="caption">Target</Typography>
+                                <Typography variant="h4" className="font-semibold " style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.dailyPlan.toLocaleString('en')}</Typography>
+                              </div>
+                              <div>
+                                <Typography variant="caption">Plan</Typography>
+                                <Typography variant="h4" className="font-semibold text-blue-500 drop-shadow-lg" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.plan}</Typography>
+                              </div>
+
+                            </div>
+                            <div className="flex gap-6 items-center justify-around">
+                              <div>
+                                <Typography variant="caption" className="mr-1" >Actual</Typography>
+                                <Typography variant="h4" className="font-semibold text-[#3dac62]" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.actual}</Typography>
+                              </div>
+                              <div>
+                                <Typography variant="caption">Diff</Typography>
+                                <Typography variant="h4" className={`font-semibold ${oAndon.diff >= 0 ? 'text-[#3dac62]' : 'text-red-500'}`} style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.diff}</Typography>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
             }
             <Grid item xs={12} md={6} lg={12} className="hidden">
               <Card>
@@ -662,8 +699,6 @@ function ManpowerView() {
                     </IconButton>
                   }
                 />
-                {/* EngineeringOutlinedIcon */}
-                {/* and System assurance */}
                 <CardContent>
                   <Grid container>
                     <Grid item xs={12} className="pb-2">
@@ -816,218 +851,87 @@ function ManpowerView() {
                 </CardContent>
               </Card>
             </Grid>
-          </Grid>
-          <Grid container item md={9} lg={10} alignContent={'start'} spacing={2}>
-            <Grid item xs={10}>
-              <Card className="w-full h-[100%]">
-                <CardHeader
-                  className="bg-[#d4def9] card-header p-2"
-                  title={
-                    <Stack direction={'row'}>
-                      <Stack direction={'col'} alignItems={'center'} gap={2} flex={1} pl={3}>
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
-                        </span>
-                        <Stack>
-                          <Stack direction={'row'} gap={2} alignItems={'center'}>
-                            <span className="text-[1.5em]">{layoutSelected.layoutName}</span>
-                            <Button variant="contained" size="small" onClick={() => setOpenSelectLine(true)}>เลือก</Button>
-                          </Stack>
-                          <span className="text-[12px] text-gray-500">Layout</span>
-                        </Stack>
-                      </Stack>
-                      <Grid container flex={2} className='bg-[#f9f9f9s]' >
-                        <Grid item xs={4}>
-                          <Stack alignItems={'center'} >
-                            <Typography variant="h3" className="font-semibold text-[#212121]" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>
-                              {
-                                objects.filter((o => o.objType == 'MP')).length
-                              }
-                            </Typography>
-                            <Typography variant="caption" className="text-[#212121]">Total Point</Typography>
-                          </Stack>
-                        </Grid>
-                        <Grid item xs={4}>
-                          <Stack alignItems={'center'} className="bg-gray-100-500">
-                            <Stack direction={'col'} alignItems={'center'}>
-                              <Typography variant="h3" className={`font-semibold ${percentCheckIn >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`} style={{ letterSpacing: '1px', fontFamily: 'inter' }}>
-                                {
-                                  objects.filter((o => o.objType == 'MP' && o.empCode != '')).length
-                                }
-                              </Typography>
-                              <KeyboardDoubleArrowDownIcon className={`animate-bounce ${percentCheckIn >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`} />
-                            </Stack>
-                            <Typography variant="caption" className={` ${percentCheckIn >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`}>Check-In (Point)</Typography>
-                            {/* 3dac62 */}
-                          </Stack>
-                        </Grid>
-                        <Grid item xs={4}>
-                          <Stack alignItems={'center'}>
-                            <Typography variant="h3" className={`font-semibold `} style={{ letterSpacing: '1px', fontFamily: 'inter' }}>
-                              <span className={`${((objects.filter((o => o.objType == 'MP' && o.empCode != '')).length / objects.filter((o => o.objType == 'MP')).length) * 100) >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`}>{
-                                `${((objects.filter((o => o.objType == 'MP' && o.empCode != '')).length / objects.filter((o => o.objType == 'MP')).length) * 100).toFixed(2)}`
-                              }</span>
-                              <span className={'text-[14px] text-black'}> %</span>
-                            </Typography>
-                            <Typography variant="caption" className={`${percentCheckIn >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`}>Percent</Typography>
-                          </Stack>
-                        </Grid>
-                      </Grid>
-                      {/* <Stack>
-                        asdasd
-                      </Stack> */}
-                    </Stack>}
-                />
-                <CardContent className="pb-0" style={{ borderTop: '1px solid rgb(241 241 241)' }} >
-                  <div >
-                    <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
-                    </div>
-                    {
-                      (typeof layoutSelected == 'object' && Object.keys(layoutSelected).length) ?
-                        <svg
-                          id="svgContent"
-                          viewBox={`0 0 ${layoutSelected?.width} ${layoutSelected?.height}`}
-                          xmlns="http://www.w3.org/2000/svg"
-                          preserveAspectRatio="xMidYMid meet"
-                        ></svg>
-                        : <div className="flex ">
-                          <CircularProgress />
-                          <span>กำลังโหลดข้อมูล</span>
-                        </div>
-                    }
+          </div>
+          <div className="flex flex-col w-[70%] h-[100%]  gap-3">
+            <div className="h-[10%] grid sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <div className="col-span-2 flex items-center gap-3 pl-6 border rounded-md bg-white shadow-md py-2 justify-between pr-6" id="layoutName">
+                <span className="text-[2.5em] font-[apple] font-semibold">{layoutSelected.layoutName}</span>
+                <Button type="primary" onClick={() => setOpenSelectLine(true)}>เลือก</Button>
+              </div>
+              <div className="flex items-center rounded-md bg-[#556ee5] text-white shadow-md pl-3 py-2 gap-3 ">
+                <AiOutlineTeam  size={50}/>
+                <div className="flex flex-col ">
+                  <small className="text-white/75">จุดเช็คอินทั้งหมด</small>
+                  <span className="text-[3em] font-bold font-[apple] ">{objects.filter((o => o.objType == 'MP')).length}</span>
+                </div>
+              </div>
+              <div className={`flex flex-col items-center rounded-md bg-white shadow-md py-2  ${percentCheckIn >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`}>
+                <span className="text-[3em] font-bold font-[apple]">{objects.filter((o => o.objType == 'MP' && o.empCode != '')).length}</span>
+                <small className="text-[#212121]">Check-In (Point)</small>
+              </div>
+              <div className=" flex-col items-center  sm:hidden md:flex rounded-md bg-white shadow-md py-2">
+                <span className={`drop-shadow-md text-[3em] font-bold font-[apple] ${((objects.filter((o => o.objType == 'MP' && o.empCode != '')).length / objects.filter((o => o.objType == 'MP')).length) * 100) >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`}>{
+                  `${(isNaN((objects.filter((o => o.objType == 'MP' && o.empCode != '')).length / objects.filter((o => o.objType == 'MP')).length) * 100) ? 0 : (objects.filter((o => o.objType == 'MP' && o.empCode != '')).length / objects.filter((o => o.objType == 'MP')).length) * 100).toFixed(2)}`
+                }</span>
+                <small className={`${percentCheckIn >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`}>Percent</small>
+              </div>
+            </div>
+            <div className="h-[85%] bg-white rounded-md shadow-md py-3 overflow-auto" id="content">
+              <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
+              </div>
+              {
+                (typeof layoutSelected == 'object' && Object.keys(layoutSelected).length) ?
+                  <svg
+                    id="svgContent"
+                    viewBox={`0 0 ${layoutSelected?.width} ${layoutSelected?.height}`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="xMidYMid meet"
+                  ></svg>
+                  : <div className="flex ">
+                    <CircularProgress />
+                    <span>กำลังโหลดข้อมูล</span>
                   </div>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={2}>
-              <Card className="w-full h-[100%]">
-                <CardHeader
-                  className="bg-[#d4def9] card-header"
-                  action={
-                    <IconButton aria-label="settings">
-                      <ElectricBoltIcon />
-                    </IconButton>
-                  }
-                  title="MAN"
-                  subheader="Employee list"
-                />
-                <CardContent className="pb-0 pr-0" >
-                  <div style={{ height: '800px', overflow: 'auto' }}>
-                    <table className="w-[100%]" cellspacing="0" cellpadding="1" border="0" >
-                      <thead>
-                        <tr>
-                          <th></th>
-                          <th></th>
-                          <th></th>
+              }
+            </div>
+          </div>
+          <div id="emp" className="w-[15%] flex flex-col rounded-md shadow-md bg-white " >
+            <div id='emp-header' className="flex-none pl-3 flex items-center gap-3 bg-[#556ee5]  text-white rounded-t-md h-[10%]">
+              <IconButton aria-label="settings">
+                <PeopleIcon style={{ color: 'white' }} />
+              </IconButton>
+              <span className="text-white">ข้อมูลจุดเช็คอิน</span>
+            </div>
+            <div id="emp-body" className="grow overflow-auto pl-3 py-3">
+              <table className="w-full"  >
+                <thead>
+                  <tr>
+                    <th className="border">สถานะ</th>
+                    <th className="border">ชื่อจุดเช็คอิน</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    objects.filter(o => o.objType == 'MP').length == 0 ? <tr><td colSpan="3">Check-in point not found.</td></tr> : listPosition.map((oPst, iPst) => (
+                      objects.filter(o => o.objPosition == oPst && o.objType == 'MP').map((o, i) => {
+                        return <tr key={i}>
+                          <td className="text-center"><CircleIcon className={`${o.empCode != '' ? 'text-green-500' : 'text-[#ddd]'}`} sx={{ fontSize: '14px' }} /></td>
+                          <td className={`border text-left pl-3 border-red-500 text-[12px] ${o.empCode != '' ? 'font-semibold text-black ' : 'text-gray-600'}`}>{o.objTitle}</td>
+                          <td className="text-center">
+                            <div className="flex items-center flex-col">
+                              {/* <img src='http://dcidmc.dci.daikin.co.jp/PICTURE/13257.JPG' width={36} height={36} /> */}
+                              <span className="text-[12px] font-bold">{o.empCode}&nbsp;</span>
+                            </div>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {
-                          listPosition.map((oPst, iPst) => (
-                            objects.filter(o => o.objPosition == oPst && o.objType == 'MP').map((o, i) => {
-                              return <tr key={i}>
-                                <td><CircleIcon className={`${o.empCode != '' ? 'text-green-500' : 'text-[#ddd]'}`} sx={{ fontSize: '14px' }} /></td>
-                                <td className={`text-[12px] ${o.empCode != '' ? 'font-semibold text-black ' : 'text-gray-600'}`}>{o.objTitle}</td>
-                                <td className="text-center">
-                                  <span className="text-[12px]">{o.empCode}&nbsp;</span>
-                                </td>
-                              </tr>
-                            })
-                          ))
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-      {/* <div className='flex justify-between px-[13.5%] h-[5%] card-mtr' >
-        <div className='w-[25%] flex gap-2  items-center '>
-          <ApiSharpIcon className='text-[18px]' />
-          <span className='text-[#303030] font-semibold' style={{ fontFamily: 'apple', letterSpacing: '1px' }}>DCI IoT</span>
-        </div>
-        <div className='w-[50%] flex gap-3 justify-around items-center cursor-pointer'>
-          {
-            menu.map((oMenu, iMenu) => {
-              return <div key={iMenu} className={`flex items-center gap-2 text-[#575757] hover:text-[#0071e3] transition-all duration-300 ${oMenu.active && 'menu-active'}`} style={{ letterSpacing: '1px' }}>
-                {
-                  oMenu.active && <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-                  </span>
-                }
-                {oMenu.text}</div>
-            })
-          }
-        </div>
-        <div className='w-[25%] flex items-center justify-end'>
-          <div className='flex justify-end   gap-2  rounded-full items-center'>
-            <Avatar sx={{ width: 24, height: 24, bgcolor: deepOrange[500] }}>P</Avatar>
-            <div className='flex flex-col text-[12px]'>
-              <span className='text-[#303030]' style={{ letterSpacing: '1px' }}>Username</span>
-              <span className='text-[#acacac]'>Description</span>
+                      })
+                    ))
+                  }
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
-      <div className="h-[85%] w-[100%] flex hidden" >
-        <div className="w-[15%] bg-red-50">
-        </div>
-        <div className="w-[85%] bg-gray-400">
-          <div>
-            MAIN L6
-          </div>
-        </div>
-      </div> */}
-      {/* <div className='flex h-[10%] bg-[#1b1b1d] justify-center items-center  card-mtr' style={{ borderBottom: '1px solid #d6d6d6' }}>
-        <div style={{ overflow: 'auto' }} className='w-[50%] bg-red flex'>
-          <div className="bg-white"></div>
-          <Tabs
-            onChange={handleSelectMenu}
-            value={Object.keys(layouts.filter(o => o.layoutCode == layoutSelected.layoutCode)).length ? layouts.findIndex(o => o.layoutCode == layoutSelected.layoutCode) : 0}
-            className='text-white'
-            variant="scrollable"
-            scrollButtons="auto"
-            aria-label="scrollable auto tabs example"
-          >
-            {
-              layouts.filter(o => o.layoutName != 'TEST' && o.layoutStatus == 'ACTIVE').map((oMap, iMap) => {
-                return <Tab key={iMap} icon={<ApiSharpIcon />} iconPosition='top' label={oMap.layoutName} className={`${oMap.layoutCode == layoutSelected.layoutCode ? 'text-[#63caff] bg-[#9ae0ff1f]' : 'text-[#afafaf]'}`}>
-                </Tab>
-              })
-            }
-          </Tabs>
-        </div>
-      </div> */}
-      {/* <div className='h-[85%] justify-center'>
-        <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
-        </div>
-        {
-          (typeof layoutSelected == 'object' && Object.keys(layoutSelected).length) ?
-            <div className="h-[95%] px-[10%]" >
-              <div className="card-mtr bg-white h-[100%]" >
-                <svg
-                  id="svgContent"
-                  viewBox={`0 0 ${layoutSelected?.width} ${layoutSelected?.height}`}
-                  xmlns="http://www.w3.org/2000/svg"
-                  preserveAspectRatio="xMidYMid meet"
-                  className="w-[100%] h-[100%]"
-                ></svg>
-              </div>
-            </div>
-            : <div className="flex ">
-              <CircularProgress />
-              <span>กำลังโหลดข้อมูล</span>
-            </div>
-        }
-        <div className="h-[5%] bg-[#1b1b1d] card-mtr">
-
-        </div>
-      </div> */}
       <DialogSelectLine
         open={openSelectLine}
         close={setOpenSelectLine}
@@ -1055,7 +959,10 @@ function ManpowerView() {
           <Typography>กำลังโหลดข้อมูล</Typography>
         </Stack>
       </Backdrop>
-    </div>
+
+      <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
+      </div>
+    </div >
   );
 }
 export default ManpowerView;

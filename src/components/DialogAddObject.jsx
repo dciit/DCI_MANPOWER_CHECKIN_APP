@@ -3,17 +3,20 @@ import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
-import { Button, Card, CardContent, Divider, Grid, IconButton, MenuItem, Select, Skeleton, Stack, TextField, Typography } from '@mui/material'
+import { Autocomplete, Button, Card, CardContent, Divider, Grid, IconButton, MenuItem, Select, Skeleton, Stack, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from 'react-redux'
-import { API_DELETE_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ, API_ADD_OBJECT } from '../Service'
+import { API_DELETE_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ, API_ADD_OBJECT, API_GET_LAYOUT } from '../Service'
 import { LoadingButton } from '@mui/lab'
-import SaveIcon from '@mui/icons-material/Save';
+import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
+import Brightness1OutlinedIcon from '@mui/icons-material/Brightness1Outlined';
 function DialogAddObject(props) {
     const { open, close } = props;
     const [loading, setLoading] = useState(false);
-    const layoutSelected = useSelector(state => state.reducer.layoutFilter)
+    const [layout, setLayout] = useState([]);
+    const layoutSelected = useSelector(state => state.reducer.layoutFilter);
+    const [layoutSelectedOption, setLayoutSelectedOption] = useState('');
     let coord = null;
     let offset = null;
     let selectedElement = null;
@@ -29,27 +32,64 @@ function DialogAddObject(props) {
     });
     const [masters, setMasters] = useState([]);
     const [masterSelected, setMasterSelected] = useState('');
+    const [masterSelectOption, setMasterSelectOption] = useState({});
+    const [loadMaster, setLoadMaster] = useState(true);
     useEffect(() => {
         if (open) {
+            setLoading(false);
             init();
         }
     }, [open])
 
     async function init() {
-        const listMaster = await API_GET_MASTER();
+        setLoadMaster(true);
+        getMaster();
+    }
+    async function getMaster() {
+        const listMaster = await API_GET_MASTER('', layoutSelectedOption);
         if (masterSelected == '') {
-            setMasterSelected(listMaster[0].objMasterId)
+            setMasterSelected(listMaster[0].objMasterId);
+            let oOption = listMaster.filter(x => x.objMasterId == listMaster[0].objMasterId);
+            if (oOption.length) {
+                setMasterSelectOption({ label: `${oOption[0].mstName} (${oOption[0].objMasterId})`, value: oOption[0].objMasterId });
+                setObject({ ...object, objCode: oOption[0].objMasterId })
+            }
+        } else {
+            let oOption = masters.filter(x => x.objMasterId == masterSelected);
+            if (oOption.length) {
+                setMasterSelectOption({ label: `${oOption[0].mstName} (${oOption[0].objMasterId})`, value: oOption[0].objMasterId });
+                setObject({ ...object, objCode: oOption[0].objMasterId })
+            }
+        }
+        if (listMaster.length == 0) {
+            setMasterSelectOption(null);
         }
         setMasters(listMaster);
+        setLoadMaster(false);
     }
 
     useEffect(() => {
-    }, [object])
+        getMaster();
+    }, [layoutSelectedOption])
+
+    useEffect(() => {
+        getLayout()
+    }, [masters])
+
+    async function getLayout() {
+        let apiGetLayout = await API_GET_LAYOUT();
+        setLayout(apiGetLayout);
+    }
 
     async function handleAddObject() {
-
         try {
             setLoading(true);
+            console.log(object)
+            if (typeof object.objMasterId == 'undefined' || object.objMasterId == '') {
+                alert('กรุณาเลือก ตัวเลือก (Master) !');
+                setLoading(false);
+                return false;
+            }
             const res = await API_ADD_OBJECT({
                 ...object, objMasterId: masterSelected, layoutCode: layoutSelected?.layoutCode
             });
@@ -124,8 +164,7 @@ function DialogAddObject(props) {
                 alert('ไม่สามารถเพิ่ม Object ได้ !');
                 setLoading(false);
             }
-        } catch (e) {
-            console.log(e)
+        } catch {
             setLoading(false)
         }
     }
@@ -151,13 +190,19 @@ function DialogAddObject(props) {
         let eqpId = evt.target.lastElementChild.id;
         document.querySelector(`use#${eqpId}`).classList.remove('draggable')
     }
-    function startDrag(evt) {
-        evt.target.classList.add('draggable');
-        selectedElement = evt;
-        if (selectedElement.target.classList.contains('draggable')) {
-            offset = getMousePosition(selectedElement);
-            offset.x -= parseFloat(selectedElement.target.getAttributeNS(null, "x"));
-            offset.y -= parseFloat(selectedElement.target.getAttributeNS(null, "y"));
+    function startDrag(e) {
+        if (e.which == 1) {
+            e.target.classList.add('draggable');
+            selectedElement = e;
+            if (selectedElement.target.classList.contains('draggable')) {
+                offset = getMousePosition(selectedElement);
+                offset.x -= parseFloat(selectedElement.target.getAttributeNS(null, "x"));
+                offset.y -= parseFloat(selectedElement.target.getAttributeNS(null, "y"));
+            }
+        } else if (e.which == 3) {
+            document.addEventListener('contextmenu', e => e?.cancelable && e.preventDefault());
+            let id = e.target.getAttribute("id");
+            setObjCodeEdit(id);
         }
     }
     function moveDrag(evt) {
@@ -203,7 +248,15 @@ function DialogAddObject(props) {
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
             <DialogTitle className='px-6 pt-4 pb-3' id="customized-dialog-title">
-                ADD OBJECT
+                <div className='flex gap-2 flex-row items-center'>
+                    <div className='rounded-full bg-[#5c5fc8] text-[#fff]  w-[36px] h-[36px] flex items-center justify-center'>
+                        <Brightness1OutlinedIcon sx={{ fontSize: '20px' }} />
+                    </div>
+                    <div className='flex flex-col'>
+                        <span className='text-[18px]'>SELECT OBJECT</span>
+                        <span className='text-[12px] text-[#939393]'>เลือกชิ้นงานลงพื้นที่</span>
+                    </div>
+                </div>
             </DialogTitle>
             <IconButton
                 aria-label="close"
@@ -232,47 +285,78 @@ function DialogAddObject(props) {
                         variant='filled'
                         value={`${layoutSelected?.layoutCode} (${layoutSelected?.layoutName})`}
                     />
-                    <Stack mb={3}>
-                        <Stack mb={1}>
-                            <Typography variant="h5" component="div">Master List</Typography>
-                            <Typography color="text.secondary">
-                                กรุณาเลือก Master ที่ต้องการ
-                            </Typography>
-                        </Stack>
-                        {
-                            masters.length ? <Select value={masterSelected} onChange={(e) => setMasterSelected(e.target.value)} size='small'>
-                                {
-                                    masters.map((master, index) => {
-                                        return <MenuItem value={master.objMasterId} key={index}>{master.mstName} ({master.objMasterId})</MenuItem>
-                                    })
-                                }
-                            </Select> : <Skeleton variant='rectangular' height={50} />
-                        }
+                    <Stack gap={1}>
+                        <div className='border rounded-lg p-6 flex flex-col gap-2'>
+                            <div className='text-[#5c5fc8] text-[14px]  '>
+                                เครื่องมือค้นหา
+                            </div>
+                            <div className='flex flex-col gap-1'>
+                                <span>พื้นที่ของตัวเลือก (Layout)</span>
+                                <Select className='w-full' size='small' value={layoutSelectedOption} onChange={(e) => {
+                                    setLayoutSelectedOption(e.target.value);
+                                    setObject({ ...object, objMasterId: e.target.value });
+                                }}>
+                                    {
+                                        [{ layoutCode: 'ALL', layoutName: '--------------- ทั้งหมด --------------' }, ...layout].map((o, i) => {
+                                            return <MenuItem key={i} value={o.layoutCode}>{`${o.layoutName} ${o.layoutCode != 'ALL' ? `(${o.layoutCode})` : ''}`}</MenuItem>
+                                        })
+                                    }
+                                </Select>
+                            </div>
+
+                        </div>
+
                     </Stack>
-                </Stack>
-                <Divider />
-                {
-                    masters.length ? <Card >
-                        <CardContent className='p-3'>
-                            <Stack mt={1} mb={0} gap={2}>
+                    <div className='flex flex-col gap-1 border rounded-lg p-6 mb-6'>
+                        <div className='text-[#5c5fc8] text-[14px]  '>
+                            ตัวเลือกที่ต้องการเพิ่มเข้าพื้นที่
+                        </div>
+                        {
+                            loadMaster ? <Skeleton variant='rectangular' height={50} /> : <Autocomplete
+                                size='small'
+                                className='w-full'
+                                disablePortal
+                                id="combo-box-demo"
+                                value={masterSelectOption}
+                                options={masters.map((o) => {
+                                    return { label: (`${o.mstName} (${o.objMasterId})`), value: o.objMasterId }
+                                })}
+                                onChange={(event, newValue) => {
+                                    if (newValue != null) {
+                                        setMasterSelected(newValue.value);
+                                        let oMaster = masters.filter(x => x.objMasterId == newValue.value);
+                                        if (oMaster.length > 0) {
+                                            setMasterSelectOption({ label: (`${oMaster[0].mstName} (${oMaster[0].objMasterId})`), value: newValue.value })
+                                        }
+                                        setObject({ ...object, objCode: newValue.value })
+                                    } else {
+                                        setMasterSelected('');
+                                        setMasterSelectOption(null)
+                                        setObject({ ...object, objCode: '' })
+                                    }
+                                }}
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                        }
+                        {
+                            loadMaster ? <Skeleton variant='rectangular' height={380} /> : <Stack mt={1} mb={0} gap={1}>
                                 <Stack mb={3}>
                                     <Stack mb={1}>
-                                        <Typography variant="h5" component="div">Object Detail</Typography>
-                                        <Typography color="text.secondary">
-                                            กรุณากรอกข้อมูล Object ที่คุณต้องการ
-                                        </Typography>
+                                        <div className='text-[#5c5fc8] text-[14px]  '>
+                                            รายละเอียดตัวเลือก
+                                        </div>
                                     </Stack>
                                     <Stack p={1}>
-                                        <Typography color={'text.secondary'}>Title</Typography>
+                                        <Typography color={'text.secondary'}>ชื่อ</Typography>
                                         <TextField size='small' placeholder='กรุณากรอกชื่อ' value={object.objTitle ?? ''} onChange={(e) => setObject({ ...object, objTitle: e.target.value })}></TextField>
                                     </Stack>
                                     <Stack p={1}>
-                                        <Typography color={'text.secondary'}>SubTitle</Typography>
+                                        <Typography color={'text.secondary'}>รายละเอียด</Typography>
                                         <TextField size='small' placeholder='กรุณากรอกรายละเอียด' value={object.objSubTitle ?? ''} onChange={(e) => setObject({ ...object, objSubTitle: e.target.value })}></TextField>
                                     </Stack>
                                     <Grid container >
-                                        <Grid item xs={12} gap={1} p={1}>
-                                            <Typography color={'text.secondary'}>Object Type</Typography>
+                                        <Grid item xs={12} p={1}>
+                                            <Typography color={'text.secondary'}>ประเภท</Typography>
                                             <Select value={object.objType} defaultValue='OTHER' size='small' fullWidth onChange={(e) => setObject({ ...object, objType: e.target.value })}>
                                                 {
                                                     ["OTHER", "MP"].map((type, index) => {
@@ -283,26 +367,27 @@ function DialogAddObject(props) {
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Stack p={1}>
-                                                <Typography color={'text.secondary'}>Width</Typography>
+                                                <Typography color={'text.secondary'}>ความกว้าง</Typography>
                                                 <TextField type='number' size='small' placeholder='กรุณาระบุความกว้างของชิ้นงาน' value={object.objWidth} onChange={(e) => setObject({ ...object, objWidth: e.target.value != '' ? parseFloat(e.target.value) : 0 })}></TextField>
                                             </Stack>
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Stack p={1}>
-                                                <Typography color={'text.secondary'}>Height</Typography>
+                                                <Typography color={'text.secondary'}>ความสูง</Typography>
                                                 <TextField type='number' size='small' placeholder='กรุณาระบุความสูงของชิ้นงาน' value={object.objHeight} onChange={(e) => setObject({ ...object, objHeight: e.target.value != '' ? parseFloat(e.target.value) : 0 })}></TextField>
                                             </Stack>
                                         </Grid>
                                     </Grid>
                                 </Stack>
                             </Stack>
-                        </CardContent>
-                    </Card> : <Skeleton variant='rectangular' height={380} />
-                }
+                        }
+                    </div>
+                </Stack>
+
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => close(false)} >ปิดหน้าต่าง</Button>
-                <LoadingButton loading={loading ? true : false} loadingPosition='start' startIcon={<SaveIcon />} onClick={handleAddObject} variant='contained'>เพิ่ม</LoadingButton>
+                <Button onClick={() => close(false)} variant='outlined' className='border-[#5c5fc8] text-[#5c5fc8]'>ปิดหน้าต่าง</Button>
+                <LoadingButton loading={loading ? true : false} className='bg-[#5c5fc8]' loadingPosition='start' startIcon={<SaveAltOutlinedIcon />} onClick={handleAddObject} variant='contained'>เพิ่ม</LoadingButton>
             </DialogActions>
         </Dialog>
     )

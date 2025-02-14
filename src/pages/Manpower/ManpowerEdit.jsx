@@ -1,4 +1,4 @@
-import { Avatar, Divider, Typography, Stack, MenuItem, Snackbar, Skeleton, Grid, Backdrop, CircularProgress } from '@mui/material'
+import { Typography, Stack, Snackbar, Skeleton, Grid, Backdrop, CircularProgress } from '@mui/material'
 import React from 'react'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -10,16 +10,12 @@ import DialogUpdateMaster from '../../components/DialogUpdateMaster';
 import DialogAddObject from '../../components/DialogAddObject';
 import DialogAddLayout from '../../components/DialogAddLayout';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_GET_LAYOUT, API_GET_LAYOUT_DETAIL, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ, APIGetObjectsByLayoutCode } from '../../Service';
+import { API_GET_LAYOUT, API_GET_LAYOUT_DETAIL, API_GET_MASTER, API_GET_OBJECT_OF_LAYOUT, API_UPDATE_POSITION_OBJ } from '../../Service';
 import DialogDetailEquipment from '../../components/DialogDetailEquipment';
 import { useNavigate } from 'react-router';
-import HomeIcon from '@mui/icons-material/Home';
 import DialogEditObject from '../../components/DialogEditObject';
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import DialogEditPriority from '../../components/DialogEditPriority';
 import DialogSettingLayout from '../../components/dialog.setting.layout';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { PlusOne } from '@mui/icons-material';
 import DialogAddMP from '../../components/dialog.add.mp';
 import { Select, Button } from 'antd';
 import { HomeOutlined, InfoOutlined, PlusCircleOutlined, SettingOutlined } from '@ant-design/icons';
@@ -65,8 +61,7 @@ function ManpowerEdit() {
 
 
     const getLayoutList = async () => {
-        let APIGetLayouts = await API_GET_LAYOUT();
-        console.log('1')
+        let APIGetLayouts = await API_GET_LAYOUT(); 
         setLayouts(APIGetLayouts);
     }
     async function GetLayoutDetail(layoutCode) {
@@ -79,7 +74,6 @@ function ManpowerEdit() {
     }
     useEffect(() => {
         if (layouts.length) {
-            console.log(2)
             let layoutCode = '';
             if (reduxLayout?.layoutCode != undefined && Object.keys(reduxLayout).length > 0) {
                 layoutCode = reduxLayout.layoutCode;
@@ -91,7 +85,6 @@ function ManpowerEdit() {
     }, [layouts])
     useEffect(() => {
         if (Object.keys(layoutSelected).length) {
-            console.log(4)
             setLoad(true);
             var svgContent = document.querySelector("#svgContent");
             svgContent.innerHTML = '';
@@ -359,7 +352,7 @@ function ManpowerEdit() {
             </div>
             <DialogAddMaster open={openAddMaster} close={setOpenAddMaster} snackbar={openSnackbar} />
             <DialogDetailEquipment open={openDetailEquipment} close={setOpenDetailEquipment} draw={setDraw} eqpId={eqpIdDbClick} />
-            <DialogAddObject open={openAddObject} close={setOpenAddObject} layout={reduxLayout} />
+            <DialogAddObject open={openAddObject} setOpen={setOpenAddObject} layout={reduxLayout} />
             <DialogUpdateMaster open={openUpdateMaster} close={setOpenUpdateMaster} />
             <DialogAddLayout open={openAddLayout} close={setOpenAddLayout} />
             <DialogEditPriority open={openPriority} close={setOpenPriority} />
@@ -373,7 +366,7 @@ function ManpowerEdit() {
             />
             <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
             </div>
-            <div className="h-[95%] flex items-center bg-[#e9fbff]" >
+            <div className="h-[95%] hidden items-center bg-[#e9fbff] " >
                 <svg
                     id="svgContent"
                     viewBox={`0 0 1200 500`}

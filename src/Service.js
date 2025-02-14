@@ -151,9 +151,9 @@ export function API_ADD_OBJECT(param) {
 }
 
 
-export function API_GET_LAYOUT(objCode = '') { // pram = { "objCode" : "string"}
+export function API_GET_LAYOUT(objCode = '', layoutCode = '') { // pram = { "objCode" : "string"}
     return new Promise(resolve => {
-        http.post(`/mpck/getLayoutlist`, { objCode: objCode }).then((res) => {
+        http.post(`/mpck/getLayoutlist`, { objCode: objCode, layoutCode: layoutCode }).then((res) => {
             resolve(res.data);
         })
     })

@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-
+import { useDispatch } from 'react-redux';
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
 import { API_GET_LAYOUT } from '../Service'
 import { useNavigate } from 'react-router'
@@ -14,6 +14,7 @@ function DialogSelectLine(props) {
     const { open, close, layoutSelected } = props;
     const [layouts, setLayouts] = useState([]);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     useEffect(() => {
         if (open) {
             init();
@@ -23,9 +24,12 @@ function DialogSelectLine(props) {
         let res = await API_GET_LAYOUT();
         setLayouts(res);
     }
-    async function handleSelectLine(layoutCode) {
-        navigate(`../${VITE_PATH}/view/${layoutCode}`);
-        location.reload();
+    async function handleSelectLine(oLayout) {
+        dispatch({ type: 'UPDATE_LAYOUT', payload: oLayout })
+        navigate(`../${VITE_PATH}/view/${oLayout.layoutCode}`);
+        setTimeout(() => {
+            location.reload();
+        }, 750);
     }
     return (
         <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
@@ -49,7 +53,7 @@ function DialogSelectLine(props) {
                                         <TableCell className='text-center'>{o.layoutCode}</TableCell>
                                         <TableCell className='text-left pl-3 font-semibold'>{o.layoutName}</TableCell>
                                         <TableCell className='text-center'>
-                                            <Button variant='contained' size='small' onClick={() => handleSelectLine(o.layoutCode)}>เลือก</Button>
+                                            <Button variant='contained' size='small' onClick={() => handleSelectLine(o)}>เลือก</Button>
                                         </TableCell>
                                     </TableRow>
                                 }) : <TableRow><TableCell className='text-center'>ไม่พบข้อมูล</TableCell></TableRow>

@@ -1,7 +1,7 @@
 {
   "name": "dci-react-vite-js-template",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -28,13 +28,16 @@
     "react-hook-form": "^7.47.0",
     "react-icons": "^4.12.0",
     "react-konva": "^18.2.10",
+    "react-medium-image-zoom": "^5.2.13",
     "react-redux": "^8.1.2",
     "react-router": "^6.16.0",
     "react-router-dom": "^6.16.0",
+    "react-slick": "^0.30.3",
     "react-to-print": "^2.14.15",
     "redux": "^4.2.1",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
+    "slick-carousel": "^1.8.1",
     "use-image": "^1.1.1"
   },
   "devDependencies": {

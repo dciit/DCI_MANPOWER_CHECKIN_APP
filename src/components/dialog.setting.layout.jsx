@@ -62,15 +62,15 @@ function DialogSettingLayout({ open, setOpen, layout }) {
                 <div className='grid grid-cols-1 gap-2'>
                     <div className='grid grid-cols-4'>
                         <div className='col-span-2 flex items-center justify-end pr-3'><span>ชื่อพื้นที่ : </span></div>
-                        <div className='col-span-2'><input type="text" value={1} className='border rounded-md px-3 py-1 bg-gray-100 font-semibold' value={layoutDetail.layoutName} onChange={(e) => setLayoutDetail({ ...layoutDetail, layoutName: e.target.value, updateBy: empcode })} /></div>
+                        <div className='col-span-2'><input type="text" className='border rounded-md px-3 py-1 bg-gray-100 font-semibold' value={layoutDetail.layoutName} onChange={(e) => setLayoutDetail({ ...layoutDetail, layoutName: e.target.value, updateBy: empcode })} /></div>
                     </div>
                     <div className='grid grid-cols-4'>
                         <div className='col-span-2 flex items-center justify-end pr-3'><span>ความกว้าง : </span></div>
-                        <div className='col-span-2'><input type="number" value={1} className='border rounded-md px-3 py-1 bg-gray-100 font-semibold' value={layoutDetail.width} onChange={(e) => setLayoutDetail({ ...layoutDetail, width: Number(e.target.value), updateBy: empcode })} /></div>
+                        <div className='col-span-2'><input type="number" className='border rounded-md px-3 py-1 bg-gray-100 font-semibold' value={layoutDetail.width} onChange={(e) => setLayoutDetail({ ...layoutDetail, width: Number(e.target.value), updateBy: empcode })} /></div>
                     </div>
                     <div className='grid grid-cols-4'>
                         <div className='col-span-2 flex items-center justify-end pr-3'><span>ความสูง : </span></div>
-                        <div className='col-span-2'><input type="number" value={1} className='border rounded-md px-3 py-1 bg-gray-100 font-semibold' value={layoutDetail.height} onChange={(e) => setLayoutDetail({ ...layoutDetail, height: Number(e.target.value), updateBy: empcode })} /></div>
+                        <div className='col-span-2'><input type="number" className='border rounded-md px-3 py-1 bg-gray-100 font-semibold' value={layoutDetail.height} onChange={(e) => setLayoutDetail({ ...layoutDetail, height: Number(e.target.value), updateBy: empcode })} /></div>
                     </div>
                     <div className='grid grid-cols-4'>
                         <div className='col-span-2 flex items-center justify-end pr-3'><span>ตรวจสอบ MQ : </span></div>

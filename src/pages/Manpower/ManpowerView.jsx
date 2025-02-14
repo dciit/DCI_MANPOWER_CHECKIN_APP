@@ -15,6 +15,8 @@ import React, { useRef } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { AiOutlineTeam } from "react-icons/ai";
+import { AiFillCloseCircle } from "react-icons/ai";
+import { AiFillCheckCircle } from "react-icons/ai";
 
 ("../Service");
 import {
@@ -42,7 +44,9 @@ import PeopleIcon from '@mui/icons-material/People';
 import ComponentButtonAction from "../../components/button.action";
 import { ArrowUpOutlined, ExclamationCircleOutlined } from "@ant-design/icons"
 import { Button } from "antd";
+import { BoxStyle } from "../../constants";
 function ManpowerView() {
+  const redux = useSelector(state => state.reducer);
   const [yAxis, setYAxis] = useState([]);
   const [openSelectLine, setOpenSelectLine] = useState(false);
   const [numLoop, setNumLoop] = useState(0);
@@ -71,6 +75,7 @@ function ManpowerView() {
   const [inpType, setInpType] = useState('');
   const [inpEmpCode, setInpEmpCode] = useState();
   const refInpEmpCode = useRef();
+  const [Diff, setDiff] = useState(0);
   const ThemeTrue = {
     bg: ["yellow", "#bba17a", "#b88a45"],
     text: "#333333",
@@ -142,6 +147,11 @@ function ManpowerView() {
   useEffect(() => {
     if (typeof objects == 'object' && Object.keys(objects).length) {
       // let fo = objects.filter(o => o.)
+      try {
+        setDiff(objects.filter((o => o.objType == 'MP')).length - objects.filter((o => o.objType == 'MP' && o.empCode != '')).length);
+      } catch (e) {
+        alert(e.message);
+      }
       let fo = objects.filter(o => o.objType == 'MP' && o.objPosition == 'FO' && o.objStatus == 'ACTIVE' && o.empCode != '');
       if (fo.length) {
         setForeman(fo[0]);
@@ -159,29 +169,28 @@ function ManpowerView() {
   }
 
   const init = async () => {
-    let listLayout = await API_GET_LAYOUT();
-    setLayouts(listLayout.filter(o => o.layoutName != 'TEST'));
-    const getLayout = await API_GET_LAYOUT(layout);
-    if (getLayout != null && getLayout.length) {
+    // let listLayout = await API_GET_LAYOUT();
+    // setLayouts(listLayout.filter(o => o.layoutName != 'TEST'));
+    const oLayout = await API_GET_LAYOUT('', layout);
+    if (oLayout != null && oLayout.length) {
       let mq = await API_GET_MQ();
-      console.log(getLayout[0])
       mq = mq.filter((itemMQ) => {
-        return itemMQ.factory == getLayout[0].factory && itemMQ.subLine == getLayout[0].subLine
+        return itemMQ.factory == oLayout[0].factory && itemMQ.subLine == oLayout[0].subLine
       })
       let sa = await API_GET_SA();
       dispatch({
         type: 'SET_LAYOUT_SELECTED', payload: {
-          layout: getLayout[0],
+          layout: oLayout[0],
           mq: mq,
           sa: sa
         }
       });
-      setLayoutSelected(getLayout[0]);
+      setLayoutSelected(oLayout[0]);
       await intialData();
     }
   };
-  const [layouts, setLayouts] = useState([]);
-  const [listPosition, setListPosition] = useState([
+  // const [layouts, setLayouts] = useState([]);
+  const [listPosition] = useState([
     'FO', 'LE', 'QA', 'OP'
   ])
   async function getObjectOfLayout() {
@@ -379,7 +388,6 @@ function ManpowerView() {
           use.setAttribute("id", elObj.objCode);
           use.setAttribute("x", elObj.objX);
           use.setAttribute("y", elObj.objY);
-          console.log(use)
           use.addEventListener("click", function () {
             if (elObj.objType == "MP") {
               setObjSelected(elObj);
@@ -613,9 +621,12 @@ function ManpowerView() {
   function newTab(link = '') {
     window.open(link, '_blank');
   }
-  const [openDialogCheckCert, setOpenDialogCheckCert] = useState(false);
+  // const [openDialogCheckCert, setOpenDialogCheckCert] = useState(false);
+  // const CalDiffCheckIn = (total, checkin) => {
+  //   return total - checkin
+  // }
   return (
-    <div className='bg-[#f3f3f3] h-[100%]' style={{ fontFamily: 'apple' }}>
+    <div className='bg-[#f3f3f3] h-[100%] ' style={{ fontFamily: 'apple' }}>
       <input type="hidden" id="inpObjCode" value={objSelected?.objCode}></input>
       <input type="hidden" id="inpLayoutCode" value={layout}></input>
       <input type="hidden" readOnly id="inpEmpCode" value={inpEmpCode} ref={refInpEmpCode}></input>
@@ -625,62 +636,51 @@ function ManpowerView() {
       <input type="hidden" id="inpType" value={inpType}></input>
       <div className="flex flex-col h-[100%]">
         <ToolbarComponent />
-        {/* <ComponentButtonAction /> */}
         <div className="h-[92.5%] bg-[#f3f3f3] select-none flex  p-3 gap-3 ">
           <div className="flex flex-col gap-3 w-[15%]">
             {
               andon.length == 0 ? <div className="h-full bg-white shadow-md rounded-md p-6 text-red-500">
                 No information found for 'Andno board'
-              </div> : <div className="bg-[#556ee5] p-3 text-white flex flex-col gap-3 rounded-md">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[1.5em]">ANDNO BOARD</span>
-                  <div className={`pl-3  pt-1 pb-2 rounded-md shadow-md font-semibold ${foreman?.empName != undefined ? `text-[#556ee5]` : `text-red-500 `} text-[#556ee5] bg-white`}>{`${foreman?.empName != undefined ? `${foreman?.empName} (Foreman)` : ` (Foreman) Absend`}`}</div>
-                </div>
-                <div className="flex flex-col gap-3">
+              </div> :
+                <div className="flex flex-col gap-[12px]">
                   {
                     andon.map((oAndon, iAndon) => (
-                      <div key={iAndon} className="">
-                        <Card onClick={() => newTab(`http://dciweb.dci.daikin.co.jp/lineeff/RealtimeEff.aspx?Board=${oAndon?.boardId}`)}>
-                          <CardHeader
-                            sx={{ paddingBottom: 0 }}
-                            action={
-                              <IconButton >
-                                <SearchIcon className="text-white" />
-                              </IconButton>
-                            }
-                            subheader={<div className="bg-white rounded-md flex items-center justify-center w-fit gap-1">
-                              BoardId : {oAndon?.boardId}
-                            </div>}
-                          />
-                          <CardContent className="">
-                            <div className="flex gap-6 items-center justify-around">
-                              <div>
-                                <Typography variant="caption">Target</Typography>
-                                <Typography variant="h4" className="font-semibold " style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.dailyPlan.toLocaleString('en')}</Typography>
-                              </div>
-                              <div>
-                                <Typography variant="caption">Plan</Typography>
-                                <Typography variant="h4" className="font-semibold text-blue-500 drop-shadow-lg" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.plan}</Typography>
-                              </div>
+                      <div className="p-[16px] bg-white rounded-md flex  flex-col gap-[8px]" key={iAndon} onClick={() => newTab(`http://dciweb.dci.daikin.co.jp/lineeff/RealtimeEff.aspx?Board=${oAndon?.boardId}`)} style={BoxStyle}>
+                        <div className="text-black flex gap-[4px]">
+                          <span>BOARD ID :</span>
+                          <strong>{oAndon?.boardId}</strong>
+                        </div>
+                        <div className="grid lg:grid-cols-1 xl:grid-cols-2">
+                          <div >
+                            <Typography variant="caption">Plan</Typography>
+                            <div className="flex justify-end">
+                              <Typography variant="h4" className="font-semibold " style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.dailyPlan.toLocaleString('en')}</Typography>
+                            </div>
+                          </div>
+                          <div >
+                            <Typography variant="caption">Plan</Typography>
+                            <div className="flex justify-end">
+                              <Typography variant="h4" className="font-semibold text-blue-500 drop-shadow-lg" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.plan.toLocaleString('en')}</Typography>
+                            </div>
+                          </div>
 
+                          <div >
+                            <Typography variant="caption">Actual</Typography>
+                            <div className="flex justify-end">
+                              <Typography variant="h4" className="font-semibold text-[#3dac62] drop-shadow-lg" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.actual.toLocaleString('en')}</Typography>
                             </div>
-                            <div className="flex gap-6 items-center justify-around">
-                              <div>
-                                <Typography variant="caption" className="mr-1" >Actual</Typography>
-                                <Typography variant="h4" className="font-semibold text-[#3dac62]" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.actual}</Typography>
-                              </div>
-                              <div>
-                                <Typography variant="caption">Diff</Typography>
-                                <Typography variant="h4" className={`font-semibold ${oAndon.diff >= 0 ? 'text-[#3dac62]' : 'text-red-500'}`} style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.diff}</Typography>
-                              </div>
+                          </div>
+                          <div >
+                            <Typography variant="caption">Diff</Typography>
+                            <div className="flex justify-end">
+                              <Typography variant="h4" className="font-semibold text-red-500 drop-shadow-lg" style={{ letterSpacing: '1px', fontFamily: 'inter' }}>{oAndon.diff.toLocaleString('en')}</Typography>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       </div>
                     ))
                   }
                 </div>
-              </div>
             }
             <Grid item xs={12} md={6} lg={12} className="hidden">
               <Card>
@@ -830,7 +830,6 @@ function ManpowerView() {
                       <Stack alignItems={'center'}>
                         <Stack alignItems={'center'}>
                           <Typography variant="caption">เปอร์เซ็น</Typography>
-
                           <Typography variant="h4" className={`font-semibold ${summarySA.achieve > summarySA.count ? 'text-[#3dac62]' : 'text-red-500'}`} style={{ letterSpacing: '1px', fontFamily: 'inter' }}>
                             {
                               typeof summarySA.percent != 'undefined' ? summarySA.percent : 0
@@ -853,13 +852,43 @@ function ManpowerView() {
             </Grid>
           </div>
           <div className="flex flex-col w-[70%] h-[100%]  gap-3">
-            <div className="h-[10%] grid sm:grid-cols-3 md:grid-cols-5 gap-3">
-              <div className="col-span-2 flex items-center gap-3 pl-6 border rounded-md bg-white shadow-md py-2 justify-between pr-6" id="layoutName">
-                <span className="text-[2.5em] font-[apple] font-semibold">{layoutSelected.layoutName}</span>
-                <Button type="primary" onClick={() => setOpenSelectLine(true)}>เลือก</Button>
+            <div className="grid grid-cols-5 gap-[8px]">
+              {/* <div className="col-span-2 flex flex-col items-center pl-6 border rounded-md bg-white py-2 pr-6" id="layoutName" style={BoxStyle}>
+                <Button type="primary" size="small" className="relative top-0" onClick={() => setOpenSelectLine(true)}>เลือก</Button>
+                <span className="text-[2.5em] font-[apple] font-semibold">{redux.layout.layoutName}</span>
+              </div> */}
+              <div className="col-span-2 text-lg flex bg-blue-600  justify-center gap-[4px]  flex-col  rounded-md px-[12px] pt-[4px] pb-[6px]" style={BoxStyle}>
+                <div className="text-white/80  tracking-wide">พื้นที่</div>
+                <div className="text-center text-[2.5em] text-white">{redux.layout.layoutName}</div>
+                <div className="text-xs cursor-pointer tracking-wide text-white/75 float-right flex justify-end mt-[12px]" onClick={() => setOpenSelectLine(true)}>
+                  พื้นที่ที่เลือก (คลิกเพื่อเลือก)
+                </div>
               </div>
-              <div className="flex items-center rounded-md bg-[#556ee5] text-white shadow-md pl-3 py-2 gap-3 ">
-                <AiOutlineTeam  size={50}/>
+              <div className='col-span-3 grid grid-cols-3 gap-[8px]'>
+                <div className="text-lg flex bg-gradient-to-r from-blue-500/5 via-blue-500/0 to-white  justify-center gap-[4px]  flex-col bg-white rounded-md px-[12px] pt-[4px] pb-[6px]" style={BoxStyle}>
+                  <div className="text-gray-500  tracking-wide">TOTAL</div>
+                  <div className="text-center text-[2.5em] text-blue-600 font-semibold">{objects.filter((o => o.objType == 'MP')).length}</div>
+                  <div className="text-xs  tracking-wide text-gray-500/75 float-right flex justify-end mt-[12px]">
+                    จุดเช็คอินทั้งหมด
+                  </div>
+                </div>
+                <div className="text-lg flex  justify-center bg-gradient-to-r from-green-500/5 via-green-500/0 to-white gap-[4px]  flex-col bg-white rounded-md px-[12px] pt-[4px] pb-[6px]" style={BoxStyle}>
+                  <div className="text-gray-500 tracking-wide">CHECK-IN</div>
+                  <div className="text-center text-[2.5em] text-emerald-600 font-semibold">{objects.filter((o => o.objType == 'MP' && o.empCode != '')).length}</div>
+                  <div className="text-xs  tracking-wide text-gray-500/75 float-right flex justify-end mt-[12px]">
+                    เช็คอิน
+                  </div>
+                </div>
+                <div className="text-lg flex bg-gradient-to-r from-red-500/5 via-red-500/0 to-white  justify-center gap-[4px]  flex-col   rounded-md px-[12px] pt-[4px] pb-[6px]" style={BoxStyle}>
+                  <div className="text-gray-500 tracking-wide">DIFF</div>
+                  <div className="text-center text-[2.5em] text-red-500 drop-shadow-lg font-semibold"> {Diff}</div>
+                  <div className="text-xs  tracking-wide text-gray-500/75 float-right flex justify-end mt-[12px]">
+                    ไม่เช็คอิน
+                  </div>
+                </div>
+              </div>
+              {/* <div className="flex items-center rounded-md bg-[#556ee5] text-white shadow-md pl-3 py-2 gap-3 ">
+                <AiOutlineTeam size={50} />
                 <div className="flex flex-col ">
                   <small className="text-white/75">จุดเช็คอินทั้งหมด</small>
                   <span className="text-[3em] font-bold font-[apple] ">{objects.filter((o => o.objType == 'MP')).length}</span>
@@ -874,10 +903,17 @@ function ManpowerView() {
                   `${(isNaN((objects.filter((o => o.objType == 'MP' && o.empCode != '')).length / objects.filter((o => o.objType == 'MP')).length) * 100) ? 0 : (objects.filter((o => o.objType == 'MP' && o.empCode != '')).length / objects.filter((o => o.objType == 'MP')).length) * 100).toFixed(2)}`
                 }</span>
                 <small className={`${percentCheckIn >= 100 ? 'text-[#3dac62]' : 'text-red-500'}`}>Percent</small>
-              </div>
+              </div> */}
             </div>
-            <div className="h-[85%] bg-white rounded-md shadow-md py-3 overflow-auto" id="content">
+
+            <div className="h-[85%] bg-white rounded-md relative  py-3 overflow-hidden " id="content" style={{ ...BoxStyle, ...{ border: '5px solid rgb(37 99 235)' } }}>
               <div id="bg" style={{ color: '#e9fbff', marginLeft: -5000, position: 'absolute' }}>
+              </div>
+              <div className={`shadow-lg absolute top-2 left-2 flex justify-center items-center gap-2 ${Diff > 0 ? 'animate-pulse' : ''}  text-white px-4 py-2 rounded ${Diff > 0 ? 'bg-red-500' : 'bg-green-600'}`} >
+                {
+                  Diff > 0 ? <AiFillCloseCircle /> : <AiFillCheckCircle />
+                }
+                <span>{Diff > 0 ? 'เช็คอินไม่ครบตามกำหนด' : 'เช็คอินครบตามกำหนด'}</span>
               </div>
               {
                 (typeof layoutSelected == 'object' && Object.keys(layoutSelected).length) ?
@@ -894,31 +930,26 @@ function ManpowerView() {
               }
             </div>
           </div>
-          <div id="emp" className="w-[15%] flex flex-col rounded-md shadow-md bg-white " >
-            <div id='emp-header' className="flex-none pl-3 flex items-center gap-3 bg-[#556ee5]  text-white rounded-t-md h-[10%]">
-              <IconButton aria-label="settings">
-                <PeopleIcon style={{ color: 'white' }} />
-              </IconButton>
-              <span className="text-white">ข้อมูลจุดเช็คอิน</span>
-            </div>
-            <div id="emp-body" className="grow overflow-auto pl-3 py-3">
-              <table className="w-full"  >
+          <div id="emp" className="w-[15%] flex flex-col rounded-md shadow-md bg-white py-[8px] px-[12px] gap-[8px]" style={BoxStyle}>
+            <span  >รายการจุดเช็คอิน</span>
+            <div id="emp-body" className="grow overflow-auto ">
+              <table className="w-full" id="tb-list-check-in"  >
                 <thead>
-                  <tr>
-                    <th className="border">สถานะ</th>
-                    <th className="border">ชื่อจุดเช็คอิน</th>
+                  <tr className="text-sx text-black/50">
+                    <td className="border text-center  pb-[8px]">#</td>
+                    <td className="border pb-[8px]">จุดเช็คอิน</td>
+                    <td className="border pb-[8px]">รหัส</td>
                   </tr>
                 </thead>
                 <tbody>
                   {
                     objects.filter(o => o.objType == 'MP').length == 0 ? <tr><td colSpan="3">Check-in point not found.</td></tr> : listPosition.map((oPst, iPst) => (
                       objects.filter(o => o.objPosition == oPst && o.objType == 'MP').map((o, i) => {
-                        return <tr key={i}>
-                          <td className="text-center"><CircleIcon className={`${o.empCode != '' ? 'text-green-500' : 'text-[#ddd]'}`} sx={{ fontSize: '14px' }} /></td>
-                          <td className={`border text-left pl-3 border-red-500 text-[12px] ${o.empCode != '' ? 'font-semibold text-black ' : 'text-gray-600'}`}>{o.objTitle}</td>
+                        return <tr key={iPst + '-' + i}>
+                          <td className="text-center"><CircleIcon className={`${o.empCode != '' ? 'text-green-500' : 'text-red-500'}`} sx={{ fontSize: '14px' }} /></td>
+                          <td className={`border text-left pl-3 border-red-500 text-[12px] ${o.empCode != '' ? 'font-bold text-black ' : 'text-gray-600'}`}>{o.objTitle}</td>
                           <td className="text-center">
-                            <div className="flex items-center flex-col">
-                              {/* <img src='http://dcidmc.dci.daikin.co.jp/PICTURE/13257.JPG' width={36} height={36} /> */}
+                            <div className="flex items-center flex-col ">
                               <span className="text-[12px] font-bold">{o.empCode}&nbsp;</span>
                             </div>
                           </td>

@@ -1,18 +1,13 @@
 import React, { useEffect } from 'react'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import { Autocomplete, Button, Card, CardContent, Divider, Grid, IconButton, MenuItem, Select, Skeleton, Stack, TextField, Typography } from '@mui/material'
+import { Skeleton, Stack } from '@mui/material'
 import { useState } from 'react'
-import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from 'react-redux'
 import { API_DELETE_OBJECT, API_GET_MASTER, API_GET_OBJECT_BY_CODE, API_UPDATE_POSITION_OBJ, API_ADD_OBJECT, API_GET_LAYOUT } from '../Service'
-import { LoadingButton } from '@mui/lab'
-import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import Brightness1OutlinedIcon from '@mui/icons-material/Brightness1Outlined';
+import { Button, Input, Modal, Select, Typography } from 'antd'
+import { ThemeFalse, ThemeTrue } from '../constants'
+const { Paragraph } = Typography;
 function DialogAddObject(props) {
-    const { open, close } = props;
+    const { open, setOpen } = props;
     const [loading, setLoading] = useState(false);
     const [layout, setLayout] = useState([]);
     const layoutSelected = useSelector(state => state.reducer.layoutFilter);
@@ -35,6 +30,7 @@ function DialogAddObject(props) {
     const [masterSelectOption, setMasterSelectOption] = useState({});
     const [loadMaster, setLoadMaster] = useState(true);
     useEffect(() => {
+        console.log(open)
         if (open) {
             setLoading(false);
             init();
@@ -66,6 +62,7 @@ function DialogAddObject(props) {
         }
         setMasters(listMaster);
         setLoadMaster(false);
+        setObject({ ...object, layoutCode: layoutSelected?.layoutCode });
     }
 
     useEffect(() => {
@@ -82,17 +79,16 @@ function DialogAddObject(props) {
     }
 
     async function handleAddObject() {
+        if (object.objCode == '' || object.objCode == null || object.objTitle == '' || object.objTitle == null || object.layoutCode == '' || object.layoutCode == null) {
+            alert('กรุณากรอกข้อมูลให้ครบ !');
+        }
+
         try {
             setLoading(true);
-            console.log(object)
-            if (typeof object.objMasterId == 'undefined' || object.objMasterId == '') {
-                alert('กรุณาเลือก ตัวเลือก (Master) !');
-                setLoading(false);
-                return false;
-            }
             const res = await API_ADD_OBJECT({
-                ...object, objMasterId: masterSelected, layoutCode: layoutSelected?.layoutCode
+                ...object, objMasterId: object.objCode, layoutCode: layoutSelected?.layoutCode
             });
+            console.log(res)
             if (res.status == "1") {
                 const getObject = await API_GET_OBJECT_BY_CODE({ objCode: res.msg });
                 let svgContent = document.querySelector("#svgContent");
@@ -164,7 +160,8 @@ function DialogAddObject(props) {
                 alert('ไม่สามารถเพิ่ม Object ได้ !');
                 setLoading(false);
             }
-        } catch {
+        } catch(e) {
+            alert(e.message)
             setLoading(false)
         }
     }
@@ -242,154 +239,76 @@ function DialogAddObject(props) {
             y: (evt.clientY - CTM.f) / CTM.d
         };
     }
-    const handleClose = () => {
-        close(false)
-    }
     return (
-        <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth={'sm'}>
-            <DialogTitle className='px-6 pt-4 pb-3' id="customized-dialog-title">
-                <div className='flex gap-2 flex-row items-center'>
-                    <div className='rounded-full bg-[#5c5fc8] text-[#fff]  w-[36px] h-[36px] flex items-center justify-center'>
-                        <Brightness1OutlinedIcon sx={{ fontSize: '20px' }} />
-                    </div>
-                    <div className='flex flex-col'>
-                        <span className='text-[18px]'>SELECT OBJECT</span>
-                        <span className='text-[12px] text-[#939393]'>เลือกชิ้นงานลงพื้นที่</span>
-                    </div>
-                </div>
-            </DialogTitle>
-            <IconButton
-                aria-label="close"
-                onClick={handleClose}
-                sx={{
-                    position: 'absolute',
-                    right: 8,
-                    top: 8,
-                    color: (theme) => theme.palette.grey[500],
-                }}
-            >
-                <CloseIcon />
-            </IconButton>
-            <DialogContent dividers>
-                <Stack >
-                    <Typography variant="h5" component="div">Layout</Typography>
-                    <Typography color="text.secondary" className='pl-3'>
-                        พื้นที่ที่คุณกำลังใช้งาน
-                    </Typography>
-                </Stack>
-                <Stack mt={1} mb={0} gap={2}>
-                    <TextField
-                        label="Layout Selected"
-                        placeholder="กรุณากรอก Master Name "
-                        disabled
-                        variant='filled'
-                        value={`${layoutSelected?.layoutCode} (${layoutSelected?.layoutName})`}
-                    />
-                    <Stack gap={1}>
-                        <div className='border rounded-lg p-6 flex flex-col gap-2'>
-                            <div className='text-[#5c5fc8] text-[14px]  '>
-                                เครื่องมือค้นหา
-                            </div>
-                            <div className='flex flex-col gap-1'>
-                                <span>พื้นที่ของตัวเลือก (Layout)</span>
-                                <Select className='w-full' size='small' value={layoutSelectedOption} onChange={(e) => {
-                                    setLayoutSelectedOption(e.target.value);
-                                    setObject({ ...object, objMasterId: e.target.value });
-                                }}>
+        <Modal title='เพิ่มส่วนประกอบ' onClose={() => setOpen(false)} onCancel={() => setOpen(false)} open={open} width={800} footer={<div className='gap-2 flex  justify-end'>
+            <Button onClick={() => setOpen(false)}>ปิดหน้าต่าง</Button>
+            <Button type='primary' onClick={handleAddObject} loading={loadMaster}>เพิ่ม</Button>
+        </div>} >
+            <div className='mt-3'>
+                <strong> <Paragraph copyable={layoutSelected?.layoutCode}>{`${layoutSelected?.layoutCode} (${layoutSelected?.layoutName})`}</Paragraph></strong>
+                <div className='flex flex-col gap-1 border rounded-lg '>
+                    {
+                        loadMaster ? <Skeleton variant='rectangular' height={380} /> : <div className='grid grid-cols-12 gap-2'>
+                            <div className='col-span-12'>
+                                <Typography color={'text.secondary'}>ส่วนประกอบ</Typography>
+                                <Select
+                                    showSearch
+                                    className='w-full'
+                                    placeholder="ค้นหาส่วนประกอบที่คุณต้องการ"
+                                    onChange={(e) => {
+                                        setObject({ ...object, objCode: e });
+                                    }}
+                                    value={object.objCode ?? ''}
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        option.value.toLowerCase().includes(input.toLowerCase()) ||
+                                        option.children.toLowerCase().includes(input.toLowerCase())
+                                    }
+                                >
                                     {
-                                        [{ layoutCode: 'ALL', layoutName: '--------------- ทั้งหมด --------------' }, ...layout].map((o, i) => {
-                                            return <MenuItem key={i} value={o.layoutCode}>{`${o.layoutName} ${o.layoutCode != 'ALL' ? `(${o.layoutCode})` : ''}`}</MenuItem>
+                                        masters.map((o, i) => {
+                                            return <Select.Option key={i} value={o.objMasterId}>
+                                                {`${o.mstName} (${o.objMasterId})`}
+                                            </Select.Option>
                                         })
                                     }
                                 </Select>
                             </div>
-
-                        </div>
-
-                    </Stack>
-                    <div className='flex flex-col gap-1 border rounded-lg p-6 mb-6'>
-                        <div className='text-[#5c5fc8] text-[14px]  '>
-                            ตัวเลือกที่ต้องการเพิ่มเข้าพื้นที่
-                        </div>
-                        {
-                            loadMaster ? <Skeleton variant='rectangular' height={50} /> : <Autocomplete
-                                size='small'
-                                className='w-full'
-                                disablePortal
-                                id="combo-box-demo"
-                                value={masterSelectOption}
-                                options={masters.map((o) => {
-                                    return { label: (`${o.mstName} (${o.objMasterId})`), value: o.objMasterId }
-                                })}
-                                onChange={(event, newValue) => {
-                                    if (newValue != null) {
-                                        setMasterSelected(newValue.value);
-                                        let oMaster = masters.filter(x => x.objMasterId == newValue.value);
-                                        if (oMaster.length > 0) {
-                                            setMasterSelectOption({ label: (`${oMaster[0].mstName} (${oMaster[0].objMasterId})`), value: newValue.value })
-                                        }
-                                        setObject({ ...object, objCode: newValue.value })
-                                    } else {
-                                        setMasterSelected('');
-                                        setMasterSelectOption(null)
-                                        setObject({ ...object, objCode: '' })
+                            <div className='col-span-12'>
+                                <Typography color={'text.secondary'}>ชื่อส่วนประกอบ</Typography>
+                                <Input type='text' placeholder='กรุณากรอกชื่อส่วนประกอบ' value={object.objTitle ?? ''} onChange={(e) => setObject({ ...object, objTitle: e.target.value })} />
+                            </div>
+                            <div className='col-span-12'>
+                                <Typography color={'text.secondary'}>รายละเอียด</Typography>
+                                <Input type='text' placeholder='กรุณากรอกรายละเอียด' value={object.objSubTitle ?? ''} onChange={(e) => setObject({ ...object, objSubTitle: e.target.value })} />
+                            </div>
+                            <div className='col-span-12'>
+                                <Typography color={'text.secondary'}>ประเภท</Typography>
+                                <Select value={object.objType} defaultValue='OTHER' fullWidth onChange={(e) => setObject({ ...object, objType: e })}>
+                                    {
+                                        ["OTHER", "MP"].map((type, index) => {
+                                            return <Select.Option value={type} key={index}>{type}</Select.Option>
+                                        })
                                     }
-                                }}
-                                renderInput={(params) => <TextField {...params} />}
-                            />
-                        }
-                        {
-                            loadMaster ? <Skeleton variant='rectangular' height={380} /> : <Stack mt={1} mb={0} gap={1}>
-                                <Stack mb={3}>
-                                    <Stack mb={1}>
-                                        <div className='text-[#5c5fc8] text-[14px]  '>
-                                            รายละเอียดตัวเลือก
-                                        </div>
-                                    </Stack>
-                                    <Stack p={1}>
-                                        <Typography color={'text.secondary'}>ชื่อ</Typography>
-                                        <TextField size='small' placeholder='กรุณากรอกชื่อ' value={object.objTitle ?? ''} onChange={(e) => setObject({ ...object, objTitle: e.target.value })}></TextField>
-                                    </Stack>
-                                    <Stack p={1}>
-                                        <Typography color={'text.secondary'}>รายละเอียด</Typography>
-                                        <TextField size='small' placeholder='กรุณากรอกรายละเอียด' value={object.objSubTitle ?? ''} onChange={(e) => setObject({ ...object, objSubTitle: e.target.value })}></TextField>
-                                    </Stack>
-                                    <Grid container >
-                                        <Grid item xs={12} p={1}>
-                                            <Typography color={'text.secondary'}>ประเภท</Typography>
-                                            <Select value={object.objType} defaultValue='OTHER' size='small' fullWidth onChange={(e) => setObject({ ...object, objType: e.target.value })}>
-                                                {
-                                                    ["OTHER", "MP"].map((type, index) => {
-                                                        return <MenuItem value={type} key={index}>{type}</MenuItem>
-                                                    })
-                                                }
-                                            </Select>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Stack p={1}>
-                                                <Typography color={'text.secondary'}>ความกว้าง</Typography>
-                                                <TextField type='number' size='small' placeholder='กรุณาระบุความกว้างของชิ้นงาน' value={object.objWidth} onChange={(e) => setObject({ ...object, objWidth: e.target.value != '' ? parseFloat(e.target.value) : 0 })}></TextField>
-                                            </Stack>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Stack p={1}>
-                                                <Typography color={'text.secondary'}>ความสูง</Typography>
-                                                <TextField type='number' size='small' placeholder='กรุณาระบุความสูงของชิ้นงาน' value={object.objHeight} onChange={(e) => setObject({ ...object, objHeight: e.target.value != '' ? parseFloat(e.target.value) : 0 })}></TextField>
-                                            </Stack>
-                                        </Grid>
-                                    </Grid>
+                                </Select>
+                            </div>
+                            <div className='col-span-6'>
+                                <Stack>
+                                    <Typography color={'text.secondary'}>ความกว้าง</Typography>
+                                    <Input type='number' placeholder='กรุณาระบุความกว้างของชิ้นงาน' value={object.objWidth} onChange={(e) => setObject({ ...object, objWidth: e.target.value != '' ? parseFloat(e.target.value) : 0 })} />
                                 </Stack>
-                            </Stack>
-                        }
-                    </div>
-                </Stack>
-
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => close(false)} variant='outlined' className='border-[#5c5fc8] text-[#5c5fc8]'>ปิดหน้าต่าง</Button>
-                <LoadingButton loading={loading ? true : false} className='bg-[#5c5fc8]' loadingPosition='start' startIcon={<SaveAltOutlinedIcon />} onClick={handleAddObject} variant='contained'>เพิ่ม</LoadingButton>
-            </DialogActions>
-        </Dialog>
+                            </div>
+                            <div className='col-span-6'>
+                                <Stack>
+                                    <Typography color={'text.secondary'}>ความสูง</Typography>
+                                    <Input type='number' placeholder='กรุณาระบุความสูงของชิ้นงาน' value={object.objHeight} onChange={(e) => setObject({ ...object, objHeight: e.target.value != '' ? parseFloat(e.target.value) : 0 })} />
+                                </Stack>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div >
+        </Modal >
     )
 }
 
